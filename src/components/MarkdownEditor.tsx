@@ -580,32 +580,55 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   // Self-contained Markdown conversion processing
   useEffect(() => {
     const processInitialMarkdown = async () => {
-      const contentToProcess = value || initialContent;
-      if (!editor || !contentToProcess?.trim()) return;
+      const contentToProcess = value !== undefined ? value : initialContent;
+
+      if (!editor) return;
+
+      // Handle empty content
+      if (!contentToProcess || !contentToProcess.trim()) {
+        // Only clear if editor is not already empty to avoid loops/flashing
+        if (!editor.isEmpty) {
+          editor.commands.clearContent();
+        }
+        return;
+      }
 
       const trimmed = contentToProcess.trim();
-      const hasMarkdown = MarkdownTipTapConverter.isMarkdownText(trimmed);
 
-      if (hasMarkdown) {
-        try {
-          const json = await MarkdownTipTapConverter.markdownToTipTapJson(trimmed);
-
-          // Check code blocks
-          const codeBlocks = json?.content?.filter(node => node.type === 'codeBlock') || [];
-          if (codeBlocks.length > 0) {
-            codeBlocks.forEach((block, idx) => {
-              const content = block.content?.[0]?.text || '';
-              const lines = content.split('\n').length;
-              logger.info(`CodeBlock ${idx}: ${block.attrs?.language || 'no-lang'}, ${lines} lines`);
-            });
-          }
-
-          // Set conversion result to editor
-          editor.commands.setContent(json);
-        } catch (error) {
-          logger.warn('[MarkdownEditor] Automatic Markdown conversion failed:', error);
-          // Keep as plain text on failure
+      // Always try to convert Markdown to JSON
+      // We removed isMarkdownText check because it was too strict and caused plain text or simple markdown to be ignored
+      try {
+        // Prevent infinite loop: 
+        // If the editor is focused, we assume the user is typing and we shouldn't overwrite 
+        // unless the value is drastically different (which is hard to know).
+        // However, for a controlled component, value should be the source of truth.
+        // If we are in "viewer" mode (editable=false), we always update.
+        if (editor.isFocused && editable) {
+          // If focused and editable, we skip update to prevent cursor jumping and loops
+          // This assumes onChange is called onBlur, so value doesn't update while typing.
+          // If value updates while typing, this prevents the loop/cursor jump.
+          return;
         }
+
+        const json = await MarkdownTipTapConverter.markdownToTipTapJson(trimmed);
+
+        // Check code blocks
+        const codeBlocks = json?.content?.filter(node => node.type === 'codeBlock') || [];
+        if (codeBlocks.length > 0) {
+          codeBlocks.forEach((block, idx) => {
+            const content = block.content?.[0]?.text || '';
+            const lines = content.split('\n').length;
+            logger.info(`CodeBlock ${idx}: ${block.attrs?.language || 'no-lang'}, ${lines} lines`);
+          });
+        }
+
+        // Set conversion result to editor
+        // setContent(json) will trigger onUpdate, but since we don't call onChange in onUpdate, it shouldn't loop
+        editor.commands.setContent(json);
+      } catch (error) {
+        logger.warn('[MarkdownEditor] Automatic Markdown conversion failed:', error);
+        // Fallback: Insert as plain text if conversion fails
+        editor.commands.setContent(trimmed);
       }
     };
 
@@ -613,7 +636,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     if (editor) {
       processInitialMarkdown();
     }
-  }, [editor, initialContent, value]); // Execute only when editor and initialContent/value change
+  }, [editor, initialContent, value, editable]); // Execute when value changes
 
   // Table operation commands (defined after useEditor)
   const handleAddRowAbove = useCallback(() => {
