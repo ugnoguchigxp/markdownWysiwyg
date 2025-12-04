@@ -1,0 +1,3 @@
+export const PASTE_DEBOUNCE_MS = 500;
+export const LARGE_TEXT_THRESHOLD = 10000;
+export const UPDATE_LOCK_RELEASE_MS = 150;

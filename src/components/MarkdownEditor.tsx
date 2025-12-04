@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import { Extension } from '@tiptap/core';
 import CharacterCount from '@tiptap/extension-character-count';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -9,11 +8,10 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import Typography from '@tiptap/extension-typography';
-import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import { JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { common, createLowlight } from 'lowlight';
-import { Plugin, PluginKey } from 'prosemirror-state';
 
 import { createLogger } from '../utils/logger';
 
@@ -30,46 +28,19 @@ import { TableEdgeControls } from './TableEdgeControls';
 import { TableToolbar } from './TableToolbar';
 import { CustomCodeBlock } from '../extensions/CustomCodeBlock';
 
-const log = createLogger('MarkdownEditor');
+import { ExtendedEditor } from '../types/editor';
+import { useEditorState } from '../hooks/useEditorState';
+import { createLinkClickExtension } from '../extensions/LinkClickExtension';
+import { createTableRightClickExtension } from '../extensions/TableRightClickExtension';
+import { createMarkdownShortcutsExtension } from '../extensions/MarkdownShortcutsExtension';
+import { createMarkdownPasteExtension } from '../extensions/MarkdownPasteExtension';
+import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
+import { isValidUrl, sanitizeText } from '../utils/security';
+import '../styles/MarkdownEditor.css';
 
-// TypeScript type definition improvements
-interface ExtendedEditor extends Editor {
-  __isProcessing?: boolean;
-  __preventUpdate?: boolean;
-}
-
-// Security utility functions
-const isValidUrl = (url: string): boolean => {
-  try {
-    const urlObj = new URL(url);
-    return ['http:', 'https:', 'mailto:'].includes(urlObj.protocol);
-  } catch (error) {
-    logger.debug('URL validation failed', { url, error });
-    return false;
-  }
-};
-
-const sanitizeText = (text: string): string => {
-  return text
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-};
-
-// Performance optimization: Log level control
-const logger = {
-  debug: log.debug,
-  info: log.info,
-  warn: log.warn,
-  error: log.error
-};
-
-// Custom Table extension is disabled for now, using TipTap standard features only
+const logger = createLogger('MarkdownEditor');
 
 import { IMarkdownEditorProps } from '../types/index';
-
-// Custom Table extension is disabled for now, using TipTap standard features only
 
 
 // Paste event interface (only defined if PasteDebugPanel is available)
@@ -80,233 +51,7 @@ interface IPasteEvent {
   result: string;
 }
 
-// Link click handling extension
-const createLinkClickExtension = (handleContextMenu: (event: React.MouseEvent, linkData: { href: string; text: string }) => void) => Extension.create({
-  name: 'linkClick',
-
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: new PluginKey('linkClick'),
-        props: {
-          handleDOMEvents: {
-            contextmenu: (_, event) => {
-              const target = event.target as HTMLElement;
-              const linkElement = target.closest('a[href]') as HTMLAnchorElement;
-
-              if (linkElement) {
-                const href = linkElement.getAttribute('href') || '';
-                const text = linkElement.textContent || '';
-
-                logger.debug('🔗 Link right-clicked:', { href, text });
-
-                if (href) {
-                  handleContextMenu(event as unknown as React.MouseEvent, { href, text });
-                  return true;
-                }
-              }
-              return false;
-            },
-            click: (_, event) => {
-              const target = event.target as HTMLElement;
-              const linkElement = target.closest('a[href]') as HTMLAnchorElement;
-
-              // Log click event
-              if (linkElement) {
-                const href = linkElement.getAttribute('href') || '';
-                const text = linkElement.textContent || '';
-                logger.debug('🔗 Link clicked:', {
-                  href,
-                  text,
-                  ctrlKey: event.ctrlKey,
-                  metaKey: event.metaKey,
-                  shiftKey: event.shiftKey
-                });
-
-                // Show context menu on Ctrl/Cmd+click or simple left click
-                if (href) {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  handleContextMenu(event as unknown as React.MouseEvent, { href, text });
-                  return true;
-                }
-              }
-              return false;
-            }
-          }
-        }
-      })
-    ];
-  }
-});
-
-// Table right-click extension for context menu
-const createTableRightClickExtension = (handleContextMenu: (event: React.MouseEvent) => void) => Extension.create({
-  name: 'tableRightClick',
-
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: new PluginKey('tableRightClick'),
-        props: {
-          handleDOMEvents: {
-            contextmenu: (_, event) => {
-              const target = event.target as HTMLElement;
-              const tableElement = target.closest('table, th, td');
-
-              if (tableElement && event.button === 2) {
-                event.preventDefault();
-                // Table right-click
-                handleContextMenu(event as unknown as React.MouseEvent);
-                return true;
-              }
-              return false;
-            }
-          }
-        }
-      })
-    ];
-  }
-});
-
-// Markdown shortcuts extension for typing shortcuts like ```
-const createMarkdownShortcutsExtension = () => Extension.create({
-  name: 'markdownShortcuts',
-
-  addInputRules() {
-    // Complete infinite loop prevention: Disable all Input Rules
-    return [];
-  }
-});
-
-// Progressive rendering extension - simplified safe approach
-const createMarkdownPasteExtension = (
-  setIsProcessing: (processing: boolean) => void,
-  setProcessingProgress: (progress: { processed: number, total: number }) => void
-) => {
-  let pasteCount = 0;
-  let lastPasteTime = 0;
-
-  return Extension.create({
-    name: 'markdownPaste',
-
-    addProseMirrorPlugins() {
-      return [
-        new Plugin({
-          key: new PluginKey('markdownPaste'),
-          props: {
-            handlePaste: (_view, event, _slice) => {
-              const now = Date.now();
-              pasteCount++;
-
-              // Infinite loop prevention: Detect rapid paste
-              if (pasteCount > 2 && (now - lastPasteTime) < 500) {
-                logger.error('🚨 RAPID PASTE DETECTED - Ignoring to prevent infinite loop');
-                return false;
-              }
-
-              // Ignore if currently processing (strict check)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if (this.editor && (this.editor as any).__isProcessing) {
-                // Already processing
-                return false;
-              }
-
-
-              lastPasteTime = now;
-
-              const clipboardData = event.clipboardData;
-
-              if (!clipboardData) {
-                logger.warn('❌ No clipboard data available');
-                return false;
-              }
-
-              const plainText = clipboardData.getData('text/plain');
-
-              if (!plainText || plainText.trim().length === 0) {
-                logger.warn('❌ Empty or no plain text found');
-                return false;
-              }
-
-              // Text preview: first 200 chars
-
-              // Basic Markdown detection
-              const hasMarkdown = /^#{1,6}\s|```|^\s*[-*+]\s|^\s*>\s|\[.*\]\(.*\)|\|.*\||\*\*.*\*\*/.test(plainText);
-
-              if (!hasMarkdown) {
-                // No markdown patterns
-                return false; // Process as normal paste
-              }
-
-              try {
-                const editor = this.editor;
-                if (!editor) {
-                  logger.error('❌ Editor not available');
-                  return false;
-                }
-
-                // MARKDOWN PASTE - processing
-
-                // STEP 1: Immediately insert plain text (for better user experience)
-                editor.commands.deleteSelection();
-                editor.commands.insertContent(plainText);
-
-                // STEP 2: True sequential rendering process
-                if (plainText.length < 10000) { // Relaxed text conversion limit
-                  (editor as ExtendedEditor).__isProcessing = true;
-                  setIsProcessing(true);
-                  setProcessingProgress({ processed: 0, total: plainText.split('\n').length });
-
-                  (async () => {
-                    try {
-                      // Save current cursor position
-                      const currentPos = editor.state.selection.from;
-
-                      // Delete last inserted plain text
-                      const from = currentPos - plainText.length;
-                      const to = currentPos;
-                      editor.commands.deleteRange({ from, to });
-                      editor.commands.setTextSelection(from);
-
-                      // Execute true sequential rendering process
-                      await MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender(
-                        plainText,
-                        editor,
-                        (processed, total) => {
-                          setProcessingProgress({ processed, total });
-                        }
-                      );
-
-                    } catch (error) {
-                      logger.warn('⚠️ Sequential rendering failed, keeping plain text:', error);
-                      // Restore plain text on error
-                      editor.commands.insertContent(plainText);
-                    } finally {
-                      (editor as ExtendedEditor).__isProcessing = false;
-                      setIsProcessing(false);
-                    }
-                  })(); // Start conversion immediately
-                } else {
-                  logger.info('📋 Large text detected - keeping as plain text to prevent performance issues');
-                }
-
-              } catch (error) {
-                logger.error('🚨 Paste processing error:', error);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (this.editor as any).__isProcessing = false;
-                setIsProcessing(false);
-                return false;
-              }
-
-              return true;
-            }
-          }
-        })
-      ];
-    }
-  });
-};;;;;
+// Link click, table right-click, markdown shortcuts, and paste extensions
 
 export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   value,
@@ -336,9 +81,15 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   const effectiveShowToolbar = showToolbar ?? editable;
   const effectiveShowSyntaxStatus = showSyntaxStatus ?? editable;
   // const [lastMarkdown, setLastMarkdown] = useState<string>(''); // Removed: No longer needed after useEffect removal
-  const [isUpdating, setIsUpdating] = useState<boolean>(false); // Prevent update loops
-  const [isProcessing, setIsProcessing] = useState<boolean>(false); // Prevent paste processing loops
-  const [processingProgress, setProcessingProgress] = useState<{ processed: number, total: number }>({ processed: 0, total: 0 });
+
+  const {
+    isUpdating,
+    setIsUpdating,
+    isProcessing,
+    setIsProcessing,
+    processingProgress,
+    setProcessingProgress,
+  } = useEditorState();
 
   // Manage editor instance using global variable (used only within component)
   // onMarkdownChange will be re-enabled after TextEditor bypass
@@ -559,10 +310,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       }
     },
     onCreate: ({ editor }) => {
-      // Safe editor instance management (don't use global variable)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__markdownAdvanceEditor__ = editor;
-
       // Execute onEditorReady callback
       try {
         if (onEditorReady) {
@@ -735,9 +482,9 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         (editor as ExtendedEditor).__preventUpdate = originalPreventUpdate;
         setIsUpdating(false);
         logger.debug('✅ Link edit update locks released');
-      }, 150);
+      }, UPDATE_LOCK_RELEASE_MS);
     }
-  }, [editor, linkContextMenu.linkData]);
+  }, [editor, linkContextMenu.linkData, setIsUpdating]);
 
   // Get selected text and Markdown insertion handler
   const handleInsertMarkdown = async (markdown: string, cursorOffset?: number) => {
@@ -859,7 +606,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           (editor as ExtendedEditor).__preventUpdate = originalPreventUpdate;
           setIsUpdating(false);
           logger.debug('✅ Markdown insert update locks released');
-        }, 150);
+        }, UPDATE_LOCK_RELEASE_MS);
       } else {
         // Insert plain Markdown (headings, lists, etc.) as is
         editor.commands.insertContent(insertText);
@@ -910,116 +657,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   return (
     <div className={`${className}`}>
-      <style>
-        {`
-          .ProseMirror {
-            font-family: "Meiryo", "メイリオ", sans-serif !important;
-            line-height: 1.625 !important;
-            font-size: 1rem !important;
-            min-height: ${autoHeight ? 'auto' : '100%'} !important;
-            width: 100% !important;
-            cursor: text;
-          }
-          /* Text cursor setting for EditorContent area */
-          .markdown-editor-content .ProseMirror {
-            cursor: text;
-          }
-          .ProseMirror p,
-          .ProseMirror li,
-          .ProseMirror h1,
-          .ProseMirror h2,
-          .ProseMirror h3,
-          .ProseMirror h4,
-          .ProseMirror h5,
-          .ProseMirror h6,
-          .ProseMirror blockquote {
-            cursor: text;
-          }
-          /* Make entire editor area clickable */
-          .ProseMirror:empty::before {
-            content: attr(data-placeholder);
-            float: left;
-            color: #aaa;
-            pointer-events: none;
-            height: 0;
-          }
-          .ProseMirror pre {
-            background-color: rgb(51 65 85) !important;
-            color: rgb(229 231 235) !important;
-            border: 1px solid rgb(100 116 139) !important;
-            border-radius: 0.5rem !important;
-            padding: 1rem !important;
-            margin: 0.75rem 0 !important;
-            overflow-x: auto !important;
-            max-width: 80ch !important; /* 80 character limit for code block width */
-            width: 100% !important;
-            white-space: pre !important;
-          }
-          .ProseMirror pre code {
-            background-color: transparent !important;
-            color: rgb(229 231 235) !important;
-            padding: 0 !important;
-            border: none !important;
-            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace !important;
-            font-size: 0.875rem !important;
-            line-height: 1.625 !important;
-            white-space: pre !important;
-            display: block !important;
-          }
-          .ProseMirror ul {
-            list-style-type: none !important;
-            padding-left: 0 !important;
-          }
-          .ProseMirror li {
-            position: relative !important;
-            padding-left: 1.5rem !important;
-          }
-          .ProseMirror li::before {
-            content: "•" !important;
-            position: absolute !important;
-            left: 0 !important;
-            color: rgb(107 114 128) !important;
-          }
-          .ProseMirror blockquote {
-            border-left: 4px solid rgb(209 213 219) !important;
-            padding-left: 1rem !important;
-            padding-top: 0.75rem !important;
-            padding-bottom: 0.75rem !important;
-            background-color: rgb(249 250 251) !important;
-            border-top-right-radius: 0.375rem !important;
-            border-bottom-right-radius: 0.375rem !important;
-            margin: 0.75rem 0 !important;
-          }
-          .ProseMirror code {
-            background-color: rgb(229 231 235) !important;
-            color: rgb(17 24 39) !important;
-            padding: 0.125rem 0.375rem !important;
-            border-radius: 0.25rem !important;
-            border: 1px solid rgb(209 213 219) !important;
-            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace !important;
-          }
-          /* Table extension CSS - Phase 1 */
-          .tiptap-table-enhanced .tableWrapper {
-            position: relative !important;
-          }
-          .tiptap-table-enhanced .resize-cursor {
-            cursor: col-resize !important;
-            border-right: 2px solid #3b82f6 !important;
-            background: rgba(59, 130, 246, 0.1) !important;
-          }
-          .tiptap-table-enhanced th:hover,
-          .tiptap-table-enhanced td:hover {
-            background-color: rgba(59, 130, 246, 0.05) !important;
-            transition: background-color 0.2s ease !important;
-          }
-          .tiptap-table-enhanced table {
-            border-collapse: separate !important;
-            border-spacing: 0 !important;
-            max-width: 800px !important; /* 800px maximum table width limit */
-            width: auto !important; /* Variable width depending on content size */
-          }
-        `}
-      </style>
       <div className={`border border-gray-300 rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}>
         {/* Processing indicator (top right) */}
         {isProcessing && (
@@ -1079,8 +716,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           <EditorContent
             editor={editor}
             className={`markdown-editor-content ${autoHeight
-              ? "min-h-fit overflow-visible"
-              : (enableVerticalScroll ? "h-full overflow-y-auto" : "min-h-full")
+              ? 'markdown-editor-autoheight min-h-fit overflow-visible'
+              : (enableVerticalScroll ? 'h-full overflow-y-auto' : 'min-h-full')
               }`}
           />
 
