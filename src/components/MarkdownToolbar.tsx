@@ -8,19 +8,19 @@ import React from 'react';
 
 import { Editor } from '@tiptap/react';
 import {
-  FaBold,
-  FaItalic,
-  FaStrikethrough,
-  FaCode,
-  FaLink,
-  FaQuoteRight,
-  FaListUl,
-  FaListOl,
-  FaHeading,
-  FaTable,
-  FaFileCode,
-  FaDownload
-} from 'react-icons/fa';
+  Bold,
+  Italic,
+  Strikethrough,
+  Code,
+  Link2,
+  Quote,
+  List,
+  ListOrdered,
+  Heading1,
+  Table,
+  FileCode,
+  Download
+} from 'lucide-react';
 
 import { createLogger } from '../utils/logger';
 
@@ -232,61 +232,61 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
 
   const toolbarItems = [
     {
-      icon: FaBold,
+      icon: Bold,
       title: 'Bold',
       onClick: () => onInsertMarkdown('****', 2),
       group: 'text'
     },
     {
-      icon: FaItalic,
+      icon: Italic,
       title: 'Italic',
       onClick: () => onInsertMarkdown('**', 1),
       group: 'text'
     },
     {
-      icon: FaStrikethrough,
+      icon: Strikethrough,
       title: 'Strikethrough',
       onClick: () => onInsertMarkdown('~~~~', 2),
       group: 'text'
     },
     {
-      icon: FaCode,
+      icon: Code,
       title: 'Inline Code',
       onClick: () => onInsertMarkdown('``', 1),
       group: 'code'
     },
     {
-      icon: FaQuoteRight,
+      icon: Quote,
       title: 'Blockquote',
       onClick: () => onInsertMarkdown('> '),
       group: 'block'
     },
     {
-      icon: FaFileCode,
+      icon: FileCode,
       title: 'Code Block',
       onClick: () => onInsertMarkdown('```\n\n```'),
       group: 'code'
     },
     {
-      icon: FaListUl,
+      icon: List,
       title: 'Bullet List',
       onClick: () => onInsertMarkdown('- ', 2),
       group: 'list'
     },
     {
-      icon: FaListOl,
+      icon: ListOrdered,
       title: 'Numbered List',
       onClick: () => onInsertMarkdown('1. ', 3),
       group: 'list'
     },
     {
-      icon: FaLink,
+      icon: Link2,
       title: 'Link',
       onClick: handleLinkClick,
       group: 'media'
     },
     {
-      icon: FaTable,
+      icon: Table,
       title: 'Table',
       onClick: handleTableInsert,
       group: 'block'
@@ -315,7 +315,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             text-blue-600 hover:bg-blue-50 relative
           `}
         >
-          <FaHeading className="w-4 h-4" />
+          <Heading1 className="w-4 h-4" />
           <svg
             className="w-2 h-2 absolute -bottom-0.5 -right-0.5"
             fill="currentColor"
@@ -416,7 +416,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               text-indigo-600 hover:bg-indigo-50 relative
             `}
           >
-            <FaDownload className="w-4 h-4" />
+            <Download className="w-4 h-4" />
             <svg
               className="w-2 h-2 absolute -bottom-0.5 -right-0.5"
               fill="currentColor"
@@ -455,7 +455,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   >
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                        <FaDownload className="w-3 h-3 text-indigo-600" />
+                        <Download className="w-3 h-3 text-indigo-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-gray-900">Markdown File</div>

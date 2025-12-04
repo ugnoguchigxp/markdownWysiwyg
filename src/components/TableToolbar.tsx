@@ -2,15 +2,7 @@ import React from 'react';
 
 import { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
-import {
-  FaPlus,
-  FaMinus,
-  FaTh,
-  FaThLarge,
-  FaColumns,
-  FaBars,
-  FaTrash
-} from 'react-icons/fa';
+import { Plus, Minus, Columns3, LayoutGrid, Rows3, Trash2, ArrowLeft } from 'lucide-react';
 
 import { createLogger } from '../utils/logger';
 
@@ -143,8 +135,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.borderColor = '#d1d5db';
         }}
       >
-        <FaBars style={{ marginRight: '4px', fontSize: '10px' }} />
-        <FaPlus style={{ fontSize: '8px' }} />
+        <Rows3 style={{ marginRight: '4px', fontSize: '10px' }} />
+        <Plus style={{ fontSize: '8px' }} />
         ↑
       </button>
 
@@ -161,8 +153,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.borderColor = '#d1d5db';
         }}
       >
-        <FaBars style={{ marginRight: '4px', fontSize: '10px' }} />
-        <FaPlus style={{ fontSize: '8px' }} />
+        <Rows3 style={{ marginRight: '4px', fontSize: '10px' }} />
+        <Plus style={{ fontSize: '8px' }} />
         ↓
       </button>
 
@@ -181,8 +173,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.color = '#374151';
         }}
       >
-        <FaBars style={{ marginRight: '4px', fontSize: '10px' }} />
-        <FaMinus style={{ fontSize: '8px' }} />
+        <Rows3 style={{ marginRight: '4px', fontSize: '10px' }} />
+        <Minus style={{ fontSize: '8px' }} />
       </button>
 
       <div style={separatorStyle} />
@@ -201,9 +193,9 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.borderColor = '#d1d5db';
         }}
       >
-        ←
-        <FaPlus style={{ fontSize: '8px' }} />
-        <FaColumns style={{ marginLeft: '4px', fontSize: '10px' }} />
+        <ArrowLeft style={{ marginRight: '4px', fontSize: '10px' }} />
+        <Plus style={{ fontSize: '8px' }} />
+        <Columns3 style={{ marginLeft: '4px', fontSize: '10px' }} />
       </button>
 
       <button
@@ -219,8 +211,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.borderColor = '#d1d5db';
         }}
       >
-        <FaColumns style={{ marginRight: '4px', fontSize: '10px' }} />
-        <FaPlus style={{ fontSize: '8px' }} />
+        <Columns3 style={{ marginRight: '4px', fontSize: '10px' }} />
+        <Plus style={{ fontSize: '8px' }} />
         →
       </button>
 
@@ -239,8 +231,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.color = '#374151';
         }}
       >
-        <FaColumns style={{ marginRight: '4px', fontSize: '10px' }} />
-        <FaMinus style={{ fontSize: '8px' }} />
+        <Columns3 style={{ marginRight: '4px', fontSize: '10px' }} />
+        <Minus style={{ fontSize: '8px' }} />
       </button>
 
       <div style={separatorStyle} />
@@ -259,7 +251,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.borderColor = '#d1d5db';
         }}
       >
-        <FaThLarge style={{ fontSize: '10px' }} />
+        <LayoutGrid style={{ fontSize: '10px' }} />
       </button>
 
       <button
@@ -275,7 +267,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.borderColor = '#d1d5db';
         }}
       >
-        <FaTh style={{ fontSize: '10px' }} />
+        <LayoutGrid style={{ fontSize: '10px' }} />
       </button>
 
       <div style={separatorStyle} />
@@ -331,7 +323,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
           e.currentTarget.style.color = '#374151';
         }}
       >
-        <FaTrash style={{ fontSize: '10px' }} />
+        <Trash2 style={{ fontSize: '10px' }} />
       </button>
     </div>
   );

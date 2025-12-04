@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { FaExternalLinkAlt, FaEdit, FaTimes } from 'react-icons/fa';
+import { ExternalLink, Edit3, X } from 'lucide-react';
 
 interface LinkContextMenuProps {
   visible: boolean;
@@ -118,7 +118,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
           className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-sm"
           onClick={handleOpenLink}
         >
-          <FaExternalLinkAlt className="w-3 h-3 text-blue-500" />
+          <ExternalLink className="w-3 h-3 text-blue-500" />
           <span>Open Link</span>
         </button>
 
@@ -126,7 +126,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
           className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-sm"
           onClick={handleEditClick}
         >
-          <FaEdit className="w-3 h-3 text-gray-600" />
+          <Edit3 className="w-3 h-3 text-gray-600" />
           <span>Edit Link</span>
         </button>
 
@@ -151,7 +151,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                 className="text-gray-400 hover:text-gray-600 p-1"
                 aria-label="Close"
               >
-                <FaTimes />
+                <X className="w-4 h-4" />
               </button>
             </div>
 

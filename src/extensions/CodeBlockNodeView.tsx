@@ -2,7 +2,7 @@ import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 import { NodeViewProps } from '@tiptap/core';
 import { useEffect, useRef, useState } from 'react';
 import { createLogger } from '../utils/logger';
-import { MdDelete } from 'react-icons/md';
+import { Trash2 } from 'lucide-react';
 
 const log = createLogger('CodeBlockNodeView');
 
@@ -165,7 +165,7 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
                 &#x25B6;
               </IconButton>
               <IconButton onClick={handleDelete} title="削除">
-                <MdDelete />
+                <Trash2 size={16} />
               </IconButton>
             </div>
           )}
@@ -398,7 +398,7 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
                 &#x25B6;
               </IconButton>
               <IconButton onClick={handleDelete} title="削除">
-                <MdDelete />
+                <Trash2 size={16} />
               </IconButton>
               <IconButton onClick={handleCancel} title="キャンセル">
                 &#x2715;
