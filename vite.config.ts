@@ -5,6 +5,7 @@ import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
 export default defineConfig({
+  // @ts-expect-error - Vite 6 types mismatch with some plugins
   plugins: [
     react(),
     dts({
@@ -35,6 +36,9 @@ export default defineConfig({
           if (assetInfo.name === 'style.css') return 'style.css';
           return assetInfo.name || 'assets/[name][extname]';
         },
+        // Force single chunk output
+        inlineDynamicImports: true,
+        manualChunks: undefined,
       },
     },
     sourcemap: true,
@@ -46,7 +50,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   test: {
     globals: true,
     environment: 'jsdom',
@@ -56,5 +60,5 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
     },
-  } as any,
+  },
 });

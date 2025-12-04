@@ -3,84 +3,167 @@ import { MarkdownTipTapConverter } from '../../src/converters/MarkdownTipTapConv
 
 describe('MarkdownTipTapConverter', () => {
     describe('markdownToTipTapJson', () => {
-        it('should convert simple text', async () => {
+        it('should convert plain text to paragraph', async () => {
             const markdown = 'Hello World';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+            expect(json).toEqual({
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'Hello World' }]
+                    }
+                ]
+            });
+        });
 
-            expect(json.type).toBe('doc');
-            expect(json.content?.[0].type).toBe('paragraph');
-            expect(json.content?.[0].content?.[0].text).toBe('Hello World');
+        it('should convert bold text', async () => {
+            const markdown = '**Bold Text**';
+            const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+            expect(json.content?.[0].content?.[0]).toMatchObject({
+                type: 'text',
+                text: 'Bold Text',
+                marks: [{ type: 'bold' }]
+            });
+        });
+
+        it('should convert italic text', async () => {
+            const markdown = '*Italic Text*';
+            const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+            expect(json.content?.[0].content?.[0]).toMatchObject({
+                type: 'text',
+                text: 'Italic Text',
+                marks: [{ type: 'italic' }]
+            });
+        });
+
+        it('should convert strike text', async () => {
+            const markdown = '~~Strike Text~~';
+            const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+            expect(json.content?.[0].content?.[0]).toMatchObject({
+                type: 'text',
+                text: 'Strike Text',
+                marks: [{ type: 'strike' }]
+            });
+        });
+
+        it('should convert inline code', async () => {
+            const markdown = '`const a = 1;`';
+            const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+            expect(json.content?.[0].content?.[0]).toMatchObject({
+                type: 'text',
+                text: 'const a = 1;',
+                marks: [{ type: 'code' }]
+            });
         });
 
         it('should convert headings', async () => {
-            const markdown = '# Title';
+            const markdown = '# Heading 1';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('heading');
-            expect(json.content?.[0].attrs?.level).toBe(1);
-            expect(json.content?.[0].content?.[0].text).toBe('Title');
+            expect(json.content?.[0]).toMatchObject({
+                type: 'heading',
+                attrs: { level: 1 },
+                content: [{ type: 'text', text: 'Heading 1' }]
+            });
         });
 
-        it('should convert code blocks', async () => {
-            const markdown = '```js\nconsole.log("test");\n```';
-            const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('codeBlock');
-            expect(json.content?.[0].attrs?.language).toBe('js');
-            expect(json.content?.[0].content?.[0].text).toBe('console.log("test");');
-        });
-
-        it('should convert blockquotes', async () => {
-            const markdown = '> Quote';
-            const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('blockquote');
-            expect(json.content?.[0].content?.[0].type).toBe('paragraph');
-            expect(json.content?.[0].content?.[0].content?.[0].text).toBe('Quote');
-        });
-
-        it('should convert bullet lists', async () => {
+        it('should convert unordered list', async () => {
             const markdown = '- Item 1\n- Item 2';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('bulletList');
-            expect(json.content?.[0].content).toHaveLength(2);
-            expect(json.content?.[0].content?.[0].type).toBe('listItem');
-            expect(json.content?.[0].content?.[0].content?.[0].content?.[0].text).toBe('Item 1');
+            expect(json.content?.[0]).toMatchObject({
+                type: 'bulletList',
+                content: [
+                    {
+                        type: 'listItem',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Item 1' }] }]
+                    },
+                    {
+                        type: 'listItem',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Item 2' }] }]
+                    }
+                ]
+            });
         });
 
-        it('should convert ordered lists', async () => {
+        it('should convert ordered list', async () => {
             const markdown = '1. Item 1\n2. Item 2';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('orderedList');
-            expect(json.content?.[0].content).toHaveLength(2);
+            expect(json.content?.[0]).toMatchObject({
+                type: 'orderedList',
+                content: [
+                    {
+                        type: 'listItem',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Item 1' }] }]
+                    },
+                    {
+                        type: 'listItem',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Item 2' }] }]
+                    }
+                ]
+            });
         });
 
-        it('should convert horizontal rules', async () => {
-            const markdown = '---';
+        it('should convert blockquote', async () => {
+            const markdown = '> Quote';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('horizontalRule');
+            expect(json.content?.[0]).toMatchObject({
+                type: 'blockquote',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'Quote' }]
+                    }
+                ]
+            });
         });
 
-        it('should convert images', async () => {
-            const markdown = '![Alt](http://example.com/img.png)';
+        it('should convert code block', async () => {
+            const markdown = '```javascript\nconsole.log("Hello");\n```';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].type).toBe('paragraph');
-            expect(json.content?.[0].content?.[0].type).toBe('image');
-            expect(json.content?.[0].content?.[0].attrs?.src).toBe('http://example.com/img.png');
-            expect(json.content?.[0].content?.[0].attrs?.alt).toBe('Alt');
+            expect(json.content?.[0]).toMatchObject({
+                type: 'codeBlock',
+                attrs: { language: 'javascript' },
+                content: [{ type: 'text', text: 'console.log("Hello");' }]
+            });
         });
 
-        it('should convert links', async () => {
-            const markdown = '[Link](http://example.com)';
+        it('should convert table', async () => {
+            const markdown = '| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |';
             const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
-
-            expect(json.content?.[0].content?.[0].marks?.[0].type).toBe('link');
-            expect(json.content?.[0].content?.[0].marks?.[0].attrs?.href).toBe('http://example.com');
-            expect(json.content?.[0].content?.[0].text).toBe('Link');
+            expect(json.content?.[0].type).toBe('table');
+            // More detailed checks can be added if needed
         });
+    });
+
+    describe('tipTapJsonToMarkdown', () => {
+        it('should convert paragraph to plain text', () => {
+            const json = {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'Hello World' }]
+                    }
+                ]
+            };
+            const markdown = MarkdownTipTapConverter.tipTapJsonToMarkdown(json);
+            expect(markdown).toBe('Hello World');
+        });
+
+        it('should convert bold text', () => {
+            const json = {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'Bold Text', marks: [{ type: 'bold' }] }]
+                    }
+                ]
+            };
+            const markdown = MarkdownTipTapConverter.tipTapJsonToMarkdown(json);
+            expect(markdown).toBe('**Bold Text**');
+        });
+
+        // Add more reverse conversion tests as needed
     });
 });

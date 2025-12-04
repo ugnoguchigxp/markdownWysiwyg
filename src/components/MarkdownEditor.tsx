@@ -8,9 +8,8 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import Typography from '@tiptap/extension-typography';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { EditorContent } from '@tiptap/react';
 import { JSONContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import { common, createLowlight } from 'lowlight';
 
 import { createLogger } from '../utils/logger';
@@ -19,7 +18,8 @@ import { MarkdownToolbar } from './MarkdownToolbar';
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
 import { useTableToolbar } from '../hooks/useTableToolbar';
-import { SelectionUtils, ISelectionInfo } from '../utils/selectionUtils';
+import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
+import { ISelectionInfo } from '../utils/selectionUtils';
 
 import { LinkContextMenu } from './LinkContextMenu';
 import { MarkdownSyntaxStatus } from './MarkdownSyntaxStatus';
@@ -119,8 +119,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   const editorElementRef = React.useRef<HTMLDivElement>(null);
 
-  const lowlight = createLowlight(common);
-
   // Link context menu event handler
   const handleLinkContextMenu = useCallback((event: React.MouseEvent, linkData: { href: string; text: string }) => {
     event.preventDefault();
@@ -161,33 +159,33 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   }, []);
 
   // Global click to close context menu
-  // useEffect(() => {
-  //   const handleGlobalClick = (event: MouseEvent) => {
-  //     // Close if clicked outside TableContextMenu
-  //     const target = event.target as HTMLElement;
-  //     if (!target.closest('.table-context-menu')) {
-  //       setTableContextMenu({
-  //         visible: false,
-  //         position: { x: 0, y: 0 },
-  //       });
-  //     }
-  //     // Close if clicked outside LinkContextMenu
-  //     if (!target.closest('.link-context-menu')) {
-  //       setLinkContextMenu({
-  //         visible: false,
-  //         position: { x: 0, y: 0 },
-  //         linkData: null
-  //       });
-  //     }
-  //   };
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      // Close if clicked outside TableContextMenu
+      const target = event.target as HTMLElement;
+      if (!target.closest('.table-context-menu')) {
+        setTableContextMenu({
+          visible: false,
+          position: { x: 0, y: 0 },
+        });
+      }
+      // Close if clicked outside LinkContextMenu
+      if (!target.closest('.link-context-menu')) {
+        setLinkContextMenu({
+          visible: false,
+          position: { x: 0, y: 0 },
+          linkData: null
+        });
+      }
+    };
 
-  //   if (tableContextMenu.visible || linkContextMenu.visible) {
-  //     document.addEventListener('click', handleGlobalClick);
-  //     return () => document.removeEventListener('click', handleGlobalClick);
-  //   }
+    if (tableContextMenu.visible || linkContextMenu.visible) {
+      document.addEventListener('click', handleGlobalClick);
+      return () => document.removeEventListener('click', handleGlobalClick);
+    }
 
-  //   return () => {}; // Return empty function
-  // }, [tableContextMenu.visible, linkContextMenu.visible]);
+    return undefined;
+  }, [tableContextMenu.visible, linkContextMenu.visible]);
 
 
   const handleOpenLink = useCallback((href: string) => {
@@ -209,152 +207,25 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   // Table operation commands (defined after useEditor, so moved later)
 
-  const editor = useEditor({
-    // Disable TipTap schema validation to prevent empty nodes error
-    enableContentCheck: false,
-    emitContentError: true, // Monitor errors but disable automatic validation
-    onContentError: ({ error }) => {
-      logger.warn('🚨 TipTap Content Error (handled):', error);
-      // Log error but continue processing
-    },
-    extensions: [
-      StarterKit.configure({
-        // Disable StarterKit's CodeBlock and Link to avoid duplication
-        codeBlock: false,
-        blockquote: {
-          HTMLAttributes: {
-            class: 'blockquote-custom'
-          }
-        }
-      }),
-      CustomCodeBlock.configure({
-        lowlight,
-      }),
-      Table.configure({
-        resizable: true,
-        handleWidth: 5, // TipTap standard recommended value
-        cellMinWidth: 40, // Set 40px minimum width
-        lastColumnResizable: true, // Make last column resizable
-        allowTableNodeSelection: true,
-        HTMLAttributes: {
-          class: 'markdown-advance-table'
-        }
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
-      Link.configure({
-        openOnClick: false,
-      }),
-      Image.configure({
-        inline: true,
-        allowBase64: true,
-        HTMLAttributes: {
-          class: 'max-w-full h-auto rounded-lg shadow-sm border border-gray-200 my-2',
-        },
-      }),
-      CharacterCount,
-      Typography,
-      createLinkClickExtension(handleLinkContextMenu),
-      createTableRightClickExtension(handleTableContextMenu),
-      createMarkdownShortcutsExtension(),
-      createMarkdownPasteExtension(setIsProcessing, setProcessingProgress, () => {
-        // Force update onChange after paste completes
-        if (editor && onChange) {
-          try {
-            const json = editor.getJSON();
-            const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-            onChange(markdown);
-          } catch (error) {
-            logger.warn('⚠️ Failed to update onChange after paste:', error);
-          }
-        }
-      }),
-    ],
-    content: value || initialContent || '', // Use value or initialContent
+  // Use custom hook for editor initialization
+  const editor = useMarkdownEditor({
+    value,
+    initialContent,
     editable,
-    editorProps: {
-      attributes: {
-        class: 'prose prose-base max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-h1:text-2xl prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-100 prose-h2:pb-1 prose-h3:text-lg prose-p:text-gray-700 prose-p:leading-tight prose-strong:text-gray-900 prose-strong:font-semibold prose-em:text-gray-800 prose-code:bg-red-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:text-red-700 prose-code:border prose-code:border-red-200 prose-pre:bg-slate-700 prose-pre:text-gray-200 prose-pre:rounded-md prose-pre:p-4 prose-pre:shadow-inner prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600 prose-blockquote:bg-gray-50 prose-blockquote:py-3 prose-blockquote:rounded-r-md prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-gray-700 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:break-words prose-table:border-collapse prose-th:border-2 prose-th:border-gray-400 prose-th:bg-gray-50 prose-th:px-3 prose-th:py-2 prose-td:border-2 prose-td:border-gray-400 prose-td:px-3 prose-td:py-2 prose-hr:border-gray-300 p-4 focus:outline-none text-gray-700',
-        'data-placeholder': placeholder,
-      },
-    },
-    onUpdate: ({ editor }) => {
-      // Complete infinite loop prevention with processing flag
-      if (isUpdating || (editor as ExtendedEditor).__preventUpdate || isProcessing) {
-        return;
-      }
-
-      // Minimal onUpdate processing
-      const json = editor.getJSON();
-      setContent(json);
-
-      // Execute ContentChange callback
-      if (onContentChange) {
-        onContentChange(json);
-      }
-
-      // Execute onChange callback with markdown conversion
-      if (onChange) {
-        try {
-          const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-          onChange(markdown);
-        } catch (error) {
-          logger.warn('⚠️ Markdown conversion failed in onUpdate:', error);
-        }
-      }
-
-      // onMarkdownChange callback (deprecated but still supported)
-      if (onMarkdownChange) {
-        try {
-          const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-          onMarkdownChange(markdown);
-        } catch (error) {
-          logger.warn('⚠️ Markdown conversion failed in onUpdate:', error);
-        }
-      }
-    },
-    onBlur: ({ editor }) => {
-      // Execute Markdown conversion only in onBlur (no cursor movement)
-      if (onMarkdownChange) {
-        try {
-          const json = editor.getJSON();
-          const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-          if (onChange) {
-            onChange(markdown);
-          }
-          if (onMarkdownChange) {
-            onMarkdownChange(markdown);
-          }
-        } catch (error) {
-          logger.warn('⚠️ Markdown conversion failed in onBlur:', error);
-        }
-      }
-    },
-    onSelectionUpdate: ({ editor }) => {
-      try {
-        const newSelectionInfo = SelectionUtils.getSelectionMarkdownSyntax(editor);
-        setSelectionInfo(newSelectionInfo);
-
-        if (onSelectionChange) {
-          onSelectionChange(newSelectionInfo);
-        }
-      } catch (error) {
-        logger.warn('⚠️ MarkdownEditor: Selection update failed:', error);
-        // Fallback: Set minimum selectionInfo
-        setSelectionInfo(null);
-      }
-    },
-    onCreate: ({ editor }) => {
-      // Execute onEditorReady callback
-      try {
-        if (onEditorReady) {
-          onEditorReady(editor);
-        }
-      } catch (error) {
-        logger.warn('⚠️ MarkdownEditor: onEditorReady callback failed:', error);
-      }
-    },
+    placeholder,
+    onContentChange,
+    onChange,
+    onMarkdownChange,
+    onSelectionChange,
+    onEditorReady,
+    isUpdating,
+    isProcessing,
+    setIsProcessing,
+    setProcessingProgress,
+    setSelectionInfo,
+    setContent,
+    handleLinkContextMenu,
+    handleTableContextMenu,
   });
 
   // Add TableToolbar hook
@@ -530,7 +401,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to, ' ').trim();
-    
+
     // Simple formatting (bold / italic / strike / inline code) should use
     // TipTap commands directly so that the visual style is applied immediately.
     if (markdown === '****') {
@@ -830,6 +701,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
             editor={editor}
             showDownloadButton={showDownloadButton}
             onDownloadAsMarkdown={handleDownloadAsMarkdown}
+            texts={texts}
           />
         )}
         <div

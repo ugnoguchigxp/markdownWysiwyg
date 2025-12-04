@@ -20,6 +20,7 @@ vi.mock('@tiptap/react', async () => {
             isDestroyed: false,
             commands: {
                 setContent: vi.fn(),
+                clearContent: vi.fn(),
             },
             state: {
                 selection: { from: 0, to: 0 },

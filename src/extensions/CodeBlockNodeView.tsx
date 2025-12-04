@@ -28,23 +28,6 @@ try {
   log.debug('Mermaid not available (optional)');
 }
 
-// 統一されたボタンスタイル
-const BUTTON_STYLE: React.CSSProperties = {
-  background: '#2d3748',
-  border: '1px solid #4a5568',
-  borderRadius: '3px',
-  padding: '6px',
-  cursor: 'pointer',
-  fontSize: '14px',
-  lineHeight: 1,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#e2e8f0',
-  width: '28px',
-  height: '28px',
-};
-
 // 統一されたボタンコンポーネント
 interface IIconButtonProps {
   onClick: (e: React.MouseEvent) => void;
@@ -53,7 +36,11 @@ interface IIconButtonProps {
 }
 
 const IconButton = ({ onClick, title, children }: IIconButtonProps) => (
-  <button onClick={onClick} title={title} style={BUTTON_STYLE}>
+  <button
+    onClick={onClick}
+    title={title}
+    className="flex items-center justify-center w-7 h-7 bg-slate-700 border border-slate-600 rounded text-slate-200 hover:bg-slate-600 transition-colors text-sm"
+  >
     {children}
   </button>
 );
@@ -120,48 +107,16 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
   };
 
   return (
-    <NodeViewWrapper className={`code-block ${selected ? 'selected' : ''}`}>
-      <div
-        style={{
-          border: selected ? '2px solid #007bff' : '1px solid #4a5568',
-          borderRadius: '4px',
-          padding: '16px',
-          background: '#1e293b',
-          position: 'relative',
-        }}
-      >
-        <pre style={{ 
-          margin: 0, 
-          position: 'relative',
-          overflow: 'visible',
-          whiteSpace: 'pre',
-          color: '#e2e8f0',
-        }}>
+    <NodeViewWrapper className={`code-block ${selected ? 'ring-2 ring-blue-500' : ''}`}>
+      <div className={`relative bg-slate-800 rounded-md p-4 border ${selected ? 'border-blue-500' : 'border-slate-700'}`}>
+        <pre className="m-0 relative overflow-visible whitespace-pre text-slate-200">
           {/* 右上のコントロール */}
           {editable && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '8px',
-                display: 'flex',
-                gap: '4px',
-                alignItems: 'center',
-                zIndex: 10,
-              }}
-            >
+            <div className="absolute top-2 right-2 flex gap-1 items-center z-10">
               <select
                 value={selectedLanguage}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                style={{
-                  padding: '6px 8px',
-                  border: '1px solid #4a5568',
-                  borderRadius: '3px',
-                  fontSize: '12px',
-                  background: '#2d3748',
-                  color: '#e2e8f0',
-                  cursor: 'pointer',
-                }}
+                className="px-2 py-1.5 border border-slate-600 rounded text-xs bg-slate-700 text-slate-200 cursor-pointer focus:outline-none focus:border-blue-500"
               >
                 {SUPPORTED_LANGUAGES.map((lang) => (
                   <option key={lang.value} value={lang.value}>
@@ -177,7 +132,7 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
               </IconButton>
             </div>
           )}
-          <code style={{ display: 'block', overflow: 'auto', color: '#e2e8f0' }}>
+          <code className="block overflow-auto text-slate-200">
             <NodeViewContent />
           </code>
         </pre>
@@ -355,47 +310,15 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
   if (isEditing) {
     return (
       <NodeViewWrapper className="mermaid-code-block editing">
-        <div style={{ position: 'relative' }}>
+        <div className="relative">
           {/* コードエディタ */}
-          <pre
-            style={{
-              border: '2px solid #007bff',
-              borderRadius: '4px',
-              padding: '12px',
-              background: '#1e293b',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              whiteSpace: 'pre-wrap',
-              margin: 0,
-              minHeight: '100px',
-              position: 'relative',
-              color: '#e2e8f0',
-            }}
-          >
+          <pre className="border-2 border-blue-500 rounded-md p-3 bg-slate-800 font-mono text-sm whitespace-pre-wrap m-0 min-h-[100px] relative text-slate-200">
             {/* 右上のコントロール */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '8px',
-                display: 'flex',
-                gap: '4px',
-                alignItems: 'center',
-                zIndex: 10,
-              }}
-            >
+            <div className="absolute top-2 right-2 flex gap-1 items-center z-10">
               <select
                 value={selectedLanguage}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                style={{
-                  padding: '6px 8px',
-                  border: '1px solid #4a5568',
-                  borderRadius: '3px',
-                  fontSize: '12px',
-                  background: '#2d3748',
-                  color: '#e2e8f0',
-                  cursor: 'pointer',
-                }}
+                className="px-2 py-1.5 border border-slate-600 rounded text-xs bg-slate-700 text-slate-200 cursor-pointer focus:outline-none focus:border-blue-500"
               >
                 {SUPPORTED_LANGUAGES.map((lang) => (
                   <option key={lang.value} value={lang.value}>
@@ -424,62 +347,23 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
   if (isFullscreen) {
     return (
       <NodeViewWrapper className="mermaid-code-block fullscreen">
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'white',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0,
-            margin: 0,
-          }}
-        >
+        <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center p-0 m-0">
           {/* 閉じるボタン */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              zIndex: 10000,
-            }}
-          >
+          <div className="absolute top-5 right-5 z-[10000]">
             <IconButton onClick={handleToggleFullscreen} title="閉じる">
               &#x2715;
             </IconButton>
           </div>
 
           {error ? (
-            <div
-              style={{
-                color: '#dc3545',
-                background: '#f8d7da',
-                border: '1px solid #f5c6cb',
-                borderRadius: '4px',
-                padding: '20px',
-                margin: '20px',
-                maxWidth: '800px',
-              }}
-            >
-              <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>Mermaid rendering error:</p>
-              <pre style={{ margin: 0, fontSize: '14px', whiteSpace: 'pre-wrap' }}>{error}</pre>
+            <div className="text-red-600 bg-red-100 border border-red-200 rounded p-5 m-5 max-w-4xl">
+              <p className="font-bold mb-2">Mermaid rendering error:</p>
+              <pre className="m-0 text-sm whitespace-pre-wrap">{error}</pre>
             </div>
           ) : (
             <div
               ref={fullscreenContainerRef}
-              className="mermaid-diagram"
-              style={{
-                width: '100vw',
-                height: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className="mermaid-diagram w-screen h-screen flex items-center justify-center"
             />
           )}
         </div>
@@ -491,26 +375,9 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
     <NodeViewWrapper
       className={`mermaid-code-block ${selected ? 'selected' : ''}`}
     >
-      <div
-        style={{
-          border: selected ? '2px solid #007bff' : '1px solid #e0e0e0',
-          borderRadius: '4px',
-          padding: '16px',
-          background: '#fafafa',
-          position: 'relative',
-        }}
-      >
+      <div className={`relative rounded-md p-4 bg-gray-50 border ${selected ? 'border-blue-500' : 'border-gray-200'}`}>
         {/* 右上のコントロールボタン */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            display: 'flex',
-            gap: '4px',
-            zIndex: 10,
-          }}
-        >
+        <div className="absolute top-2 right-2 flex gap-1 z-10">
           <IconButton
             onClick={(e) => {
               e.stopPropagation();
@@ -550,17 +417,9 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
         </div>
 
         {error ? (
-          <div
-            style={{
-              color: '#dc3545',
-              background: '#f8d7da',
-              border: '1px solid #f5c6cb',
-              borderRadius: '4px',
-              padding: '12px',
-            }}
-          >
-            <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>Mermaid rendering error:</p>
-            <pre style={{ margin: 0, fontSize: '12px', whiteSpace: 'pre-wrap' }}>{error}</pre>
+          <div className="text-red-600 bg-red-100 border border-red-200 rounded p-3">
+            <p className="font-bold mb-2">Mermaid rendering error:</p>
+            <pre className="m-0 text-xs whitespace-pre-wrap">{error}</pre>
           </div>
         ) : (
           <div ref={containerRef} className="mermaid-diagram" />
@@ -569,3 +428,4 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
     </NodeViewWrapper>
   );
 };
+

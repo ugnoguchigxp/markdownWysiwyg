@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 
 import { createLogger } from '../utils/logger';
+import { DEFAULT_TEXTS, ITexts } from '../types/index';
 
 const log = createLogger('MarkdownToolbar');
 
@@ -36,6 +37,7 @@ interface MarkdownToolbarProps {
   editor?: Editor | null; // TipTap editor instance (for table operations)
   showDownloadButton?: boolean; // Show download button flag
   onDownloadAsMarkdown?: () => void; // Markdown download handler
+  texts?: Partial<ITexts>; // i18n text labels
 }
 
 export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
@@ -45,8 +47,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   selectedText = '',
   editor,
   showDownloadButton = false,
-  onDownloadAsMarkdown
+  onDownloadAsMarkdown,
+  texts = DEFAULT_TEXTS,
 }) => {
+  const t = { ...DEFAULT_TEXTS, ...texts };
   const [showHeadingMenu, setShowHeadingMenu] = React.useState(false);
   const [showLinkModal, setShowLinkModal] = React.useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = React.useState(false);
@@ -274,61 +278,61 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   const toolbarItems = [
     {
       icon: Bold,
-      title: 'Bold',
+      title: t.bold,
       onClick: handleToggleBold,
       group: 'text'
     },
     {
       icon: Italic,
-      title: 'Italic',
+      title: t.italic,
       onClick: handleToggleItalic,
       group: 'text'
     },
     {
       icon: Strikethrough,
-      title: 'Strikethrough',
+      title: t.strikethrough,
       onClick: handleToggleStrike,
       group: 'text'
     },
     {
       icon: Code,
-      title: 'Inline Code',
+      title: t.code,
       onClick: handleToggleInlineCode,
       group: 'code'
     },
     {
       icon: Quote,
-      title: 'Blockquote',
+      title: t.blockquote,
       onClick: handleToggleBlockquote,
       group: 'block'
     },
     {
       icon: FileCode,
-      title: 'Code Block',
+      title: t.insertCodeBlock,
       onClick: handleToggleCodeBlock,
       group: 'code'
     },
     {
       icon: List,
-      title: 'Bullet List',
+      title: t.bulletList,
       onClick: handleToggleBulletList,
       group: 'list'
     },
     {
       icon: ListOrdered,
-      title: 'Numbered List',
+      title: t.orderedList,
       onClick: handleToggleOrderedList,
       group: 'list'
     },
     {
       icon: Link2,
-      title: 'Link',
+      title: t.insertLink,
       onClick: handleLinkClick,
       group: 'media'
     },
     {
       icon: Table,
-      title: 'Table',
+      title: t.insertTable,
       onClick: handleTableInsert,
       group: 'block'
     }
@@ -350,6 +354,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           type="button"
           onClick={() => setShowHeadingMenu(!showHeadingMenu)}
           disabled={disabled}
+          title={t.heading1}
           className={`
             w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
             disabled:opacity-50 disabled:cursor-not-allowed
@@ -365,12 +370,6 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
         </button>
-
-        {/* Heading button tooltip */}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-          Heading
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
-        </div>
 
         {showHeadingMenu && (
           <>
@@ -427,6 +426,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               type="button"
               onClick={item.onClick}
               disabled={disabled}
+              title={item.title}
               className={`
                 w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -435,11 +435,6 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             >
               <Icon className="w-4 h-4" />
             </button>
-            {/* Custom tooltip */}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-              {item.title}
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
-            </div>
           </div>
         );
       })}
@@ -451,6 +446,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             type="button"
             onClick={handleDownloadClick}
             disabled={disabled}
+            title={t.download}
             className={`
               w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -466,12 +462,6 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
-
-          {/* Download button tooltip */}
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-            Download
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
-          </div>
 
           {showDownloadMenu && (
             <>
