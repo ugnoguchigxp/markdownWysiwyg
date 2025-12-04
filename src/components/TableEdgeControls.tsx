@@ -14,7 +14,7 @@ export interface ITableEdgeControlsProps {
  */
 export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor }) => {
   const [hoveredTable, setHoveredTable] = useState<HTMLElement | null>(null);
-  const [controlPosition, setControlPosition] = useState<{x: number, y: number} | null>(null);
+  const [controlPosition, setControlPosition] = useState<{ x: number, y: number } | null>(null);
 
   useEffect(() => {
     if (!editor) return;
@@ -75,13 +75,10 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
 
   return createPortal(
     <div
-      className="table-edge-controls bg-white shadow-lg border border-gray-200 rounded-lg p-2 flex flex-col gap-1"
+      className="table-edge-controls bg-white shadow-lg border border-gray-200 rounded-lg p-2 flex flex-col gap-1 fixed z-50 min-w-[140px]"
       style={{
-        position: 'fixed',
         left: controlPosition.x,
         top: controlPosition.y,
-        zIndex: 50,
-        minWidth: '140px'
       }}
       onMouseEnter={() => {
         // Keep table hover state when hovering over Portal

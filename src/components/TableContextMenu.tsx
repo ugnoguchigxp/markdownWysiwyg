@@ -38,12 +38,10 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
   return (
     <div
-      className="table-context-menu fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg py-2 min-w-48"
+      className="table-context-menu fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg py-2 min-w-48 max-h-[400px] overflow-y-auto"
       style={{
         left: position.x,
         top: position.y,
-        maxHeight: '400px',
-        overflowY: 'auto'
       }}
       onClick={(e) => e.stopPropagation()}
     >

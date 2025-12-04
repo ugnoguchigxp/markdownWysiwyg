@@ -292,6 +292,16 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     }
   }, [editor, initialContent, value, editable]); // Execute when value changes
 
+  // Update editor editable state when prop changes
+  useEffect(() => {
+    if (editor && editor.isEditable !== editable) {
+      logger.info('Updating editor editable state', { from: editor.isEditable, to: editable });
+      editor.setEditable(editable);
+      // Force update all node views
+      editor.view.updateState(editor.view.state);
+    }
+  }, [editor, editable]);
+
   // Table operation commands (defined after useEditor)
   const handleAddRowAbove = useCallback(() => {
     if (!editor) return;
@@ -705,7 +715,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           />
         )}
         <div
-          className={`relative ${enableVerticalScroll ? 'flex-1 overflow-hidden' : 'overflow-visible'}`}
+          className={`relative ${enableVerticalScroll ? 'flex-1 overflow-hidden' : 'overflow-visible'} ${editable ? 'cursor-text' : 'cursor-default'}`}
           ref={editorElementRef}
           onClick={(e) => {
             // Make entire editor area clickable
@@ -725,7 +735,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
               }
             }
           }}
-          style={{ cursor: editable ? 'text' : 'default' }}
         >
           <EditorContent
             editor={editor}
@@ -744,29 +753,31 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         )}
       </div>
 
-      {effectiveShowPasteDebug && (
-        <div className="mt-3 p-4 border border-gray-200 rounded-md bg-gray-50">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">Paste Debug Panel</h3>
-            <button
-              onClick={clearPasteEvents}
-              className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
-            >
-              Clear
-            </button>
+      {
+        effectiveShowPasteDebug && (
+          <div className="mt-3 p-4 border border-gray-200 rounded-md bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-semibold text-gray-700">Paste Debug Panel</h3>
+              <button
+                onClick={clearPasteEvents}
+                className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+              >
+                Clear
+              </button>
+            </div>
+            <div className="space-y-2">
+              {pasteEvents.map((event, idx) => (
+                <div key={idx} className="text-xs bg-white p-2 rounded border border-gray-300">
+                  <div className="font-semibold">{new Date(event.timestamp).toLocaleTimeString()}</div>
+                  <div>Type: {event.type}</div>
+                  <div className="truncate">Content: {event.content}</div>
+                  <div className="truncate text-green-600">Result: {event.result}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="space-y-2">
-            {pasteEvents.map((event, idx) => (
-              <div key={idx} className="text-xs bg-white p-2 rounded border border-gray-300">
-                <div className="font-semibold">{new Date(event.timestamp).toLocaleTimeString()}</div>
-                <div>Type: {event.type}</div>
-                <div className="truncate">Content: {event.content}</div>
-                <div className="truncate text-green-600">Result: {event.result}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Link context menu */}
       <LinkContextMenu
@@ -802,6 +813,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       />
       {/* Table edge controls */}
       <TableEdgeControls editor={editor} />
-    </div>
+    </div >
   );
 };

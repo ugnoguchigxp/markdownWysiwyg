@@ -74,6 +74,8 @@ export const CodeBlockNodeView = ({ node, selected, editor, updateAttributes, de
   const language = node.attrs.language || '';
   const code = node.textContent;
 
+  log.debug('CodeBlockNodeView render', { language, editable: editor.isEditable, selected });
+
   // Mermaid専用のレンダリング
   if (language === 'mermaid' && mermaidLib) {
     return <MermaidCodeBlockView code={code} selected={selected} editable={editor.isEditable} updateAttributes={updateAttributes} deleteNode={deleteNode} />;
@@ -93,6 +95,13 @@ interface IRegularCodeBlockViewProps {
 
 const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, deleteNode }: IRegularCodeBlockViewProps) => {
   const [selectedLanguage, setSelectedLanguage] = useState(language || '');
+  const [isEditable, setIsEditable] = useState(editable);
+  
+  // Listen to editable changes
+  useEffect(() => {
+    setIsEditable(editable);
+    log.debug('RegularCodeBlockView editable changed', { language, editable, selected });
+  }, [editable, language, selected]);
 
   const handleLanguageChange = (newLanguage: string) => {
     setSelectedLanguage(newLanguage);
@@ -111,7 +120,7 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
       <div className={`relative bg-slate-800 rounded-md p-4 border ${selected ? 'border-blue-500' : 'border-slate-700'}`}>
         <pre className="m-0 relative overflow-visible whitespace-pre text-slate-200">
           {/* 右上のコントロール */}
-          {editable && (
+          {isEditable && (
             <div className="absolute top-2 right-2 flex gap-1 items-center z-10">
               <select
                 value={selectedLanguage}
@@ -156,7 +165,13 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('mermaid');
+  const [isEditable, setIsEditable] = useState(editable);
   const renderIdRef = useRef(0);
+
+  // Listen to editable changes
+  useEffect(() => {
+    setIsEditable(editable);
+  }, [editable]);
 
   useEffect(() => {
     if (!code || isEditing || !mermaidLib) {
@@ -377,44 +392,46 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
     >
       <div className={`relative rounded-md p-4 bg-gray-50 border ${selected ? 'border-blue-500' : 'border-gray-200'}`}>
         {/* 右上のコントロールボタン */}
-        <div className="absolute top-2 right-2 flex gap-1 z-10">
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditClick();
-            }}
-            title="ソース編集"
-          >
-            &lt;&gt;
-          </IconButton>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownloadSvg();
-            }}
-            title="SVGダウンロード"
-          >
-            &#x1F5BC;
-          </IconButton>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownloadPng();
-            }}
-            title="PNGダウンロード"
-          >
-            &#x2B07;
-          </IconButton>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleFullscreen();
-            }}
-            title="全画面表示"
-          >
-            &#x26F6;
-          </IconButton>
-        </div>
+        {isEditable && (
+          <div className="absolute top-2 right-2 flex gap-1 z-10">
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditClick();
+              }}
+              title="ソース編集"
+            >
+              &lt;&gt;
+            </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadSvg();
+              }}
+              title="SVGダウンロード"
+            >
+              &#x1F5BC;
+            </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadPng();
+              }}
+              title="PNGダウンロード"
+            >
+              &#x2B07;
+            </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleFullscreen();
+              }}
+              title="全画面表示"
+            >
+              &#x26F6;
+            </IconButton>
+          </div>
+        )}
 
         {error ? (
           <div className="text-red-600 bg-red-100 border border-red-200 rounded p-3">

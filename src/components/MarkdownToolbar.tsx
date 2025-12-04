@@ -354,7 +354,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           type="button"
           onClick={() => setShowHeadingMenu(!showHeadingMenu)}
           disabled={disabled}
-          title={t.heading1}
+          data-tooltip={t.heading1}
           className={`
             w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
             disabled:opacity-50 disabled:cursor-not-allowed
@@ -426,7 +426,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               type="button"
               onClick={item.onClick}
               disabled={disabled}
-              title={item.title}
+              data-tooltip={item.title}
               className={`
                 w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -446,7 +446,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             type="button"
             onClick={handleDownloadClick}
             disabled={disabled}
-            title={t.download}
+            data-tooltip={t.download}
             className={`
               w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -514,9 +514,9 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           </svg>
         </button>
         {/* Help button tooltip */}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[60]">
           Markdown Help
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-gray-800"></div>
         </div>
       </div>
 

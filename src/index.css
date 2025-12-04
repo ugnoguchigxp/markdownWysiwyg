@@ -65,3 +65,45 @@
   background: #1e293b !important;
   color: #e2e8f0 !important;
 }
+
+/* Toolbar tooltip styling */
+.mw-toolbar-root [data-tooltip] {
+  position: relative;
+}
+
+.mw-toolbar-root [data-tooltip]::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 8px;
+  background-color: #1f2937;
+  color: white;
+  font-size: 12px;
+  white-space: nowrap;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease-in-out;
+  z-index: 1000;
+}
+
+.mw-toolbar-root [data-tooltip]::after {
+  content: '';
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: #1f2937;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease-in-out;
+  z-index: 1000;
+}
+
+.mw-toolbar-root [data-tooltip]:hover::before,
+.mw-toolbar-root [data-tooltip]:hover::after {
+  opacity: 1;
+}
