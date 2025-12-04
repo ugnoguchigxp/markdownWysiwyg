@@ -22,15 +22,21 @@ Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 This editor is a React component targeting **React 18+ / ReactDOM 18+**.
 
 ```bash
-pnpm add react react-dom @markdown-wysiwyg/editor
+pnpm add markdown-wysiwyg-editor
+# or
+npm install markdown-wysiwyg-editor
+# or
+yarn add markdown-wysiwyg-editor
 ```
 
 ### Quick Start
 
+**⚠️ IMPORTANT**: You **MUST** import the CSS file for the editor to work properly.
+
 ```tsx
 import { useState } from 'react';
-import { MarkdownEditor } from '@markdown-wysiwyg/editor';
-import '@markdown-wysiwyg/editor/style.css';
+import { MarkdownEditor } from 'markdown-wysiwyg-editor';
+import 'markdown-wysiwyg-editor/style.css'; // ← REQUIRED
 
 function App() {
   const [content, setContent] = useState('');
@@ -39,13 +45,80 @@ function App() {
 }
 ```
 
+### Essential Setup Steps
+
+#### 1. CSS Import (Required)
+
+**Without the CSS import, the editor will not display properly**. Make sure to import the stylesheet:
+
+```tsx
+import 'markdown-wysiwyg-editor/style.css';
+```
+
+You can import this in your main app file (e.g., `App.tsx` or `index.tsx`) to make it available globally.
+
+#### 2. Height and Scroll Configuration
+
+The editor needs proper height configuration to enable scrolling. Choose one approach:
+
+**Option A: Fixed Height (Recommended)**
+
+```tsx
+<MarkdownEditor
+  value={content}
+  onChange={setContent}
+  className="h-96"              // Fixed height (384px)
+  enableVerticalScroll={true}   // Enable internal scrolling
+/>
+```
+
+**Option B: Flex Layout (For Full-Height Containers)**
+
+```tsx
+// Parent container must have defined height
+<div className="flex flex-col h-screen">
+  <MarkdownEditor
+    value={content}
+    onChange={setContent}
+    className="flex-1"            // Fill remaining space
+    enableVerticalScroll={true}   // Enable internal scrolling
+  />
+</div>
+```
+
+**Option C: Auto-Height (No Scroll)**
+
+```tsx
+<MarkdownEditor
+  value={content}
+  onChange={setContent}
+  autoHeight={true}              // Grow with content
+  enableVerticalScroll={false}   // No internal scrolling
+/>
+```
+
+#### 3. Common Issues and Solutions
+
+**Issue: Lists not displaying correctly**
+- Make sure the CSS is imported properly
+- The CSS file contains all necessary styles for headings, lists, tables, etc.
+
+**Issue: No scrollbar appears**
+- Set a fixed height using `className="h-96"` or similar
+- Enable scroll with `enableVerticalScroll={true}`
+
+**Issue: Styles not applying**
+- Verify the CSS import path: `'markdown-wysiwyg-editor/style.css'`
+- Check browser console for CSS loading errors
+- Make sure you're not using CSS modules that might interfere with global styles
+
 #### With Mermaid
 
 ```tsx
 import { useState } from 'react';
 import mermaid from 'mermaid';
-import { MarkdownEditor } from '@markdown-wysiwyg/editor';
-import '@markdown-wysiwyg/editor/style.css';
+import { MarkdownEditor } from 'markdown-wysiwyg-editor';
+import 'markdown-wysiwyg-editor/style.css';
 
 mermaid.initialize({ startOnLoad: false });
 
