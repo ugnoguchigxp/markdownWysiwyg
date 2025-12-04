@@ -1,5 +1,5 @@
 {
-  "name": "@markdown-wysiwyg/editor",
+  "name": "markdown-wysiwyg-editor",
   "version": "0.1.0",
   "description": "Lightweight Markdown WYSIWYG editor with TipTap,Mermaid support",
   "type": "module",
