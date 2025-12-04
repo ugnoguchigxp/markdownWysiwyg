@@ -30,7 +30,11 @@ vi.mock('@tiptap/react', async () => {
             },
             view: {
                 dom: document.createElement('div'),
+                updateState: vi.fn(),
+                state: {},
             },
+            setEditable: vi.fn(),
+            isEditable: true,
             getHTML: () => '<p></p>',
             getText: () => '',
             getJSON: () => ({}),

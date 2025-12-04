@@ -36,10 +36,10 @@
     "react",
     "typescript"
   ],
-  "author": "Your Name",
+  "author": "ugnoguchigxp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/markdown-wysiwyg.git"
+    "url": "https://github.com/ugnoguchigxp/markdownWysiwyg.git"
   },
   "license": "MIT",
   "engines": {
