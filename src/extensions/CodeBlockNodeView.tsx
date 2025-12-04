@@ -30,8 +30,8 @@ try {
 
 // 統一されたボタンスタイル
 const BUTTON_STYLE: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #dee2e6',
+  background: '#2d3748',
+  border: '1px solid #4a5568',
   borderRadius: '3px',
   padding: '6px',
   cursor: 'pointer',
@@ -40,7 +40,7 @@ const BUTTON_STYLE: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: '#212529',
+  color: '#e2e8f0',
   width: '28px',
   height: '28px',
 };
@@ -60,9 +60,11 @@ const IconButton = ({ onClick, title, children }: IIconButtonProps) => (
 
 // サポートする言語リスト
 const SUPPORTED_LANGUAGES = [
-  { value: 'mermaid', label: 'Mermaid' },
+  { value: '', label: 'Plain Text' },
   { value: 'javascript', label: 'JavaScript' },
   { value: 'typescript', label: 'TypeScript' },
+  { value: 'ts', label: 'TypeScript (ts)' },
+  { value: 'js', label: 'JavaScript (js)' },
   { value: 'json', label: 'JSON' },
   { value: 'python', label: 'Python' },
   { value: 'java', label: 'Java' },
@@ -78,7 +80,7 @@ const SUPPORTED_LANGUAGES = [
   { value: 'go', label: 'Go' },
   { value: 'rust', label: 'Rust' },
   { value: 'php', label: 'PHP' },
-  { value: '', label: 'Plain Text' },
+  { value: 'mermaid', label: 'Mermaid' },
 ];
 
 export const CodeBlockNodeView = ({ node, selected, editor, updateAttributes, deleteNode }: NodeViewProps) => {
@@ -121,14 +123,20 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
     <NodeViewWrapper className={`code-block ${selected ? 'selected' : ''}`}>
       <div
         style={{
-          border: selected ? '2px solid #007bff' : '1px solid #e0e0e0',
+          border: selected ? '2px solid #007bff' : '1px solid #4a5568',
           borderRadius: '4px',
           padding: '16px',
-          background: '#f5f5f5',
+          background: '#1e293b',
           position: 'relative',
         }}
       >
-        <pre style={{ margin: 0, position: 'relative' }}>
+        <pre style={{ 
+          margin: 0, 
+          position: 'relative',
+          overflow: 'visible',
+          whiteSpace: 'pre',
+          color: '#e2e8f0',
+        }}>
           {/* 右上のコントロール */}
           {editable && (
             <div
@@ -147,11 +155,11 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
                 onChange={(e) => handleLanguageChange(e.target.value)}
                 style={{
                   padding: '6px 8px',
-                  border: '1px solid #ced4da',
+                  border: '1px solid #4a5568',
                   borderRadius: '3px',
                   fontSize: '12px',
-                  background: 'white',
-                  color: '#212529',
+                  background: '#2d3748',
+                  color: '#e2e8f0',
                   cursor: 'pointer',
                 }}
               >
@@ -169,7 +177,7 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
               </IconButton>
             </div>
           )}
-          <code>
+          <code style={{ display: 'block', overflow: 'auto', color: '#e2e8f0' }}>
             <NodeViewContent />
           </code>
         </pre>
@@ -354,13 +362,14 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
               border: '2px solid #007bff',
               borderRadius: '4px',
               padding: '12px',
-              background: '#f8f9fa',
+              background: '#1e293b',
               fontFamily: 'monospace',
               fontSize: '14px',
               whiteSpace: 'pre-wrap',
               margin: 0,
               minHeight: '100px',
               position: 'relative',
+              color: '#e2e8f0',
             }}
           >
             {/* 右上のコントロール */}
@@ -380,11 +389,11 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
                 onChange={(e) => handleLanguageChange(e.target.value)}
                 style={{
                   padding: '6px 8px',
-                  border: '1px solid #ced4da',
+                  border: '1px solid #4a5568',
                   borderRadius: '3px',
                   fontSize: '12px',
-                  background: 'white',
-                  color: '#212529',
+                  background: '#2d3748',
+                  color: '#e2e8f0',
                   cursor: 'pointer',
                 }}
               >

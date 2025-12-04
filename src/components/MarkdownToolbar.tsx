@@ -230,53 +230,94 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
     }
   };
 
+  // Direct formatting handlers using TipTap commands
+  const handleToggleBold = () => {
+    if (!editor) return;
+    editor.chain().toggleBold().focus(undefined, { scrollIntoView: false }).run();
+  };
+
+  const handleToggleItalic = () => {
+    if (!editor) return;
+    editor.chain().toggleItalic().focus(undefined, { scrollIntoView: false }).run();
+  };
+
+  const handleToggleStrike = () => {
+    if (!editor) return;
+    editor.chain().toggleStrike().focus(undefined, { scrollIntoView: false }).run();
+  };
+
+  const handleToggleInlineCode = () => {
+    if (!editor) return;
+    editor.chain().toggleCode().focus(undefined, { scrollIntoView: false }).run();
+  };
+
+  const handleToggleBlockquote = () => {
+    if (!editor) return;
+    onInsertMarkdown('> ');
+  };
+
+  const handleToggleBulletList = () => {
+    if (!editor) return;
+    onInsertMarkdown('- ');
+  };
+
+  const handleToggleOrderedList = () => {
+    if (!editor) return;
+    onInsertMarkdown('1. ');
+  };
+
+  const handleToggleCodeBlock = () => {
+    if (!editor) return;
+    onInsertMarkdown('```\n\n```');
+  };
+
   const toolbarItems = [
     {
       icon: Bold,
       title: 'Bold',
-      onClick: () => onInsertMarkdown('****', 2),
+      onClick: handleToggleBold,
       group: 'text'
     },
     {
       icon: Italic,
       title: 'Italic',
-      onClick: () => onInsertMarkdown('**', 1),
+      onClick: handleToggleItalic,
       group: 'text'
     },
     {
       icon: Strikethrough,
       title: 'Strikethrough',
-      onClick: () => onInsertMarkdown('~~~~', 2),
+      onClick: handleToggleStrike,
       group: 'text'
     },
     {
       icon: Code,
       title: 'Inline Code',
-      onClick: () => onInsertMarkdown('``', 1),
+      onClick: handleToggleInlineCode,
       group: 'code'
     },
     {
       icon: Quote,
       title: 'Blockquote',
-      onClick: () => onInsertMarkdown('> '),
+      onClick: handleToggleBlockquote,
       group: 'block'
     },
     {
       icon: FileCode,
       title: 'Code Block',
-      onClick: () => onInsertMarkdown('```\n\n```'),
+      onClick: handleToggleCodeBlock,
       group: 'code'
     },
     {
       icon: List,
       title: 'Bullet List',
-      onClick: () => onInsertMarkdown('- ', 2),
+      onClick: handleToggleBulletList,
       group: 'list'
     },
     {
       icon: ListOrdered,
       title: 'Numbered List',
-      onClick: () => onInsertMarkdown('1. ', 3),
+      onClick: handleToggleOrderedList,
       group: 'list'
     },
     {
@@ -302,7 +343,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   };
 
   return (
-    <div className="flex items-center space-x-1">
+    <div className="mw-toolbar-root flex items-center space-x-1">
       {/* Heading dropdown menu */}
       <div className="relative group">
         <button

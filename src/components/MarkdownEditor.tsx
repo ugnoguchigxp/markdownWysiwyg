@@ -36,7 +36,7 @@ import { createMarkdownShortcutsExtension } from '../extensions/MarkdownShortcut
 import { createMarkdownPasteExtension } from '../extensions/MarkdownPasteExtension';
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
 import { isValidUrl, sanitizeText } from '../utils/security';
-import '../styles/MarkdownEditor.css';
+
 
 const logger = createLogger('MarkdownEditor');
 
@@ -71,16 +71,20 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   className = '',
   showDownloadButton = false,
   downloadFilename = 'document.md',
+  debug = false,
+  texts,
 }) => {
   const [, setContent] = useState<JSONContent>();
   const [selectionInfo, setSelectionInfo] = useState<ISelectionInfo | null>(null);
   const [pasteEvents, setPasteEvents] = useState<IPasteEvent[]>([]);
 
   // Determine visibility based on props and editable state
-  // If showToolbar/showSyntaxStatus is not explicitly provided, it defaults to the value of editable
+  // If showToolbar is not explicitly provided, it defaults to the value of editable
   const effectiveShowToolbar = showToolbar ?? editable;
-  const effectiveShowSyntaxStatus = showSyntaxStatus ?? editable;
-  // const [lastMarkdown, setLastMarkdown] = useState<string>(''); // Removed: No longer needed after useEffect removal
+  // If showSyntaxStatus is not explicitly provided, it defaults to debug mode
+  const effectiveShowSyntaxStatus = showSyntaxStatus ?? debug;
+  // If showPasteDebug is not explicitly provided, it defaults to debug mode
+  const effectiveShowPasteDebug = showPasteDebug || debug;
 
   const {
     isUpdating,
@@ -217,7 +221,11 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       StarterKit.configure({
         // Disable StarterKit's CodeBlock and Link to avoid duplication
         codeBlock: false,
-        link: false,
+        blockquote: {
+          HTMLAttributes: {
+            class: 'blockquote-custom'
+          }
+        }
       }),
       CustomCodeBlock.configure({
         lowlight,
@@ -250,13 +258,24 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       createLinkClickExtension(handleLinkContextMenu),
       createTableRightClickExtension(handleTableContextMenu),
       createMarkdownShortcutsExtension(),
-      createMarkdownPasteExtension(setIsProcessing, setProcessingProgress),
+      createMarkdownPasteExtension(setIsProcessing, setProcessingProgress, () => {
+        // Force update onChange after paste completes
+        if (editor && onChange) {
+          try {
+            const json = editor.getJSON();
+            const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+            onChange(markdown);
+          } catch (error) {
+            logger.warn('⚠️ Failed to update onChange after paste:', error);
+          }
+        }
+      }),
     ],
     content: value || initialContent || '', // Use value or initialContent
     editable,
     editorProps: {
       attributes: {
-        class: 'prose prose-base max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-h1:text-2xl prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-100 prose-h2:pb-1 prose-h3:text-lg prose-p:text-gray-700 prose-p:leading-tight prose-strong:text-gray-900 prose-strong:font-semibold prose-em:text-gray-800 prose-code:bg-gray-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-base prose-code:font-mono prose-code:text-gray-900 prose-pre:bg-slate-700 prose-pre:text-gray-200 prose-pre:rounded-md prose-pre:p-4 prose-pre:shadow-inner prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600 prose-blockquote:bg-gray-50 prose-blockquote:py-3 prose-blockquote:rounded-r-md prose-ul:list-none prose-ol:list-decimal prose-li:text-gray-700 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:break-words prose-table:border-collapse prose-th:border prose-th:border-gray-300 prose-th:bg-gray-50 prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-gray-300 prose-td:px-3 prose-td:py-2 prose-hr:border-gray-300 p-4 focus:outline-none text-gray-700',
+        class: 'prose prose-base max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-h1:text-2xl prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-100 prose-h2:pb-1 prose-h3:text-lg prose-p:text-gray-700 prose-p:leading-tight prose-strong:text-gray-900 prose-strong:font-semibold prose-em:text-gray-800 prose-code:bg-red-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:text-red-700 prose-code:border prose-code:border-red-200 prose-pre:bg-slate-700 prose-pre:text-gray-200 prose-pre:rounded-md prose-pre:p-4 prose-pre:shadow-inner prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600 prose-blockquote:bg-gray-50 prose-blockquote:py-3 prose-blockquote:rounded-r-md prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-gray-700 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:break-words prose-table:border-collapse prose-th:border-2 prose-th:border-gray-400 prose-th:bg-gray-50 prose-th:px-3 prose-th:py-2 prose-td:border-2 prose-td:border-gray-400 prose-td:px-3 prose-td:py-2 prose-hr:border-gray-300 p-4 focus:outline-none text-gray-700',
         'data-placeholder': placeholder,
       },
     },
@@ -275,8 +294,25 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         onContentChange(json);
       }
 
-      // onMarkdownChange callback completely disabled (prevent cursor forced movement and infinite loop)
-      // onMarkdownChange should be executed only on onBlur or button click
+      // Execute onChange callback with markdown conversion
+      if (onChange) {
+        try {
+          const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+          onChange(markdown);
+        } catch (error) {
+          logger.warn('⚠️ Markdown conversion failed in onUpdate:', error);
+        }
+      }
+
+      // onMarkdownChange callback (deprecated but still supported)
+      if (onMarkdownChange) {
+        try {
+          const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+          onMarkdownChange(markdown);
+        } catch (error) {
+          logger.warn('⚠️ Markdown conversion failed in onUpdate:', error);
+        }
+      }
     },
     onBlur: ({ editor }) => {
       // Execute Markdown conversion only in onBlur (no cursor movement)
@@ -494,24 +530,130 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to, ' ').trim();
+    
+    // Simple formatting (bold / italic / strike / inline code) should use
+    // TipTap commands directly so that the visual style is applied immediately.
+    if (markdown === '****') {
+      editor.chain().toggleBold().focus(undefined, { scrollIntoView: false }).run();
+      return;
+    }
+
+    if (markdown === '**') {
+      editor.chain().toggleItalic().focus(undefined, { scrollIntoView: false }).run();
+      return;
+    }
+
+    if (markdown === '~~~~') {
+      editor.chain().toggleStrike().focus(undefined, { scrollIntoView: false }).run();
+      return;
+    }
+
+    if (markdown === '``') {
+      editor.chain().toggleCode().focus(undefined, { scrollIntoView: false }).run();
+      return;
+    }
+
+    // Handle headings with TipTap commands
+    if (markdown.match(/^#+\s$/)) {
+      const level = markdown.trim().length as 1 | 2 | 3 | 4 | 5 | 6;
+      logger.debug(`🎯 Heading: level=${level}, selectedText="${selectedText}"`);
+      if (selectedText) {
+        // Replace selected text with heading
+        const result = editor.chain()
+          .deleteRange({ from, to })
+          .insertContent({ type: 'heading', attrs: { level }, content: [{ type: 'text', text: selectedText }] })
+          .focus(undefined, { scrollIntoView: false })
+          .run();
+        logger.debug(`✅ Heading insertion result: ${result}`);
+      } else {
+        // Set current block as heading
+        const result = editor.chain().setHeading({ level }).focus(undefined, { scrollIntoView: false }).run();
+        logger.debug(`✅ Set heading result: ${result}`);
+      }
+      return;
+    }
+
+    // Handle bullet list
+    if (markdown === '- ') {
+      logger.debug(`🎯 Bullet list: selectedText="${selectedText}"`);
+      if (selectedText) {
+        const result = editor.chain()
+          .deleteRange({ from, to })
+          .insertContent({
+            type: 'bulletList',
+            content: [{
+              type: 'listItem',
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }]
+            }]
+          })
+          .focus(undefined, { scrollIntoView: false })
+          .run();
+        logger.debug(`✅ Bullet list insertion result: ${result}`);
+      } else {
+        const result = editor.chain().toggleBulletList().focus(undefined, { scrollIntoView: false }).run();
+        logger.debug(`✅ Toggle bullet list result: ${result}`);
+      }
+      return;
+    }
+
+    // Handle ordered list
+    if (markdown.match(/^\d+\.\s$/)) {
+      if (selectedText) {
+        editor.chain()
+          .deleteRange({ from, to })
+          .insertContent({
+            type: 'orderedList',
+            content: [{
+              type: 'listItem',
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }]
+            }]
+          })
+          .focus(undefined, { scrollIntoView: false })
+          .run();
+      } else {
+        editor.chain().toggleOrderedList().focus(undefined, { scrollIntoView: false }).run();
+      }
+      return;
+    }
+
+    // Handle blockquote
+    if (markdown === '> ') {
+      if (selectedText) {
+        editor.chain()
+          .deleteRange({ from, to })
+          .insertContent({
+            type: 'blockquote',
+            content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }]
+          })
+          .focus(undefined, { scrollIntoView: false })
+          .run();
+      } else {
+        editor.chain().toggleBlockquote().focus(undefined, { scrollIntoView: false }).run();
+      }
+      return;
+    }
+
+    // Handle code block
+    if (markdown === '```\n\n```') {
+      if (selectedText) {
+        editor.chain()
+          .deleteRange({ from, to })
+          .insertContent({
+            type: 'codeBlock',
+            content: [{ type: 'text', text: selectedText }]
+          })
+          .focus(undefined, { scrollIntoView: false })
+          .run();
+      } else {
+        editor.chain().toggleCodeBlock().focus(undefined, { scrollIntoView: false }).run();
+      }
+      return;
+    }
 
     let insertText = markdown;
 
-    // If there's selected text, apply format
-    if (selectedText && markdown.includes('*')) {
-      if (markdown === '****') {
-        insertText = `**${selectedText}**`; // Bold
-      } else if (markdown === '**') {
-        insertText = `*${selectedText}*`; // Italic
-      } else if (markdown === '~~~~') {
-        insertText = `~~${selectedText}~~`; // Strikethrough
-      } else if (markdown === '``') {
-        insertText = `\`${selectedText}\``; // Inline code
-      }
-    } else if (selectedText && markdown === '> ') {
-      insertText = `> ${selectedText}`; // Blockquote
-    } else {
-      // Handle when cursorOffset is specified (cursor position adjustment)
+    // For other cases (code blocks, etc.)
+    if (selectedText && !markdown.match(/^(```|#|>|-|\d+\.)\s?/)) {
       insertText = markdown;
     }
 
@@ -577,8 +719,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         if (markdownJson.content && markdownJson.content.length > 0) {
           logger.debug('📄 Inserting content - nodes:', markdownJson.content.length);
 
-          // Try direct TipTap JSON insertion - pass complete document structure
-          const insertSuccess = editor.commands.insertContent(markdownJson);
+          // Try direct TipTap JSON insertion - insert content array directly
+          const insertSuccess = editor.commands.insertContent(markdownJson.content);
           logger.debug('📄 Direct JSON insert success:', insertSuccess);
 
           // Check editor state after insertion
@@ -730,7 +872,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         )}
       </div>
 
-      {showPasteDebug && (
+      {effectiveShowPasteDebug && (
         <div className="mt-3 p-4 border border-gray-200 rounded-md bg-gray-50">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-semibold text-gray-700">Paste Debug Panel</h3>
@@ -776,6 +918,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         onDeleteRow={handleDeleteRow}
         onDeleteColumn={handleDeleteColumn}
         onDeleteTable={handleDeleteTable}
+        texts={texts}
       />
 
 

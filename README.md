@@ -88,6 +88,8 @@ function App() {
 | `enableCodeBlock` | `boolean`               | `true`              | Enable code blocks                                    |
 | `enableLink`   | `boolean`                  | `true`              | Enable links                                          |
 | `mermaidLib`   | `typeof mermaid`           | -                   | Mermaid instance (required if `enableMermaid=true`)   |
+| `texts`        | `Partial<ITexts>`          | `DEFAULT_TEXTS`     | i18n text labels (see i18n section)                   |
+| `debug`        | `boolean`                  | `false`             | Show debug info (syntax status, paste debug)          |
 | `className`    | `string`                   | -                   | Additional CSS class                                  |
 | `style`        | `React.CSSProperties`      | -                   | Inline styles                                         |
 | `onBlur`       | `() => void`               | -                   | Blur event handler                                    |
@@ -129,6 +131,83 @@ Consider your app's performance and whether you really need Mermaid.
 - Mobile: iOS Safari 15+, Chrome Android
 
 ### Advanced Usage
+
+#### Internationalization (i18n)
+
+This editor supports integration with external i18n systems like **react-i18next** or **next-intl**.
+
+##### Using Translation Keys with react-i18next
+
+```tsx
+import { MarkdownEditor, I18N_KEYS } from '@markdown-wysiwyg/editor';
+import { useTranslation } from 'react-i18next';
+
+function App() {
+  const { t } = useTranslation();
+  const [content, setContent] = useState('');
+
+  const texts = {
+    table: {
+      rowOperations: t(I18N_KEYS.table.rowOperations),
+      addRowAbove: t(I18N_KEYS.table.addRowAbove),
+      addRowBelow: t(I18N_KEYS.table.addRowBelow),
+      deleteRow: t(I18N_KEYS.table.deleteRow),
+      columnOperations: t(I18N_KEYS.table.columnOperations),
+      addColumnLeft: t(I18N_KEYS.table.addColumnLeft),
+      addColumnRight: t(I18N_KEYS.table.addColumnRight),
+      deleteColumn: t(I18N_KEYS.table.deleteColumn),
+      deleteTable: t(I18N_KEYS.table.deleteTable),
+      cancel: t(I18N_KEYS.table.cancel),
+    },
+  };
+
+  return <MarkdownEditor value={content} onChange={setContent} texts={texts} />;
+}
+```
+
+##### Add to your i18n JSON files
+
+**en.json:**
+```json
+{
+  "markdown_editor": {
+    "table": {
+      "row_operations": "Row Operations",
+      "add_row_above": "Add Row Above",
+      "add_row_below": "Add Row Below",
+      "delete_row": "Delete Row",
+      "column_operations": "Column Operations",
+      "add_column_left": "Add Column Left",
+      "add_column_right": "Add Column Right",
+      "delete_column": "Delete Column",
+      "delete_table": "Delete Entire Table",
+      "cancel": "Cancel"
+    }
+  }
+}
+```
+
+**ja.json:**
+```json
+{
+  "markdown_editor": {
+    "table": {
+      "row_operations": "行の操作",
+      "add_row_above": "上に行を追加",
+      "add_row_below": "下に行を追加",
+      "delete_row": "行を削除",
+      "column_operations": "列の操作",
+      "add_column_left": "左に列を追加",
+      "add_column_right": "右に列を追加",
+      "delete_column": "列を削除",
+      "delete_table": "テーブル全体を削除",
+      "cancel": "キャンセル"
+    }
+  }
+}
+```
+
+See [docs/i18n.md](./docs/i18n.md) for more details.
 
 #### Custom Toolbar
 

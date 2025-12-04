@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom blockquote styling */
+.ProseMirror .blockquote-custom {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 bg-gray-50 py-3 rounded-r-md my-4;
+}
+
+.ProseMirror .blockquote-custom p {
+  @apply m-0;
+}
+
+/* List marker color */
+.ProseMirror ul li::marker,
+.ProseMirror ol li::marker {
+  color: #000;
+  font-weight: 600;
+}
+
+/* Inline code styling */
+.ProseMirror code:not(pre code) {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  font-size: 0.9em !important;
+  border: 1px solid #fecaca !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-weight: normal !important;
+}
+
+/* Table styling */
+.ProseMirror table {
+  border-collapse: collapse !important;
+}
+
+.ProseMirror table th,
+.ProseMirror table td {
+  border: 2px solid #9ca3af !important;
+}
+
+.ProseMirror table th {
+  background-color: #f9fafb !important;
+}
+
+/* Code block styling - prevent unwanted scrollbars */
+.ProseMirror pre {
+  overflow: visible !important;
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.ProseMirror pre code {
+  overflow-x: auto;
+  display: block;
+  white-space: pre;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.ProseMirror .hljs {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}

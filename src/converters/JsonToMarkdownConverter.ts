@@ -23,33 +23,33 @@ export class JsonToMarkdownConverter {
   /**
    * ノード配列を処理してMarkdownテキストを生成
    */
-  private static processNodes(nodes: JSONContent[]): string {
-    return nodes.map(node => this.processNode(node)).join('');
+  private static processNodes(nodes: JSONContent[], depth: number = 0): string {
+    return nodes.map(node => this.processNode(node, depth)).join('');
   }
 
   /**
    * 単一ノードを処理してMarkdownテキストを生成
    */
-  private static processNode(node: JSONContent): string {
+  private static processNode(node: JSONContent, depth: number = 0): string {
     if (!node.type) {
       return '';
     }
 
     switch (node.type) {
       case 'paragraph':
-        return this.processParagraph(node);
+        return this.processParagraph(node, depth);
 
       case 'heading':
         return this.processHeading(node);
 
       case 'bulletList':
-        return this.processBulletList(node);
+        return this.processBulletList(node, depth);
 
       case 'orderedList':
-        return this.processOrderedList(node);
+        return this.processOrderedList(node, depth);
 
       case 'listItem':
-        return this.processListItem(node);
+        return this.processListItem(node, depth);
 
       case 'blockquote':
         return this.processBlockquote(node);
@@ -73,20 +73,23 @@ export class JsonToMarkdownConverter {
       case 'hardBreak':
         return '\n';
 
+      case 'image':
+        return this.processImage(node);
+
       case 'text':
         return this.processText(node);
 
       default:
         log.warn(`Unsupported node type: ${node.type}`);
-        return node.content ? this.processNodes(node.content) : '';
+        return node.content ? this.processNodes(node.content, depth) : '';
     }
   }
 
   /**
    * 段落の処理
    */
-  private static processParagraph(node: JSONContent): string {
-    const content = node.content ? this.processNodes(node.content) : '';
+  private static processParagraph(node: JSONContent, depth: number): string {
+    const content = node.content ? this.processNodes(node.content, depth) : '';
     return content + '\n\n';
   }
 
@@ -103,26 +106,31 @@ export class JsonToMarkdownConverter {
   /**
    * 箇条書きリストの処理
    */
-  private static processBulletList(node: JSONContent): string {
-    const content = node.content ? this.processNodes(node.content) : '';
+  private static processBulletList(node: JSONContent, depth: number): string {
+    const content = node.content ? this.processNodes(node.content, depth) : '';
     return content + '\n';
   }
 
   /**
    * 番号付きリストの処理
    */
-  private static processOrderedList(node: JSONContent): string {
-    const content = node.content ? this.processNodes(node.content) : '';
+  private static processOrderedList(node: JSONContent, depth: number): string {
+    const content = node.content ? this.processNodes(node.content, depth) : '';
     return content + '\n';
   }
 
   /**
    * リストアイテムの処理
    */
-  private static processListItem(node: JSONContent): string {
-    const content = node.content ? this.processNodes(node.content) : '';
-    // リストの種類を判定（親ノードの情報が必要だが、簡略化のため箇条書きとして扱う）
-    return `- ${content.trim()}\n`;
+  private static processListItem(node: JSONContent, depth: number): string {
+    const content = node.content ? this.processNodes(node.content, depth + 1) : '';
+    const indent = '  '.repeat(depth);
+    // コンテンツが改行で終わっている場合、その改行を維持しつつインデントを適用するのは難しい
+    // ここでは単純に先頭にインデントとマーカーを付与
+    // ネストされたリストがある場合、その部分は processBulletList/OrderedList で処理されるが
+    // インデントの扱いは複雑。
+    // 簡易的な実装として、コンテンツ全体をトリムして配置
+    return `${indent}- ${content.trim()}\n`;
   }
 
   /**
@@ -144,6 +152,15 @@ export class JsonToMarkdownConverter {
     const language = node.attrs?.language || '';
     const content = node.content ? this.processNodes(node.content) : '';
     return `\`\`\`${language}\n${content.trim()}\n\`\`\`\n\n`;
+  }
+
+  /**
+   * 画像の処理
+   */
+  private static processImage(node: JSONContent): string {
+    const src = node.attrs?.src || '';
+    const alt = node.attrs?.alt || '';
+    return `![${alt}](${src})`;
   }
 
   /**

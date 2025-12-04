@@ -11,6 +11,7 @@ const logger = createLogger('MarkdownPasteExtension');
 export const createMarkdownPasteExtension = (
   setIsProcessing: (processing: boolean) => void,
   setProcessingProgress: (progress: { processed: number; total: number }) => void,
+  onPasteComplete?: () => void,
 ) => {
   let pasteCount = 0;
   let lastPasteTime = 0;
@@ -79,11 +80,18 @@ export const createMarkdownPasteExtension = (
                 setIsProcessing,
                 setProcessingProgress,
                 largeTextThreshold: LARGE_TEXT_THRESHOLD,
-              }).catch((error) => {
-                logger.error('🚨 Paste processing error:', error);
-                editor.__isProcessing = false;
-                setIsProcessing(false);
-              });
+              })
+                .then(() => {
+                  // Notify paste completion
+                  if (onPasteComplete) {
+                    onPasteComplete();
+                  }
+                })
+                .catch((error) => {
+                  logger.error('🚨 Paste processing error:', error);
+                  editor.__isProcessing = false;
+                  setIsProcessing(false);
+                });
 
               return true;
             },

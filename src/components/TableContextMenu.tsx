@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import { DEFAULT_TEXTS, ITexts } from '../types/index';
 
 export interface ITableContextMenuProps {
   isVisible: boolean;
@@ -15,6 +16,7 @@ export interface ITableContextMenuProps {
   onDeleteRow: () => void;
   onDeleteColumn: () => void;
   onDeleteTable: () => void;
+  texts?: Partial<ITexts>;
 }
 
 export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
@@ -28,8 +30,11 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
   onDeleteRow,
   onDeleteColumn,
   onDeleteTable,
+  texts = DEFAULT_TEXTS,
 }) => {
   if (!isVisible) return null;
+
+  const t = { ...DEFAULT_TEXTS, ...texts };
 
   return (
     <div
@@ -43,7 +48,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
       onClick={(e) => e.stopPropagation()}
     >
       <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-1">
-        Row Operations
+        {t.table.rowOperations}
       </div>
 
       <button
@@ -54,7 +59,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-blue-500">⬆️</span>
-        Add Row Above
+        {t.table.addRowAbove}
       </button>
 
       <button
@@ -65,7 +70,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-blue-500">⬇️</span>
-        Add Row Below
+        {t.table.addRowBelow}
       </button>
 
       <button
@@ -76,13 +81,13 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-red-500">🗑️</span>
-        Delete Row
+        {t.table.deleteRow}
       </button>
 
       <div className="border-t border-gray-100 my-1"></div>
 
       <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-        Column Operations
+        {t.table.columnOperations}
       </div>
 
       <button
@@ -93,7 +98,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-green-500">⬅️</span>
-        Add Column Left
+        {t.table.addColumnLeft}
       </button>
 
       <button
@@ -104,7 +109,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-green-500">➡️</span>
-        Add Column Right
+        {t.table.addColumnRight}
       </button>
 
       <button
@@ -115,7 +120,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-red-500">🗑️</span>
-        Delete Column
+        {t.table.deleteColumn}
       </button>
 
       <div className="border-t border-gray-100 my-1"></div>
@@ -128,7 +133,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         }}
       >
         <span className="text-red-500">🗑️</span>
-        Delete Entire Table
+        {t.table.deleteTable}
       </button>
 
       <div className="border-t border-gray-100 my-1"></div>
@@ -137,7 +142,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-600"
         onClick={onClose}
       >
-        Cancel
+        {t.table.cancel}
       </button>
     </div>
   );

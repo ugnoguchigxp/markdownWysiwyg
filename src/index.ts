@@ -4,7 +4,8 @@
  */
 
 // Styles
-import './styles/editor.css';
+import './index.css';
+
 
 // Main components
 export { MarkdownEditor } from './components/MarkdownEditor';
@@ -38,4 +39,7 @@ export type {
   IMarkdownEditorProps,
   ILanguageOption,
   ISelectionInfo,
+  ITexts,
 } from './types/index';
+
+export { DEFAULT_TEXTS, I18N_KEYS } from './types/index';
