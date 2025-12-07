@@ -1,6 +1,6 @@
 {
   "name": "markdown-wysiwyg-editor",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Lightweight Markdown WYSIWYG editor with TipTap,Mermaid support",
   "type": "module",
   "main": "./dist/index.js",
