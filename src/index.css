@@ -1,9 +1,137 @@
+:root {
+  /* Editor Background & Text */
+  --mw-bg-canvas: #ffffff;
+  --mw-text-primary: #111827;
+  --mw-text-secondary: #374151;
+
+  /* Headings */
+  --mw-heading-color: #111827;
+  --mw-heading-secondary: #1f2937;
+
+  /* Code Blocks */
+  --mw-code-bg: #1e293b;
+  --mw-code-text: #e2e8f0;
+  --mw-code-border: #d1d5db;
+
+  /* Inline Code */
+  --mw-inline-code-bg: #fef2f2;
+  --mw-inline-code-text: #b91c1c;
+  --mw-inline-code-border: #fecaca;
+
+  /* Tables */
+  --mw-table-border: #e5e7eb;
+  --mw-table-header-bg: #f9fafb;
+  --mw-table-header-text: #111827;
+  --mw-table-header-border-bottom: #d1d5db;
+  --mw-table-row-hover: #f9fafb;
+  --mw-table-resize-handle: #3b82f6;
+
+  /* Blockquotes */
+  --mw-quote-border: #3b82f6;
+  --mw-quote-text: #4b5563;
+  --mw-quote-bg: #f9fafb;
+
+  /* Toolbar Tooltip */
+  --mw-tooltip-bg: #1f2937;
+  --mw-tooltip-text: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+
+  /* Apply if system is dark AND data-theme is NOT light */
+  :root:not([data-theme="light"]) {
+    /* Editor Background & Text */
+    --mw-bg-canvas: #1f2937;
+    --mw-text-primary: #f9fafb;
+    --mw-text-secondary: #d1d5db;
+
+    /* Headings */
+    --mw-heading-color: #f9fafb;
+    --mw-heading-secondary: #e5e7eb;
+
+    /* Code Blocks */
+    --mw-code-bg: #111827;
+    --mw-code-text: #e5e7eb;
+    --mw-code-border: #374151;
+
+    /* Inline Code */
+    --mw-inline-code-bg: #374151;
+    --mw-inline-code-text: #fca5a5;
+    --mw-inline-code-border: #4b5563;
+
+    /* Tables */
+    --mw-table-border: #374151;
+    --mw-table-header-bg: #111827;
+    --mw-table-header-text: #f9fafb;
+    --mw-table-header-border-bottom: #4b5563;
+    --mw-table-row-hover: #1f2937;
+    --mw-table-resize-handle: #60a5fa;
+
+    /* Blockquotes */
+    --mw-quote-border: #60a5fa;
+    --mw-quote-text: #9ca3af;
+    --mw-quote-bg: #111827;
+
+    /* Toolbar Tooltip */
+    --mw-tooltip-bg: #000000;
+    --mw-tooltip-text: #ffffff;
+  }
+}
+
+
+:root[data-theme="dark"],
+.dark {
+  /* Editor Background & Text */
+  --mw-bg-canvas: #1f2937;
+  --mw-text-primary: #f9fafb;
+  --mw-text-secondary: #d1d5db;
+
+  /* Headings */
+  --mw-heading-color: #f9fafb;
+  --mw-heading-secondary: #e5e7eb;
+
+  /* Code Blocks */
+  --mw-code-bg: #111827;
+  --mw-code-text: #e5e7eb;
+  --mw-code-border: #374151;
+
+  /* Inline Code */
+  --mw-inline-code-bg: #374151;
+  --mw-inline-code-text: #fca5a5;
+  --mw-inline-code-border: #4b5563;
+
+  /* Tables */
+  --mw-table-border: #374151;
+  --mw-table-header-bg: #111827;
+  --mw-table-header-text: #f9fafb;
+  --mw-table-header-border-bottom: #4b5563;
+  --mw-table-row-hover: #1f2937;
+  --mw-table-resize-handle: #60a5fa;
+
+  /* Blockquotes */
+  --mw-quote-border: #60a5fa;
+  --mw-quote-text: #9ca3af;
+  --mw-quote-bg: #111827;
+
+  /* Toolbar Tooltip */
+  --mw-tooltip-bg: #000000;
+  --mw-tooltip-text: #ffffff;
+}
+
+/* Base Editor Styles */
+.ProseMirror {
+  background-color: var(--mw-bg-canvas);
+  color: var(--mw-text-primary);
+  min-height: 100%;
+  /* Ensure it fills container */
+}
+
 /* Heading styles for WYSIWYG */
 .ProseMirror h1 {
   font-size: 2.25rem;
   line-height: 2.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--mw-heading-color);
   margin-bottom: 1rem;
   margin-top: 1.5rem;
 }
@@ -12,7 +140,7 @@
   font-size: 1.875rem;
   line-height: 2.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--mw-heading-color);
   margin-bottom: 0.75rem;
   margin-top: 1.25rem;
 }
@@ -21,7 +149,7 @@
   font-size: 1.5rem;
   line-height: 2rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--mw-heading-color);
   margin-bottom: 0.75rem;
   margin-top: 1rem;
 }
@@ -30,7 +158,7 @@
   font-size: 1.25rem;
   line-height: 1.75rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--mw-heading-secondary);
   margin-bottom: 0.5rem;
   margin-top: 0.75rem;
 }
@@ -39,7 +167,7 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--mw-heading-secondary);
   margin-bottom: 0.5rem;
   margin-top: 0.75rem;
 }
@@ -48,14 +176,14 @@
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--mw-text-secondary);
   margin-bottom: 0.5rem;
   margin-top: 0.5rem;
 }
 
 .ProseMirror p {
   margin-bottom: 0.75rem;
-  color: #1f2937;
+  color: var(--mw-text-secondary);
 }
 
 /* List styles */
@@ -78,21 +206,41 @@
 .ProseMirror ol li {
   margin-bottom: 0.25rem;
   padding-left: 0.25rem;
+  color: var(--mw-text-primary);
 }
 
-.ProseMirror li > p {
+.ProseMirror li>p {
   margin-bottom: 0;
   margin-top: 0;
 }
 
+/* Bold, Italic, Strikethrough */
+.ProseMirror strong,
+.ProseMirror b {
+  font-weight: 700;
+  color: var(--mw-text-primary);
+}
+
+.ProseMirror em,
+.ProseMirror i {
+  font-style: italic;
+  color: var(--mw-text-primary);
+}
+
+.ProseMirror s,
+.ProseMirror strike,
+.ProseMirror del {
+  color: var(--mw-text-secondary);
+}
+
 /* Blockquote styling */
 .ProseMirror blockquote {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--mw-quote-border);
   padding-left: 1rem;
   padding-right: 1rem;
   font-style: italic;
-  color: #4b5563;
-  background-color: #f9fafb;
+  color: var(--mw-quote-text);
+  background-color: var(--mw-quote-bg);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   border-radius: 0 0.375rem 0.375rem 0;
@@ -114,31 +262,31 @@
 }
 
 /* List marker color */
-.ProseMirror ul > li::marker {
-  color: #1f2937;
+.ProseMirror ul>li::marker {
+  color: var(--mw-heading-secondary);
   font-weight: 600;
 }
 
-.ProseMirror ol > li::marker {
-  color: #1f2937;
+.ProseMirror ol>li::marker {
+  color: var(--mw-heading-secondary);
   font-weight: 600;
 }
 
 /* Inline code styling */
 .ProseMirror code:not(pre code) {
-  background-color: #fef2f2 !important;
-  color: #b91c1c !important;
-  padding: 2px 6px !important;
-  border-radius: 3px !important;
-  font-size: 0.9em !important;
-  border: 1px solid #fecaca !important;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
-  font-weight: normal !important;
+  background-color: var(--mw-inline-code-bg);
+  color: var(--mw-inline-code-text);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  border: 1px solid var(--mw-inline-code-border);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-weight: normal;
 }
 
 /* Table styling */
 .ProseMirror table {
-  border-collapse: collapse !important;
+  border-collapse: collapse;
   width: 100%;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -148,25 +296,26 @@
 
 .ProseMirror table th,
 .ProseMirror table td {
-  border: 1px solid #e5e7eb !important;
-  padding: 0.75rem 1rem !important;
+  border: 1px solid var(--mw-table-border);
+  padding: 0.75rem 1rem;
   text-align: left;
   min-width: 100px;
 }
 
 .ProseMirror table th {
-  background-color: #f9fafb !important;
+  background-color: var(--mw-table-header-bg);
   font-weight: 600;
-  color: #111827;
-  border-bottom: 2px solid #d1d5db !important;
+  color: var(--mw-table-header-text);
+  border-bottom: 2px solid var(--mw-table-header-border-bottom);
 }
 
 .ProseMirror table td {
-  background-color: #ffffff;
+  background-color: var(--mw-bg-canvas);
+  color: var(--mw-text-primary);
 }
 
 .ProseMirror table tr:hover td {
-  background-color: #f9fafb;
+  background-color: var(--mw-table-row-hover);
 }
 
 /* Table resize handle */
@@ -176,16 +325,16 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background-color: #3b82f6;
+  background-color: var(--mw-table-resize-handle);
   cursor: col-resize;
   z-index: 20;
 }
 
 /* Code block styling */
 .ProseMirror pre {
-  background: #1e293b !important;
-  color: #e2e8f0 !important;
-  padding: 1rem !important;
+  background: var(--mw-code-bg);
+  color: var(--mw-code-text);
+  padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
   margin-top: 1rem;
@@ -197,16 +346,16 @@
 .ProseMirror pre code {
   display: block;
   white-space: pre;
-  color: #e2e8f0 !important;
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace !important;
+  color: var(--mw-code-text);
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
 }
 
 .ProseMirror .hljs {
-  background: #1e293b !important;
-  color: #e2e8f0 !important;
+  background: var(--mw-code-bg);
+  color: var(--mw-code-text);
 }
 
 /* Toolbar tooltip styling */
@@ -221,8 +370,8 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 6px 8px;
-  background-color: #1f2937;
-  color: white;
+  background-color: var(--mw-tooltip-bg);
+  color: var(--mw-tooltip-text);
   font-size: 12px;
   white-space: nowrap;
   border-radius: 4px;
@@ -239,7 +388,7 @@
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-bottom-color: #1f2937;
+  border-bottom-color: var(--mw-tooltip-bg);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.1s ease-in-out;

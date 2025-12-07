@@ -59,6 +59,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      exclude: [
+        'example/**',
+        'docs/**',
+        '**/*.config.{js,ts,cjs}',
+        'dist/**',
+        'Test/**',
+        '.eslintrc.cjs',
+      ],
     },
   },
 });

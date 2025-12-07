@@ -1,4 +1,4 @@
-import { useEditor } from '@tiptap/react';
+import { useEditor, Editor, JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Table } from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
@@ -26,20 +26,22 @@ interface UseMarkdownEditorProps {
     initialContent?: string;
     editable: boolean;
     placeholder: string;
-    onContentChange?: (content: any) => void;
+    onContentChange?: (content: JSONContent) => void;
     onChange?: (markdown: string) => void;
     onMarkdownChange?: (markdown: string) => void;
     onSelectionChange?: (selection: ISelectionInfo) => void;
-    onEditorReady?: (editor: any) => void;
+    onEditorReady?: (editor: Editor) => void;
     isUpdating: boolean;
     isProcessing: boolean;
     setIsProcessing: (isProcessing: boolean) => void;
     setProcessingProgress: (progress: { processed: number; total: number }) => void;
     setSelectionInfo: (info: ISelectionInfo | null) => void;
-    setContent: (content: any) => void;
+    setContent: (content: JSONContent) => void;
     handleLinkContextMenu: (event: React.MouseEvent, linkData: { href: string; text: string }) => void;
     handleTableContextMenu: (event: React.MouseEvent) => void;
 }
+
+const EDITOR_CLASS_NAMES = 'prose prose-base max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-h1:text-2xl prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-100 prose-h2:pb-1 prose-h3:text-lg prose-p:text-gray-700 prose-p:leading-tight prose-strong:text-gray-900 prose-strong:font-semibold prose-em:text-gray-800 prose-code:bg-red-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:text-red-700 prose-code:border prose-code:border-red-200 prose-pre:bg-slate-700 prose-pre:text-gray-200 prose-pre:rounded-md prose-pre:p-4 prose-pre:shadow-inner prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600 prose-blockquote:bg-gray-50 prose-blockquote:py-3 prose-blockquote:rounded-r-md prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-gray-700 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:break-words prose-table:border-collapse prose-th:border-2 prose-th:border-gray-400 prose-th:bg-gray-50 prose-th:px-3 prose-th:py-2 prose-td:border-2 prose-td:border-gray-400 prose-td:px-3 prose-td:py-2 prose-hr:border-gray-300 p-4 focus:outline-none text-gray-700';
 
 export const useMarkdownEditor = ({
     value,
@@ -124,7 +126,7 @@ export const useMarkdownEditor = ({
         editable,
         editorProps: {
             attributes: {
-                class: 'prose prose-base max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-h1:text-2xl prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-100 prose-h2:pb-1 prose-h3:text-lg prose-p:text-gray-700 prose-p:leading-tight prose-strong:text-gray-900 prose-strong:font-semibold prose-em:text-gray-800 prose-code:bg-red-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:text-red-700 prose-code:border prose-code:border-red-200 prose-pre:bg-slate-700 prose-pre:text-gray-200 prose-pre:rounded-md prose-pre:p-4 prose-pre:shadow-inner prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600 prose-blockquote:bg-gray-50 prose-blockquote:py-3 prose-blockquote:rounded-r-md prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-gray-700 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:break-words prose-table:border-collapse prose-th:border-2 prose-th:border-gray-400 prose-th:bg-gray-50 prose-th:px-3 prose-th:py-2 prose-td:border-2 prose-td:border-gray-400 prose-td:px-3 prose-td:py-2 prose-hr:border-gray-300 p-4 focus:outline-none text-gray-700',
+                class: EDITOR_CLASS_NAMES,
                 'data-placeholder': placeholder,
             },
         },

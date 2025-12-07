@@ -61,37 +61,37 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
     {
       level: 1,
       markdown: '# ',
-      className: 'text-4xl font-bold text-gray-800',
+      className: 'text-4xl font-bold text-gray-800 dark:text-gray-100',
       preview: 'H1',
-      bgColor: 'bg-white hover:bg-gray-100'
+      bgColor: 'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100'
     },
     {
       level: 2,
       markdown: '## ',
-      className: 'text-3xl font-bold text-gray-800',
+      className: 'text-3xl font-bold text-gray-800 dark:text-gray-100',
       preview: 'H2',
-      bgColor: 'bg-white hover:bg-gray-100'
+      bgColor: 'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100'
     },
     {
       level: 3,
       markdown: '### ',
-      className: 'text-2xl font-semibold text-gray-800',
+      className: 'text-2xl font-semibold text-gray-800 dark:text-gray-100',
       preview: 'H3',
-      bgColor: 'bg-white hover:bg-gray-100'
+      bgColor: 'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100'
     },
     {
       level: 4,
       markdown: '#### ',
-      className: 'text-xl font-semibold text-gray-800',
+      className: 'text-xl font-semibold text-gray-800 dark:text-gray-100',
       preview: 'H4',
-      bgColor: 'bg-white hover:bg-gray-100'
+      bgColor: 'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100'
     },
     {
       level: 5,
       markdown: '##### ',
-      className: 'text-lg font-medium text-gray-800',
+      className: 'text-lg font-medium text-gray-800 dark:text-gray-100',
       preview: 'H5',
-      bgColor: 'bg-white hover:bg-gray-100'
+      bgColor: 'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100'
     },
   ];;;;
 
@@ -358,7 +358,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           className={`
             w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
             disabled:opacity-50 disabled:cursor-not-allowed
-            text-blue-600 hover:bg-blue-50 relative
+            text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 relative dark:bg-opacity-10 dark:hover:bg-opacity-20
           `}
         >
           <Heading1 className="w-4 h-4" />
@@ -380,7 +380,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             />
 
             {/* Rich dropdown menu (without title) */}
-            <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+            <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 dark:bg-slate-800 dark:border-slate-700">
               <div className="py-2 max-h-96 overflow-y-auto">
                 {headingLevels.map((heading, index) => (
                   <button
@@ -450,7 +450,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             className={`
               w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
               disabled:opacity-50 disabled:cursor-not-allowed
-              text-indigo-600 hover:bg-indigo-50 relative
+              text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30 relative
             `}
           >
             <Download className="w-4 h-4" />
@@ -472,7 +472,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               />
 
               {/* Download menu */}
-              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 dark:bg-slate-800 dark:border-slate-700">
                 <div className="py-2">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <h3 className="text-sm font-semibold text-gray-900">Export</h3>
@@ -507,7 +507,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           type="button"
           onClick={onShowHelp}
           disabled={disabled}
-          className="w-8 h-8 flex items-center justify-center rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 hover:bg-gray-50"
+          className="w-8 h-8 flex items-center justify-center rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -530,15 +530,15 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           >
             {/* Modal body */}
             <div
-              className="bg-white rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl"
+              className="bg-white rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl dark:bg-slate-800"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Insert Link</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Insert Link</h3>
 
               <div className="space-y-4">
                 {/* Link text */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
                     Link Text
                   </label>
                   <input
@@ -551,7 +551,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                         handleLinkModalSubmit();
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     placeholder="Enter link text"
                   />
                 </div>

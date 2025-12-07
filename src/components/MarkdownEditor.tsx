@@ -1,41 +1,31 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import CharacterCount from '@tiptap/extension-character-count';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import { Table } from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
-import TableRow from '@tiptap/extension-table-row';
-import Typography from '@tiptap/extension-typography';
 import { EditorContent } from '@tiptap/react';
 import { JSONContent } from '@tiptap/react';
-import { common, createLowlight } from 'lowlight';
+
 
 import { createLogger } from '../utils/logger';
 
-import { MarkdownToolbar } from './MarkdownToolbar';
-import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
-import { useTableToolbar } from '../hooks/useTableToolbar';
+
+
+import { ExtendedEditor } from '../types/editor';
+import { useEditorState } from '../hooks/useEditorState';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
+import { useTableToolbar } from '../hooks/useTableToolbar';
 import { ISelectionInfo } from '../utils/selectionUtils';
 
+import { MarkdownToolbar } from './MarkdownToolbar';
 import { LinkContextMenu } from './LinkContextMenu';
 import { MarkdownSyntaxStatus } from './MarkdownSyntaxStatus';
 import { TableContextMenu } from './TableContextMenu';
 import { TableEdgeControls } from './TableEdgeControls';
 import { TableToolbar } from './TableToolbar';
-import { CustomCodeBlock } from '../extensions/CustomCodeBlock';
 
-import { ExtendedEditor } from '../types/editor';
-import { useEditorState } from '../hooks/useEditorState';
-import { createLinkClickExtension } from '../extensions/LinkClickExtension';
-import { createTableRightClickExtension } from '../extensions/TableRightClickExtension';
-import { createMarkdownShortcutsExtension } from '../extensions/MarkdownShortcutsExtension';
-import { createMarkdownPasteExtension } from '../extensions/MarkdownPasteExtension';
+
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
 import { isValidUrl, sanitizeText } from '../utils/security';
+import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 
 
 const logger = createLogger('MarkdownEditor');
@@ -680,7 +670,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   return (
     <div className={`${className}`}>
-      <div className={`border border-gray-300 rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}>
+      <div className={`border border-gray-300 dark:border-gray-700 bg-[var(--mw-bg-canvas)] rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}>
         {/* Processing indicator (top right) */}
         {isProcessing && (
           <div className="absolute top-2 right-2 z-50">
@@ -703,16 +693,18 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         )}
 
         {effectiveShowToolbar && (
-          <MarkdownToolbar
-            onInsertMarkdown={handleInsertMarkdown}
-            onShowHelp={handleShowHelp}
-            selectedText={selectionInfo?.selectedText || ''}
-            disabled={!editable}
-            editor={editor}
-            showDownloadButton={showDownloadButton}
-            onDownloadAsMarkdown={handleDownloadAsMarkdown}
-            texts={texts}
-          />
+          <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-2 rounded-t-lg transition-colors duration-200">
+            <MarkdownToolbar
+              onInsertMarkdown={handleInsertMarkdown}
+              onShowHelp={handleShowHelp}
+              selectedText={selectionInfo?.selectedText || ''}
+              disabled={!editable}
+              editor={editor}
+              showDownloadButton={showDownloadButton}
+              onDownloadAsMarkdown={handleDownloadAsMarkdown}
+              texts={texts}
+            />
+          </div>
         )}
         <div
           className={`relative ${enableVerticalScroll ? 'flex-1 overflow-hidden' : 'overflow-visible'} ${editable ? 'cursor-text' : 'cursor-default'}`}
