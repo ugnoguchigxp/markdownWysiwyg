@@ -338,13 +338,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
     }
   ];
 
-  const groupColors = {
-    text: 'text-blue-600 hover:bg-blue-50',
-    code: 'text-green-600 hover:bg-green-50',
-    block: 'text-purple-600 hover:bg-purple-50',
-    list: 'text-orange-600 hover:bg-orange-50',
-    media: 'text-pink-600 hover:bg-pink-50'
-  };
+
 
   return (
     <div className="mw-toolbar-root flex items-center space-x-1">
@@ -358,8 +352,17 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           className={`
             w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
             disabled:opacity-50 disabled:cursor-not-allowed
-            text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 relative dark:bg-opacity-10 dark:hover:bg-opacity-20
+            relative
           `}
+          style={{
+            color: 'var(--mw-toolbar-text)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
         >
           <Heading1 className="w-4 h-4" />
           <svg
@@ -380,7 +383,15 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             />
 
             {/* Rich dropdown menu (without title) */}
-            <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 dark:bg-slate-800 dark:border-slate-700">
+            <div
+              className="absolute top-full left-0 mt-2 w-80 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200"
+              style={{
+                backgroundColor: 'var(--mw-toolbar-bg)',
+                borderColor: 'var(--mw-toolbar-border)',
+                borderWidth: '1px',
+                borderStyle: 'solid'
+              }}
+            >
               <div className="py-2 max-h-96 overflow-y-auto">
                 {headingLevels.map((heading, index) => (
                   <button
@@ -389,20 +400,36 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                     onClick={() => handleHeadingClick(heading.markdown)}
                     className={`
                       w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent
-                      hover:border-blue-400 ${heading.bgColor}
-                      ${index !== headingLevels.length - 1 ? 'border-b border-gray-100' : ''}
                     `}
+                    style={{
+                      backgroundColor: 'var(--mw-toolbar-bg)',
+                      borderBottom: index !== headingLevels.length - 1 ? '1px solid var(--mw-toolbar-border)' : 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-bg)';
+                    }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-3">
-                          <div className={`flex-shrink-0 w-12 h-8 bg-white rounded-md border border-gray-200 flex items-center justify-center ${heading.className.includes('text-4xl') ? 'text-lg' : heading.className.includes('text-3xl') ? 'text-base' : heading.className.includes('text-2xl') ? 'text-sm' : heading.className.includes('text-xl') ? 'text-xs' : 'text-xs'} font-bold text-gray-700 shadow-sm`}>
+                          <div
+                            className={`flex-shrink-0 w-12 h-8 rounded-md border flex items-center justify-center font-bold shadow-sm`}
+                            style={{
+                              backgroundColor: 'var(--mw-bg-canvas)',
+                              borderColor: 'var(--mw-toolbar-border)',
+                              color: 'var(--mw-toolbar-text)',
+                              fontSize: heading.level === 1 ? '18px' : heading.level === 2 ? '16px' : heading.level === 3 ? '14px' : '12px'
+                            }}
+                          >
                             {heading.preview}
                           </div>
                         </div>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <div className={`${heading.className} truncate max-w-[200px]`}>
+                        <div className="truncate max-w-[200px]" style={{ color: 'var(--mw-toolbar-text)' }}>
                           Sample Text
                         </div>
                       </div>
@@ -418,7 +445,6 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
       {/* Other toolbar items */}
       {toolbarItems.map((item, index) => {
         const Icon = item.icon;
-        const colorClass = groupColors[item.group as keyof typeof groupColors];
 
         return (
           <div key={index} className="relative group">
@@ -430,8 +456,16 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               className={`
                 w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
                 disabled:opacity-50 disabled:cursor-not-allowed
-                ${colorClass}
               `}
+              style={{
+                color: 'var(--mw-toolbar-text)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               <Icon className="w-4 h-4" />
             </button>
@@ -450,8 +484,17 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             className={`
               w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
               disabled:opacity-50 disabled:cursor-not-allowed
-              text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30 relative
+              relative
             `}
+            style={{
+              color: 'var(--mw-toolbar-text)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
             <Download className="w-4 h-4" />
             <svg
@@ -472,25 +515,42 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               />
 
               {/* Download menu */}
-              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 dark:bg-slate-800 dark:border-slate-700">
+              <div
+                className="absolute top-full left-0 mt-2 w-64 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200"
+                style={{
+                  backgroundColor: 'var(--mw-toolbar-bg)',
+                  borderColor: 'var(--mw-toolbar-border)',
+                  borderWidth: '1px',
+                  borderStyle: 'solid'
+                }}
+              >
                 <div className="py-2">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <h3 className="text-sm font-semibold text-gray-900">Export</h3>
-                    <p className="text-xs text-gray-500 mt-1">Save current content</p>
+                  <div className="px-4 py-2" style={{ borderBottom: '1px solid var(--mw-toolbar-border)' }}>
+                    <h3 className="text-sm font-semibold" style={{ color: 'var(--mw-toolbar-text)' }}>Export</h3>
+                    <p className="text-xs mt-1" style={{ color: 'var(--mw-text-secondary)' }}>Save current content</p>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleDownloadAsMarkdown}
-                    className="w-full text-left px-4 py-3 transition-all duration-150 hover:bg-indigo-50 border-l-4 border-transparent hover:border-indigo-400"
+                    className="w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                        <Download className="w-3 h-3 text-indigo-600" />
+                      <div
+                        className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center"
+                        style={{ backgroundColor: 'var(--mw-hover-bg, #f3f4f6)' }}
+                      >
+                        <Download className="w-3 h-3" style={{ color: 'var(--mw-toolbar-text)' }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900">Markdown File</div>
-                        <div className="text-xs text-gray-500">Save document as .md file</div>
+                        <div className="text-sm font-medium" style={{ color: 'var(--mw-toolbar-text)' }}>Markdown File</div>
+                        <div className="text-xs" style={{ color: 'var(--mw-text-secondary)' }}>Save document as .md file</div>
                       </div>
                     </div>
                   </button>
@@ -507,7 +567,16 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           type="button"
           onClick={onShowHelp}
           disabled={disabled}
-          className="w-8 h-8 flex items-center justify-center rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
+          className="w-8 h-8 flex items-center justify-center rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            color: 'var(--mw-toolbar-text)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -530,15 +599,19 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           >
             {/* Modal body */}
             <div
-              className="bg-white rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl dark:bg-slate-800"
+              className="rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl"
+              style={{
+                backgroundColor: 'var(--mw-bg-canvas)',
+                color: 'var(--mw-text-primary)'
+              }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Insert Link</h3>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--mw-heading-color)' }}>Insert Link</h3>
 
               <div className="space-y-4">
                 {/* Link text */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--mw-text-secondary)' }}>
                     Link Text
                   </label>
                   <input
@@ -551,7 +624,12 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                         handleLinkModalSubmit();
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    style={{
+                      backgroundColor: 'var(--mw-bg-canvas)',
+                      borderColor: 'var(--mw-toolbar-border)',
+                      color: 'var(--mw-text-primary)'
+                    }}
                     placeholder="Enter link text"
                   />
                 </div>

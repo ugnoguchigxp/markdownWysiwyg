@@ -34,6 +34,13 @@
   /* Toolbar Tooltip */
   --mw-tooltip-bg: #1f2937;
   --mw-tooltip-text: #ffffff;
+
+  /* Toolbar */
+  --mw-toolbar-bg: #ffffff;
+  --mw-toolbar-border: #e5e7eb;
+  --mw-toolbar-text: #374151;
+  --mw-toolbar-hover-bg: #f3f4f6;
+  --mw-toolbar-active-bg: #e5e7eb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -75,6 +82,13 @@
     /* Toolbar Tooltip */
     --mw-tooltip-bg: #000000;
     --mw-tooltip-text: #ffffff;
+
+    /* Toolbar */
+    --mw-toolbar-bg: #1e293b;
+    --mw-toolbar-border: #374151;
+    --mw-toolbar-text: #e5e7eb;
+    --mw-toolbar-hover-bg: #374151;
+    --mw-toolbar-active-bg: #4b5563;
   }
 }
 
@@ -116,6 +130,13 @@
   /* Toolbar Tooltip */
   --mw-tooltip-bg: #000000;
   --mw-tooltip-text: #ffffff;
+
+  /* Toolbar */
+  --mw-toolbar-bg: #1e293b;
+  --mw-toolbar-border: #374151;
+  --mw-toolbar-text: #e5e7eb;
+  --mw-toolbar-hover-bg: #374151;
+  --mw-toolbar-active-bg: #4b5563;
 }
 
 /* Base Editor Styles */

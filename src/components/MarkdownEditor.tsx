@@ -693,7 +693,10 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         )}
 
         {effectiveShowToolbar && (
-          <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-2 rounded-t-lg transition-colors duration-200">
+          <div className="border-b p-2 rounded-t-lg transition-colors duration-200" style={{
+            backgroundColor: 'var(--mw-toolbar-bg)',
+            borderColor: 'var(--mw-toolbar-border)'
+          }}>
             <MarkdownToolbar
               onInsertMarkdown={handleInsertMarkdown}
               onShowHelp={handleShowHelp}
