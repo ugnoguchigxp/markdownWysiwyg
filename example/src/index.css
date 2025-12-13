@@ -4,14 +4,13 @@
 
 /* Minimal Markdown Styling Overrides */
 @layer base {
+  em,
+  i {
+    font-style: italic !important;
+  }
 
-    em,
-    i {
-        font-style: italic !important;
-    }
-
-    strong,
-    b {
-        font-weight: bold !important;
-    }
+  strong,
+  b {
+    font-weight: bold !important;
+  }
 }

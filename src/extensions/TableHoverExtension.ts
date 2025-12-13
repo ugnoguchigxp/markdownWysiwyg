@@ -21,7 +21,9 @@ export const TableHoverExtension = Extension.create({
               if (cell) {
                 // 既存のホバークラスを削除
                 const allCells = view.dom.querySelectorAll('th, td');
-                allCells.forEach(c => c.classList.remove('table-cell-hover'));
+                for (const c of allCells) {
+                  c.classList.remove('table-cell-hover');
+                }
 
                 // 現在のセルにホバー効果を追加
                 cell.classList.add('table-cell-hover');
@@ -45,10 +47,10 @@ export const TableHoverExtension = Extension.create({
                 return false;
               }
               return false;
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      }),
     ];
-  }
+  },
 });

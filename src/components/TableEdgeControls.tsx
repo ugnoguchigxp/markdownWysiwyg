@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
 import { createPortal } from 'react-dom';
 
@@ -14,7 +15,7 @@ export interface ITableEdgeControlsProps {
  */
 export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor }) => {
   const [hoveredTable, setHoveredTable] = useState<HTMLElement | null>(null);
-  const [controlPosition, setControlPosition] = useState<{ x: number, y: number } | null>(null);
+  const [controlPosition, setControlPosition] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (!editor) return;
@@ -29,7 +30,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
           const rect = table.getBoundingClientRect();
           setControlPosition({
             x: rect.right + 8,
-            y: rect.top + window.scrollY
+            y: rect.top + window.scrollY,
           });
         }
       } else if (!table) {
@@ -40,7 +41,10 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
 
     const handleTableLeave = (e: MouseEvent) => {
       const relatedTarget = e.relatedTarget as HTMLElement;
-      if (!relatedTarget || (!relatedTarget.closest('table') && !relatedTarget.closest('.table-edge-controls'))) {
+      if (
+        !relatedTarget ||
+        (!relatedTarget.closest('table') && !relatedTarget.closest('.table-edge-controls'))
+      ) {
         setHoveredTable(null);
         setControlPosition(null);
       }
@@ -89,6 +93,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
       }}
     >
       <button
+        type="button"
         className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddRowAbove}
         title="Add row above"
@@ -96,6 +101,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
         ↑ Row Above
       </button>
       <button
+        type="button"
         className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddRowBelow}
         title="Add row below"
@@ -103,6 +109,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
         ↓ Row Below
       </button>
       <button
+        type="button"
         className="text-xs px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddColumnLeft}
         title="Add column left"
@@ -110,6 +117,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
         ← Column Left
       </button>
       <button
+        type="button"
         className="text-xs px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddColumnRight}
         title="Add column right"
@@ -117,6 +125,6 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
         → Column Right
       </button>
     </div>,
-    document.body
+    document.body,
   );
 };

@@ -1,8 +1,8 @@
-import React from 'react';
+import type React from 'react';
 
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
-import { Plus, Minus, Columns3, LayoutGrid, Rows3, Trash2, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Columns3, LayoutGrid, Minus, Plus, Rows3, Trash2 } from 'lucide-react';
 
 import { createLogger } from '../utils/logger';
 
@@ -14,11 +14,7 @@ interface ITableToolbarProps {
   position: { x: number; y: number };
 }
 
-export const TableToolbar: React.FC<ITableToolbarProps> = ({
-  editor,
-  visible,
-  position
-}) => {
+export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, position }) => {
   if (!visible || !editor) return null;
 
   const insertRowAbove = () => {
@@ -82,10 +78,13 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
     }
   };
 
-  const buttonClass = "p-1.5 border border-gray-300 rounded bg-white cursor-pointer flex items-center justify-center text-xs text-gray-700 transition-all duration-200 hover:bg-gray-100 hover:border-gray-400";
-  const deleteButtonClass = "p-1.5 border border-gray-300 rounded bg-white cursor-pointer flex items-center justify-center text-xs text-gray-700 transition-all duration-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600";
-  const actionButtonClass = "p-1.5 border border-gray-300 rounded bg-white cursor-pointer flex items-center justify-center text-xs text-gray-700 transition-all duration-200 hover:bg-blue-50 hover:border-blue-300";
-  const separatorClass = "w-px h-6 bg-gray-300 mx-1";
+  const buttonClass =
+    'p-1.5 border border-gray-300 rounded bg-white cursor-pointer flex items-center justify-center text-xs text-gray-700 transition-all duration-200 hover:bg-gray-100 hover:border-gray-400';
+  const deleteButtonClass =
+    'p-1.5 border border-gray-300 rounded bg-white cursor-pointer flex items-center justify-center text-xs text-gray-700 transition-all duration-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600';
+  const actionButtonClass =
+    'p-1.5 border border-gray-300 rounded bg-white cursor-pointer flex items-center justify-center text-xs text-gray-700 transition-all duration-200 hover:bg-blue-50 hover:border-blue-300';
+  const separatorClass = 'w-px h-6 bg-gray-300 mx-1';
 
   return (
     <div
@@ -97,30 +96,26 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
     >
       {/* Row operations */}
       <button
+        type="button"
         className={buttonClass}
         onClick={insertRowAbove}
         title="Insert row above"
       >
         <Rows3 className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />
-        ↑
+        <Plus className="w-2 h-2" />↑
       </button>
 
       <button
+        type="button"
         className={buttonClass}
         onClick={insertRowBelow}
         title="Insert row below"
       >
         <Rows3 className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />
-        ↓
+        <Plus className="w-2 h-2" />↓
       </button>
 
-      <button
-        className={deleteButtonClass}
-        onClick={deleteRow}
-        title="Delete row"
-      >
+      <button type="button" className={deleteButtonClass} onClick={deleteRow} title="Delete row">
         <Rows3 className="mr-1 w-3 h-3" />
         <Minus className="w-2 h-2" />
       </button>
@@ -129,6 +124,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
 
       {/* Column operations */}
       <button
+        type="button"
         className={buttonClass}
         onClick={insertColumnLeft}
         title="Insert column left"
@@ -139,16 +135,17 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
       </button>
 
       <button
+        type="button"
         className={buttonClass}
         onClick={insertColumnRight}
         title="Insert column right"
       >
         <Columns3 className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />
-        →
+        <Plus className="w-2 h-2" />→
       </button>
 
       <button
+        type="button"
         className={deleteButtonClass}
         onClick={deleteColumn}
         title="Delete column"
@@ -160,19 +157,11 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
       <div className={separatorClass} />
 
       {/* Cell operations */}
-      <button
-        className={actionButtonClass}
-        onClick={mergeCells}
-        title="Merge cells"
-      >
+      <button type="button" className={actionButtonClass} onClick={mergeCells} title="Merge cells">
         <LayoutGrid className="w-3 h-3" />
       </button>
 
-      <button
-        className={actionButtonClass}
-        onClick={splitCell}
-        title="Split cell"
-      >
+      <button type="button" className={actionButtonClass} onClick={splitCell} title="Split cell">
         <LayoutGrid className="w-3 h-3" />
       </button>
 
@@ -180,6 +169,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
 
       {/* Header toggle operations */}
       <button
+        type="button"
         className={`${buttonClass} hover:bg-yellow-50 hover:border-yellow-300`}
         onClick={toggleHeaderRow}
         title="Toggle header row"
@@ -188,6 +178,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
       </button>
 
       <button
+        type="button"
         className={`${buttonClass} hover:bg-yellow-50 hover:border-yellow-300`}
         onClick={toggleHeaderColumn}
         title="Toggle header column"
@@ -199,6 +190,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({
 
       {/* Delete table */}
       <button
+        type="button"
         className={deleteButtonClass}
         onClick={deleteTable}
         title="Delete table"

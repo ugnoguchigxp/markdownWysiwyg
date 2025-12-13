@@ -44,7 +44,6 @@
 }
 
 @media (prefers-color-scheme: dark) {
-
   /* Apply if system is dark AND data-theme is NOT light */
   :root:not([data-theme="light"]) {
     /* Editor Background & Text */
@@ -91,7 +90,6 @@
     --mw-toolbar-active-bg: #4b5563;
   }
 }
-
 
 :root[data-theme="dark"],
 .dark {
@@ -230,7 +228,7 @@
   color: var(--mw-text-primary);
 }
 
-.ProseMirror li>p {
+.ProseMirror li > p {
   margin-bottom: 0;
   margin-top: 0;
 }
@@ -283,12 +281,12 @@
 }
 
 /* List marker color */
-.ProseMirror ul>li::marker {
+.ProseMirror ul > li::marker {
   color: var(--mw-heading-secondary);
   font-weight: 600;
 }
 
-.ProseMirror ol>li::marker {
+.ProseMirror ol > li::marker {
   color: var(--mw-heading-secondary);
   font-weight: 600;
 }
@@ -301,7 +299,7 @@
   border-radius: 3px;
   font-size: 0.9em;
   border: 1px solid var(--mw-inline-code-border);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-weight: normal;
 }
 
@@ -371,7 +369,7 @@
   background: transparent;
   border: none;
   padding: 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace;
 }
 
 .ProseMirror .hljs {
@@ -403,7 +401,7 @@
 }
 
 .mw-toolbar-root [data-tooltip]::after {
-  content: '';
+  content: "";
   position: absolute;
   top: calc(100% + 2px);
   left: 50%;

@@ -14,8 +14,8 @@ export const TableResizeEnhancement = Extension.create({
         key: new PluginKey('tableResizeEnhancement'),
         props: {
           attributes: {
-            class: 'table-resize-enhanced'
-          }
+            class: 'table-resize-enhanced',
+          },
         },
         filterTransaction: (transaction, _) => {
           // テーブルリサイズ時のスムーズアニメーション
@@ -27,8 +27,8 @@ export const TableResizeEnhancement = Extension.create({
             }, 200);
           }
           return true;
-        }
-      })
+        },
+      }),
     ];
-  }
+  },
 });

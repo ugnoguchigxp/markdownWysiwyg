@@ -67,8 +67,8 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 <MarkdownEditor
   value={content}
   onChange={setContent}
-  className="h-96"              // Fixed height (384px)
-  enableVerticalScroll={true}   // Enable internal scrolling
+  className="h-96" // Fixed height (384px)
+  enableVerticalScroll={true} // Enable internal scrolling
 />
 ```
 
@@ -80,8 +80,8 @@ The editor needs proper height configuration to enable scrolling. Choose one app
   <MarkdownEditor
     value={content}
     onChange={setContent}
-    className="flex-1"            // Fill remaining space
-    enableVerticalScroll={true}   // Enable internal scrolling
+    className="flex-1" // Fill remaining space
+    enableVerticalScroll={true} // Enable internal scrolling
   />
 </div>
 ```
@@ -92,22 +92,25 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 <MarkdownEditor
   value={content}
   onChange={setContent}
-  autoHeight={true}              // Grow with content
-  enableVerticalScroll={false}   // No internal scrolling
+  autoHeight={true} // Grow with content
+  enableVerticalScroll={false} // No internal scrolling
 />
 ```
 
 #### 3. Common Issues and Solutions
 
 **Issue: Lists not displaying correctly**
+
 - Make sure the CSS is imported properly
 - The CSS file contains all necessary styles for headings, lists, tables, etc.
 
 **Issue: No scrollbar appears**
+
 - Set a fixed height using `className="h-96"` or similar
 - Enable scroll with `enableVerticalScroll={true}`
 
 **Issue: Styles not applying**
+
 - Verify the CSS import path: `'markdown-wysiwyg-editor/style.css'`
 - Check browser console for CSS loading errors
 - Make sure you're not using CSS modules that might interfere with global styles
@@ -126,12 +129,7 @@ function App() {
   const [content, setContent] = useState('');
 
   return (
-    <MarkdownEditor
-      value={content}
-      onChange={setContent}
-      enableMermaid
-      mermaidLib={mermaid}
-    />
+    <MarkdownEditor value={content} onChange={setContent} enableMermaid mermaidLib={mermaid} />
   );
 }
 ```
@@ -139,35 +137,30 @@ function App() {
 #### Disable Features
 
 ```tsx
-<MarkdownEditor
-  value={content}
-  onChange={setContent}
-  enableImage={false}
-  enableTable={false}
-/>
+<MarkdownEditor value={content} onChange={setContent} enableImage={false} enableTable={false} />
 ```
 
 ### API (Props)
 
-| Prop           | Type                       | Default             | Description                                           |
-| -------------- | -------------------------- | ------------------- | ----------------------------------------------------- |
-| `value`        | `string`                   | -                   | Markdown content (required)                           |
-| `onChange`     | `(value: string) => void`  | -                   | Change handler (required)                             |
-| `editable`     | `boolean`                  | `true`              | Enable editing                                        |
-| `placeholder`  | `string`                   | `'Start typing...'` | Placeholder text                                      |
-| `enableMermaid`| `boolean`                  | `false`             | Enable Mermaid diagrams                               |
-| `enableImage`  | `boolean`                  | `true`              | Enable image insertion                                |
-| `enableTable`  | `boolean`                  | `true`              | Enable table editing                                  |
-| `enableCodeBlock` | `boolean`               | `true`              | Enable code blocks                                    |
-| `enableLink`   | `boolean`                  | `true`              | Enable links                                          |
-| `mermaidLib`   | `typeof mermaid`           | -                   | Mermaid instance (required if `enableMermaid=true`)   |
-| `texts`        | `Partial<ITexts>`          | `DEFAULT_TEXTS`     | i18n text labels (see i18n section)                   |
-| `debug`        | `boolean`                  | `false`             | Show debug info (syntax status, paste debug)          |
-| `className`    | `string`                   | -                   | Additional CSS class                                  |
-| `style`        | `React.CSSProperties`      | -                   | Inline styles                                         |
-| `onBlur`       | `() => void`               | -                   | Blur event handler                                    |
-| `onFocus`      | `() => void`               | -                   | Focus event handler                                   |
-| `extensions`   | `Extension[]`              | -                   | Custom TipTap extensions                              |
+| Prop              | Type                      | Default             | Description                                         |
+| ----------------- | ------------------------- | ------------------- | --------------------------------------------------- |
+| `value`           | `string`                  | -                   | Markdown content (required)                         |
+| `onChange`        | `(value: string) => void` | -                   | Change handler (required)                           |
+| `editable`        | `boolean`                 | `true`              | Enable editing                                      |
+| `placeholder`     | `string`                  | `'Start typing...'` | Placeholder text                                    |
+| `enableMermaid`   | `boolean`                 | `false`             | Enable Mermaid diagrams                             |
+| `enableImage`     | `boolean`                 | `true`              | Enable image insertion                              |
+| `enableTable`     | `boolean`                 | `true`              | Enable table editing                                |
+| `enableCodeBlock` | `boolean`                 | `true`              | Enable code blocks                                  |
+| `enableLink`      | `boolean`                 | `true`              | Enable links                                        |
+| `mermaidLib`      | `typeof mermaid`          | -                   | Mermaid instance (required if `enableMermaid=true`) |
+| `texts`           | `Partial<ITexts>`         | `DEFAULT_TEXTS`     | i18n text labels (see i18n section)                 |
+| `debug`           | `boolean`                 | `false`             | Show debug info (syntax status, paste debug)        |
+| `className`       | `string`                  | -                   | Additional CSS class                                |
+| `style`           | `React.CSSProperties`     | -                   | Inline styles                                       |
+| `onBlur`          | `() => void`              | -                   | Blur event handler                                  |
+| `onFocus`         | `() => void`              | -                   | Focus event handler                                 |
+| `extensions`      | `Extension[]`             | -                   | Custom TipTap extensions                            |
 
 ### Supported Languages (Code Blocks)
 
@@ -241,6 +234,7 @@ function App() {
 ##### Add to your i18n JSON files
 
 **en.json:**
+
 ```json
 {
   "markdown_editor": {
@@ -261,6 +255,7 @@ function App() {
 ```
 
 **ja.json:**
+
 ```json
 {
   "markdown_editor": {
@@ -287,11 +282,7 @@ See [docs/i18n.md](./docs/i18n.md) for more details.
 You can hide the built-in toolbar and provide your own UI:
 
 ```tsx
-<MarkdownEditor
-  value={content}
-  onChange={setContent}
-  showToolbar={false}
-/>
+<MarkdownEditor value={content} onChange={setContent} showToolbar={false} />
 ```
 
 #### Custom Extensions
@@ -309,7 +300,7 @@ import TextAlign from '@tiptap/extension-text-align';
       types: ['heading', 'paragraph'],
     }),
   ]}
-/>
+/>;
 ```
 
 ### Troubleshooting

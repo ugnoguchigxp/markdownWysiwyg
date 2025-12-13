@@ -1,5 +1,15 @@
-import { Editor } from '@tiptap/react';
-import { ISelectionInfo } from '../types/index';
+import type { Editor } from '@tiptap/react';
+import type { ISelectionInfo } from '../types/index';
+
+type NodeLike = {
+  type: { name: string };
+  attrs?: Record<string, unknown>;
+};
+
+type MarkLike = {
+  type?: { name: string };
+  attrs?: Record<string, unknown>;
+};
 
 export class SelectionUtils {
   /**
@@ -16,12 +26,11 @@ export class SelectionUtils {
     // 選択範囲のテキストを取得
     const selectedText = editor.state.doc.textBetween(from, to, ' ');
 
-
     if (empty && !selectedText.trim()) {
       // カーソル位置のみで選択なし - ノード情報だけ表示
       const $from = selection.$from;
       const node = $from.parent;
-      const nodeInfo = this.getNodeMarkdownInfo(node, '', [...$from.marks()]);
+      const nodeInfo = SelectionUtils.getNodeMarkdownInfo(node, '', [...$from.marks()]);
       return nodeInfo;
     }
 
@@ -33,24 +42,26 @@ export class SelectionUtils {
     const $from = selection.$from;
     const node = $from.parent;
 
-
-    return this.getNodeMarkdownInfo(node, selectedText, [...$from.marks()]);
+    return SelectionUtils.getNodeMarkdownInfo(node, selectedText, [...$from.marks()]);
   }
 
   /**
    * ノード情報からMarkdown構文を生成
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static getNodeMarkdownInfo(node: any, selectedText: string, marks: any[]): ISelectionInfo {
+  private static getNodeMarkdownInfo(
+    node: NodeLike,
+    selectedText: string,
+    marks: MarkLike[],
+  ): ISelectionInfo {
     let markdownSyntax = selectedText || 'カーソル位置';
     const nodeType = node.type.name;
     const markNames: string[] = [];
 
-
     // ノードタイプに基づく構文
     switch (nodeType) {
       case 'heading': {
-        const level = node.attrs?.level || 1;
+        const levelAttr = node.attrs?.level;
+        const level = typeof levelAttr === 'number' ? levelAttr : 1;
         const prefix = '#'.repeat(level);
         if (selectedText) {
           markdownSyntax = `${prefix} ${selectedText}`;
@@ -61,7 +72,8 @@ export class SelectionUtils {
         break;
       }
       case 'codeBlock': {
-        const language = node.attrs?.language || '';
+        const languageAttr = node.attrs?.language;
+        const language = typeof languageAttr === 'string' ? languageAttr : '';
         if (selectedText) {
           markdownSyntax = `\`\`\`${language}\n${selectedText}\n\`\`\``;
         } else {
@@ -74,7 +86,7 @@ export class SelectionUtils {
         if (selectedText) {
           markdownSyntax = `> ${selectedText}`;
         } else {
-          markdownSyntax = `> (引用)`;
+          markdownSyntax = '> (引用)';
         }
         markNames.push('Blockquote');
         break;
@@ -83,7 +95,7 @@ export class SelectionUtils {
         if (selectedText) {
           markdownSyntax = `- ${selectedText}`;
         } else {
-          markdownSyntax = `- (リスト項目)`;
+          markdownSyntax = '- (リスト項目)';
         }
         markNames.push('List Item');
         break;
@@ -98,8 +110,8 @@ export class SelectionUtils {
     }
 
     // マーク（太字、イタリック等）に基づく構文
-    marks.forEach(mark => {
-      if (!mark.type) return;
+    for (const mark of marks) {
+      if (!mark.type) continue;
 
       switch (mark.type.name) {
         case 'bold':
@@ -129,7 +141,7 @@ export class SelectionUtils {
           markNames.push('Inline Code');
           break;
         case 'link': {
-          const href = mark.attrs?.href || '';
+          const href = typeof mark.attrs?.href === 'string' ? mark.attrs.href : '';
           if (selectedText) {
             markdownSyntax = `[${markdownSyntax}](${href})`;
           } else {
@@ -147,13 +159,13 @@ export class SelectionUtils {
           markNames.push('Strikethrough');
           break;
       }
-    });
+    }
 
     const result = {
       selectedText: selectedText || '',
       markdownSyntax,
       nodeType,
-      marks: markNames
+      marks: markNames,
     };
 
     return result;
@@ -171,7 +183,7 @@ export class SelectionUtils {
 
     return {
       nodeType: node.type.name,
-      level: node.attrs?.level
+      level: typeof node.attrs?.level === 'number' ? node.attrs.level : undefined,
     };
   }
 }

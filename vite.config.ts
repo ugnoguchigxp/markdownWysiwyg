@@ -1,11 +1,11 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
+
 import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-  // @ts-expect-error - Vite 6 types mismatch with some plugins
   plugins: [
     react(),
     dts({
@@ -21,12 +21,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'mermaid',
-      ],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'mermaid'],
       output: {
         globals: {
           react: 'React',
@@ -48,25 +43,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-    },
-  },
-
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: [],
-    include: ['Test/**/*.test.{ts,tsx}'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'example/**',
-        'docs/**',
-        '**/*.config.{js,ts,cjs}',
-        'dist/**',
-        'Test/**',
-        '.eslintrc.cjs',
-      ],
     },
   },
 });

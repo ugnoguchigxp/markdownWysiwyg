@@ -1,5 +1,5 @@
-import type { ExtendedEditor } from '../types/editor';
 import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
+import type { ExtendedEditor } from '../types/editor';
 import type { ILogger } from './logger';
 
 type SetProcessing = (processing: boolean) => void;
@@ -15,6 +15,15 @@ interface HandleMarkdownPasteParams {
   largeTextThreshold: number;
 }
 
+const insertPlainText = (editor: ExtendedEditor, text: string) => {
+  const lines = text.split('\n');
+  const content = lines.map((line) => ({
+    type: 'paragraph',
+    content: line.length > 0 ? [{ type: 'text', text: line }] : [],
+  }));
+  editor.commands.insertContent(content);
+};
+
 export const handleMarkdownPaste = async ({
   editor,
   plainText,
@@ -25,7 +34,7 @@ export const handleMarkdownPaste = async ({
 }: HandleMarkdownPasteParams): Promise<void> => {
   // STEP 1: Immediately insert plain text (for better user experience)
   editor.commands.deleteSelection();
-  editor.commands.insertContent(plainText);
+  insertPlainText(editor, plainText);
 
   // STEP 2: True sequential rendering process
   if (plainText.length >= largeTextThreshold) {
@@ -58,7 +67,7 @@ export const handleMarkdownPaste = async ({
     logger.warn('⚠️ Sequential rendering failed, keeping plain text:', error);
     // Restore plain text at the original insertion position
     editor.commands.setTextSelection(insertionStart);
-    editor.commands.insertContent(plainText);
+    insertPlainText(editor, plainText);
   } finally {
     editor.__isProcessing = false;
     setIsProcessing(false);

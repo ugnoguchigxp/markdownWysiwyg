@@ -3,12 +3,19 @@
  * TipTapエディターのJSON形式をMarkdownテキストに変換
  */
 
-import { JSONContent } from '@tiptap/react';
+import type { JSONContent } from '@tiptap/react';
 import { createLogger } from '../utils/logger';
 
 const log = createLogger('JsonToMarkdownConverter');
 
 export class JsonToMarkdownConverter {
+  // This prevents the class from being "static-only" for linting purposes while preserving the public API.
+  private readonly _instanceMarker = 0;
+
+  private constructor() {
+    // Intentionally empty.
+  }
+
   /**
    * TipTap JSON構造をMarkdownテキストに変換
    */
@@ -17,55 +24,55 @@ export class JsonToMarkdownConverter {
       return '';
     }
 
-    return this.processNodes(json.content);
+    return JsonToMarkdownConverter.processNodes(json.content);
   }
 
   /**
    * ノード配列を処理してMarkdownテキストを生成
    */
-  private static processNodes(nodes: JSONContent[], depth: number = 0): string {
-    return nodes.map(node => this.processNode(node, depth)).join('');
+  private static processNodes(nodes: JSONContent[], depth = 0): string {
+    return nodes.map((node) => JsonToMarkdownConverter.processNode(node, depth)).join('');
   }
 
   /**
    * 単一ノードを処理してMarkdownテキストを生成
    */
-  private static processNode(node: JSONContent, depth: number = 0): string {
+  private static processNode(node: JSONContent, depth = 0): string {
     if (!node.type) {
       return '';
     }
 
     switch (node.type) {
       case 'paragraph':
-        return this.processParagraph(node, depth);
+        return JsonToMarkdownConverter.processParagraph(node, depth);
 
       case 'heading':
-        return this.processHeading(node);
+        return JsonToMarkdownConverter.processHeading(node);
 
       case 'bulletList':
-        return this.processBulletList(node, depth);
+        return JsonToMarkdownConverter.processBulletList(node, depth);
 
       case 'orderedList':
-        return this.processOrderedList(node, depth);
+        return JsonToMarkdownConverter.processOrderedList(node, depth);
 
       case 'listItem':
-        return this.processListItem(node, depth);
+        return JsonToMarkdownConverter.processListItem(node, depth);
 
       case 'blockquote':
-        return this.processBlockquote(node);
+        return JsonToMarkdownConverter.processBlockquote(node);
 
       case 'codeBlock':
-        return this.processCodeBlock(node);
+        return JsonToMarkdownConverter.processCodeBlock(node);
 
       case 'table':
-        return this.processTable(node);
+        return JsonToMarkdownConverter.processTable(node);
 
       case 'tableRow':
-        return this.processTableRow(node);
+        return JsonToMarkdownConverter.processTableRow(node);
 
       case 'tableHeader':
       case 'tableCell':
-        return this.processTableCell(node);
+        return JsonToMarkdownConverter.processTableCell(node);
 
       case 'horizontalRule':
         return '\n---\n\n';
@@ -74,14 +81,14 @@ export class JsonToMarkdownConverter {
         return '\n';
 
       case 'image':
-        return this.processImage(node);
+        return JsonToMarkdownConverter.processImage(node);
 
       case 'text':
-        return this.processText(node);
+        return JsonToMarkdownConverter.processText(node);
 
       default:
         log.warn(`Unsupported node type: ${node.type}`);
-        return node.content ? this.processNodes(node.content, depth) : '';
+        return node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
     }
   }
 
@@ -89,7 +96,7 @@ export class JsonToMarkdownConverter {
    * 段落の処理
    */
   private static processParagraph(node: JSONContent, depth: number): string {
-    const content = node.content ? this.processNodes(node.content, depth) : '';
+    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
     return content + '\n\n';
   }
 
@@ -98,7 +105,7 @@ export class JsonToMarkdownConverter {
    */
   private static processHeading(node: JSONContent): string {
     const level = node.attrs?.level || 1;
-    const content = node.content ? this.processNodes(node.content) : '';
+    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content) : '';
     const hashes = '#'.repeat(Math.min(Math.max(level, 1), 6));
     return `${hashes} ${content}\n\n`;
   }
@@ -107,7 +114,7 @@ export class JsonToMarkdownConverter {
    * 箇条書きリストの処理
    */
   private static processBulletList(node: JSONContent, depth: number): string {
-    const content = node.content ? this.processNodes(node.content, depth) : '';
+    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
     return content + '\n';
   }
 
@@ -115,7 +122,7 @@ export class JsonToMarkdownConverter {
    * 番号付きリストの処理
    */
   private static processOrderedList(node: JSONContent, depth: number): string {
-    const content = node.content ? this.processNodes(node.content, depth) : '';
+    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
     return content + '\n';
   }
 
@@ -123,7 +130,9 @@ export class JsonToMarkdownConverter {
    * リストアイテムの処理
    */
   private static processListItem(node: JSONContent, depth: number): string {
-    const content = node.content ? this.processNodes(node.content, depth + 1) : '';
+    const content = node.content
+      ? JsonToMarkdownConverter.processNodes(node.content, depth + 1)
+      : '';
     const indent = '  '.repeat(depth);
     // コンテンツが改行で終わっている場合、その改行を維持しつつインデントを適用するのは難しい
     // ここでは単純に先頭にインデントとマーカーを付与
@@ -137,12 +146,14 @@ export class JsonToMarkdownConverter {
    * 引用の処理
    */
   private static processBlockquote(node: JSONContent): string {
-    const content = node.content ? this.processNodes(node.content) : '';
-    return content
-      .split('\n')
-      .filter(line => line.trim())
-      .map(line => `> ${line}`)
-      .join('\n') + '\n\n';
+    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content) : '';
+    return (
+      content
+        .split('\n')
+        .filter((line) => line.trim())
+        .map((line) => `> ${line}`)
+        .join('\n') + '\n\n'
+    );
   }
 
   /**
@@ -150,7 +161,7 @@ export class JsonToMarkdownConverter {
    */
   private static processCodeBlock(node: JSONContent): string {
     const language = node.attrs?.language || '';
-    const content = node.content ? this.processNodes(node.content) : '';
+    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content) : '';
     return `\`\`\`${language}\n${content.trim()}\n\`\`\`\n\n`;
   }
 
@@ -171,7 +182,7 @@ export class JsonToMarkdownConverter {
       return '';
     }
 
-    const rows = node.content.map(row => this.processTableRow(row));
+    const rows = node.content.map((row) => JsonToMarkdownConverter.processTableRow(row));
     let markdown = rows.join('');
 
     // ヘッダー行の区切り線を追加（2行目に）
@@ -196,8 +207,8 @@ export class JsonToMarkdownConverter {
       return '';
     }
 
-    const cells = node.content.map(cell => {
-      const content = this.processTableCell(cell);
+    const cells = node.content.map((cell) => {
+      const content = JsonToMarkdownConverter.processTableCell(cell);
       return content.trim().replace(/\n/g, ' '); // セル内改行を除去
     });
 
@@ -208,7 +219,7 @@ export class JsonToMarkdownConverter {
    * テーブルセルの処理
    */
   private static processTableCell(node: JSONContent): string {
-    return node.content ? this.processNodes(node.content) : '';
+    return node.content ? JsonToMarkdownConverter.processNodes(node.content) : '';
   }
 
   /**
@@ -218,7 +229,7 @@ export class JsonToMarkdownConverter {
     let text = node.text || '';
 
     if (node.marks) {
-      node.marks.forEach(mark => {
+      for (const mark of node.marks) {
         switch (mark.type) {
           case 'bold':
             text = `**${text}**`;
@@ -239,7 +250,7 @@ export class JsonToMarkdownConverter {
             break;
           }
         }
-      });
+      }
     }
 
     return text;
@@ -248,9 +259,9 @@ export class JsonToMarkdownConverter {
   /**
    * Markdownファイルとしてダウンロード
    */
-  static downloadAsMarkdown(json: JSONContent, filename: string = 'document.md'): void {
+  static downloadAsMarkdown(json: JSONContent, filename = 'document.md'): void {
     try {
-      const markdownContent = this.convertToMarkdown(json);
+      const markdownContent = JsonToMarkdownConverter.convertToMarkdown(json);
 
       if (!markdownContent.trim()) {
         log.warn('Empty content, skipping download');

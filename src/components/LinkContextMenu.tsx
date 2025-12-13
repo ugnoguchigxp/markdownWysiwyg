@@ -4,9 +4,10 @@
  * Options menu shown when right-clicking or Ctrl+clicking on a link
  */
 
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
-import { ExternalLink, Edit3, X } from 'lucide-react';
+import { Edit3, ExternalLink, X } from 'lucide-react';
 
 interface LinkContextMenuProps {
   visible: boolean;
@@ -26,7 +27,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
   linkData,
   onClose,
   onOpenLink,
-  onEditLink
+  onEditLink,
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editText, setEditText] = useState('');
@@ -85,7 +86,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
     if (linkData && editUrl.trim()) {
       onEditLink({
         href: editUrl.trim(),
-        text: editText.trim() || editUrl.trim()
+        text: editText.trim() || editUrl.trim(),
       });
       setShowEditModal(false);
       onClose();
@@ -115,6 +116,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
         }}
       >
         <button
+          type="button"
           className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-sm"
           onClick={handleOpenLink}
         >
@@ -123,6 +125,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
         </button>
 
         <button
+          type="button"
           className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-sm"
           onClick={handleEditClick}
         >
@@ -130,11 +133,9 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
           <span>Edit Link</span>
         </button>
 
-        <div className="border-t border-gray-200 my-1"></div>
+        <div className="border-t border-gray-200 my-1" />
 
-        <div className="px-4 py-1 text-xs text-gray-500 truncate">
-          {linkData.href}
-        </div>
+        <div className="px-4 py-1 text-xs text-gray-500 truncate">{linkData.href}</div>
       </div>
 
       {/* Edit Modal */}
@@ -142,11 +143,12 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div
             className="link-edit-modal bg-white rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Edit Link</h3>
               <button
+                type="button"
                 onClick={handleEditCancel}
                 className="text-gray-400 hover:text-gray-600 p-1"
                 aria-label="Close"
@@ -158,10 +160,14 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
             <div className="space-y-4">
               {/* Link Text */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="mw-link-edit-text"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Link Text
                 </label>
                 <input
+                  id="mw-link-edit-text"
                   type="text"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
@@ -178,10 +184,14 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
 
               {/* URL */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="mw-link-edit-url"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   URL
                 </label>
                 <input
+                  id="mw-link-edit-url"
                   type="url"
                   value={editUrl}
                   onChange={(e) => setEditUrl(e.target.value)}

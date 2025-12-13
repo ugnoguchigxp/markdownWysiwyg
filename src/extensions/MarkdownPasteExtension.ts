@@ -1,9 +1,9 @@
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from 'prosemirror-state';
 
+import { LARGE_TEXT_THRESHOLD, PASTE_DEBOUNCE_MS } from '../constants/editor';
+import type { ExtendedEditor } from '../types/editor';
 import { createLogger } from '../utils/logger';
-import { ExtendedEditor } from '../types/editor';
-import { PASTE_DEBOUNCE_MS, LARGE_TEXT_THRESHOLD } from '../constants/editor';
 import { handleMarkdownPaste } from '../utils/pasteHandler';
 
 const logger = createLogger('MarkdownPasteExtension');
@@ -35,8 +35,8 @@ export const createMarkdownPasteExtension = (
               }
 
               // Ignore if currently processing (strict check)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if (this.editor && (this.editor as any).__isProcessing) {
+              const possibleEditor = this.editor as ExtendedEditor | null | undefined;
+              if (possibleEditor?.__isProcessing) {
                 // Already processing
                 return false;
               }

@@ -49,7 +49,9 @@ export const TableForceExtension = Extension.create({
                   (cell as HTMLElement).style.position = 'relative';
                   cell.appendChild(handle);
 
-                  log.debug(`✅ TableForceExtension: Created handle for table ${tableIndex}, cell ${cellIndex}`);
+                  log.debug(
+                    `✅ TableForceExtension: Created handle for table ${tableIndex}, cell ${cellIndex}`,
+                  );
 
                   // ハンドルのドラッグイベントを手動で追加
                   let isDragging = false;
@@ -91,34 +93,38 @@ export const TableForceExtension = Extension.create({
 
           // DOM変更を監視して新しいテーブルにもハンドルを追加
           const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-              if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach((node) => {
-                  if (node.nodeType === Node.ELEMENT_NODE) {
-                    const element = node as Element;
-                    if (element.tagName === 'TABLE' || element.querySelector('table')) {
-                      log.debug('🆕 TableForceExtension: New table detected, creating handles');
-                      setTimeout(forceCreateResizeHandles, 50);
-                    }
-                  }
-                });
+            for (const mutation of mutations) {
+              if (mutation.type !== 'childList') {
+                continue;
               }
-            });
+
+              for (const node of mutation.addedNodes) {
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                  continue;
+                }
+
+                const element = node as Element;
+                if (element.tagName === 'TABLE' || element.querySelector('table')) {
+                  log.debug('🆕 TableForceExtension: New table detected, creating handles');
+                  setTimeout(forceCreateResizeHandles, 50);
+                }
+              }
+            }
           });
 
           observer.observe(editorView.dom, {
             childList: true,
-            subtree: true
+            subtree: true,
           });
 
           return {
             destroy() {
               observer.disconnect();
               log.debug('🚀 TableForceExtension: Cleaned up');
-            }
+            },
           };
-        }
-      })
+        },
+      }),
     ];
-  }
+  },
 });

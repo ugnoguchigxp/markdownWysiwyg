@@ -6,7 +6,6 @@
 // Styles
 import './index.css';
 
-
 // Main components
 export { MarkdownEditor } from './components/MarkdownEditor';
 export { MarkdownToolbar } from './components/MarkdownToolbar';
@@ -35,11 +34,6 @@ export { createLogger, createContextLogger } from './utils/logger';
 export { SelectionUtils } from './utils/selectionUtils';
 
 // Types
-export type {
-  IMarkdownEditorProps,
-  ILanguageOption,
-  ISelectionInfo,
-  ITexts,
-} from './types/index';
+export type { IMarkdownEditorProps, ILanguageOption, ISelectionInfo, ITexts } from './types/index';
 
 export { DEFAULT_TEXTS, I18N_KEYS } from './types/index';

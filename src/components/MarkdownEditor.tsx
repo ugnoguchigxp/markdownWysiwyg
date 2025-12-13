@@ -1,37 +1,32 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
 import { EditorContent } from '@tiptap/react';
-import { JSONContent } from '@tiptap/react';
-
+import type { JSONContent } from '@tiptap/react';
 
 import { createLogger } from '../utils/logger';
 
 import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
 
-
-import { ExtendedEditor } from '../types/editor';
 import { useEditorState } from '../hooks/useEditorState';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
 import { useTableToolbar } from '../hooks/useTableToolbar';
-import { ISelectionInfo } from '../utils/selectionUtils';
+import type { ExtendedEditor } from '../types/editor';
+import type { ISelectionInfo } from '../utils/selectionUtils';
 
-import { MarkdownToolbar } from './MarkdownToolbar';
 import { LinkContextMenu } from './LinkContextMenu';
 import { MarkdownSyntaxStatus } from './MarkdownSyntaxStatus';
+import { MarkdownToolbar } from './MarkdownToolbar';
 import { TableContextMenu } from './TableContextMenu';
 import { TableEdgeControls } from './TableEdgeControls';
 import { TableToolbar } from './TableToolbar';
 
-
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
-import { isValidUrl, sanitizeText } from '../utils/security';
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
-
+import { setMermaidLib } from '../extensions/mermaidRegistry';
+import type { IMarkdownEditorProps } from '../types/index';
+import { isValidUrl, normalizeUrlOrNull } from '../utils/security';
 
 const logger = createLogger('MarkdownEditor');
-
-import { IMarkdownEditorProps } from '../types/index';
-
 
 // Paste event interface (only defined if PasteDebugPanel is available)
 interface IPasteEvent {
@@ -49,6 +44,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   initialContent, // Keep for backward compatibility or internal use
   placeholder = 'Start typing...',
   editable = true,
+  enableMermaid = false,
+  mermaidLib,
   onContentChange,
   onMarkdownChange, // Currently disabled to prevent infinite loops with TextEditor
   onSelectionChange,
@@ -96,7 +93,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   }>({
     visible: false,
     position: { x: 0, y: 0 },
-    linkData: null
+    linkData: null,
   });
 
   const [tableContextMenu, setTableContextMenu] = useState<{
@@ -110,16 +107,19 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   const editorElementRef = React.useRef<HTMLDivElement>(null);
 
   // Link context menu event handler
-  const handleLinkContextMenu = useCallback((event: React.MouseEvent, linkData: { href: string; text: string }) => {
-    event.preventDefault();
-    event.stopPropagation();
+  const handleLinkContextMenu = useCallback(
+    (event: React.MouseEvent, linkData: { href: string; text: string }) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-    setLinkContextMenu({
-      visible: true,
-      position: { x: event.clientX, y: event.clientY },
-      linkData
-    });
-  }, []);
+      setLinkContextMenu({
+        visible: true,
+        position: { x: event.clientX, y: event.clientY },
+        linkData,
+      });
+    },
+    [],
+  );
 
   // Table context menu event handler
   const handleTableContextMenu = useCallback((event: React.MouseEvent) => {
@@ -132,12 +132,11 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     });
   }, []);
 
-
   const handleCloseLinkContextMenu = useCallback(() => {
     setLinkContextMenu({
       visible: false,
       position: { x: 0, y: 0 },
-      linkData: null
+      linkData: null,
     });
   }, []);
 
@@ -164,7 +163,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         setLinkContextMenu({
           visible: false,
           position: { x: 0, y: 0 },
-          linkData: null
+          linkData: null,
         });
       }
     };
@@ -177,10 +176,30 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     return undefined;
   }, [tableContextMenu.visible, linkContextMenu.visible]);
 
-
   const handleOpenLink = useCallback((href: string) => {
-    window.open(href, '_blank', 'noopener,noreferrer');
+    const safeHref = normalizeUrlOrNull(href);
+    if (!safeHref) {
+      logger.warn('⚠️ Invalid URL blocked:', href);
+      return;
+    }
+    window.open(safeHref, '_blank', 'noopener,noreferrer');
   }, []);
+
+  useEffect(() => {
+    if (!enableMermaid) {
+      setMermaidLib(null);
+      return;
+    }
+
+    if (mermaidLib && typeof (mermaidLib as { render?: unknown }).render === 'function') {
+      setMermaidLib(mermaidLib as unknown as Parameters<typeof setMermaidLib>[0]);
+    } else if (mermaidLib) {
+      logger.warn(
+        '⚠️ mermaidLib provided but does not look like Mermaid. Mermaid rendering disabled.',
+      );
+      setMermaidLib(null);
+    }
+  }, [enableMermaid, mermaidLib]);
 
   // handleEditLink and handleInsertMarkdown are defined after useEditor, so removed from this location
 
@@ -218,6 +237,22 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     handleTableContextMenu,
   });
 
+  const insertPlainText = useCallback(
+    (text: string) => {
+      if (!editor) {
+        return;
+      }
+
+      const lines = text.split('\n');
+      const content = lines.map((line) => ({
+        type: 'paragraph',
+        content: line.length > 0 ? [{ type: 'text', text: line }] : [],
+      }));
+      editor.commands.insertContent(content);
+    },
+    [editor],
+  );
+
   // Add TableToolbar hook
   const tableToolbar = useTableToolbar(editor);
 
@@ -242,8 +277,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       // Always try to convert Markdown to JSON
       // We removed isMarkdownText check because it was too strict and caused plain text or simple markdown to be ignored
       try {
-        // Prevent infinite loop: 
-        // If the editor is focused, we assume the user is typing and we shouldn't overwrite 
+        // Prevent infinite loop:
+        // If the editor is focused, we assume the user is typing and we shouldn't overwrite
         // unless the value is drastically different (which is hard to know).
         // However, for a controlled component, value should be the source of truth.
         // If we are in "viewer" mode (editable=false), we always update.
@@ -257,7 +292,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         const json = await MarkdownTipTapConverter.markdownToTipTapJson(trimmed);
 
         // Check code blocks
-        const codeBlocks = json?.content?.filter(node => node.type === 'codeBlock') || [];
+        const codeBlocks = json?.content?.filter((node) => node.type === 'codeBlock') || [];
         if (codeBlocks.length > 0) {
           codeBlocks.forEach((block, idx) => {
             const content = block.content?.[0]?.text || '';
@@ -272,7 +307,14 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       } catch (error) {
         logger.warn('[MarkdownEditor] Automatic Markdown conversion failed:', error);
         // Fallback: Insert as plain text if conversion fails
-        editor.commands.setContent(trimmed);
+        const lines = trimmed.split('\n');
+        editor.commands.setContent({
+          type: 'doc',
+          content: lines.map((line) => ({
+            type: 'paragraph',
+            content: line.length > 0 ? [{ type: 'text', text: line }] : [],
+          })),
+        });
       }
     };
 
@@ -329,69 +371,73 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   }, [editor]);
 
   // Link edit handler (defined after useEditor)
-  const handleEditLink = useCallback((newLinkData: { href: string; text: string }) => {
-    if (!editor || !linkContextMenu.linkData) return;
+  const handleEditLink = useCallback(
+    (newLinkData: { href: string; text: string }) => {
+      if (!editor || !linkContextMenu.linkData) return;
 
-    logger.debug('🔗 handleEditLink called:', newLinkData);
+      logger.debug('🔗 handleEditLink called:', newLinkData);
 
-    // Set isUpdating flag to prevent infinite loop
-    setIsUpdating(true);
+      // Set isUpdating flag to prevent infinite loop
+      setIsUpdating(true);
 
-    // Set circular reference prevention flag
-    const originalPreventUpdate = (editor as ExtendedEditor).__preventUpdate;
-    (editor as ExtendedEditor).__preventUpdate = true;
+      // Set circular reference prevention flag
+      const originalPreventUpdate = (editor as ExtendedEditor).__preventUpdate;
+      (editor as ExtendedEditor).__preventUpdate = true;
 
-    try {
-      // Find and update link in editor
-      const { state, dispatch } = editor.view;
-      let linkUpdated = false;
+      try {
+        // Find and update link in editor
+        const { state, dispatch } = editor.view;
+        let linkUpdated = false;
 
-      // Traverse entire document to find link
-      state.doc.descendants((node, pos) => {
-        if (linkUpdated) return false;
+        // Traverse entire document to find link
+        state.doc.descendants((node, pos) => {
+          if (linkUpdated) return false;
 
-        if (node.isText && node.marks) {
-          const linkMark = node.marks.find(mark => mark.type.name === 'link');
-          if (linkMark &&
-            linkMark.attrs.href === linkContextMenu.linkData?.href &&
-            node.text === linkContextMenu.linkData?.text) {
+          if (node.isText && node.marks) {
+            const linkMark = node.marks.find((mark) => mark.type.name === 'link');
+            if (
+              linkMark &&
+              linkMark.attrs.href === linkContextMenu.linkData?.href &&
+              node.text === linkContextMenu.linkData?.text
+            ) {
+              // Check link mark type
+              if (!state.schema.marks.link) {
+                logger.warn('Link mark type not found in schema');
+                return false;
+              }
 
-            // Check link mark type
-            if (!state.schema.marks.link) {
-              logger.warn('Link mark type not found in schema');
+              // Update link
+              const from = pos;
+              const to = pos + node.nodeSize;
+              const newLinkMark = state.schema.marks.link.create({ href: newLinkData.href });
+              const transaction = state.tr;
+
+              // Delete existing text and insert new text with link
+              transaction.delete(from, to);
+              transaction.insert(from, state.schema.text(newLinkData.text, [newLinkMark]));
+
+              dispatch(transaction);
+              linkUpdated = true;
               return false;
             }
-
-            // Update link
-            const from = pos;
-            const to = pos + node.nodeSize;
-            const newLinkMark = state.schema.marks.link.create({ href: newLinkData.href });
-            const transaction = state.tr;
-
-            // Delete existing text and insert new text with link
-            transaction.delete(from, to);
-            transaction.insert(from, state.schema.text(newLinkData.text, [newLinkMark]));
-
-            dispatch(transaction);
-            linkUpdated = true;
-            return false;
           }
-        }
-        return true; // Continue with other nodes
-      });
+          return true; // Continue with other nodes
+        });
 
-      if (!linkUpdated) {
-        logger.warn('Link not found for update');
+        if (!linkUpdated) {
+          logger.warn('Link not found for update');
+        }
+      } finally {
+        // Reset flags and state asynchronously
+        setTimeout(() => {
+          (editor as ExtendedEditor).__preventUpdate = originalPreventUpdate;
+          setIsUpdating(false);
+          logger.debug('✅ Link edit update locks released');
+        }, UPDATE_LOCK_RELEASE_MS);
       }
-    } finally {
-      // Reset flags and state asynchronously
-      setTimeout(() => {
-        (editor as ExtendedEditor).__preventUpdate = originalPreventUpdate;
-        setIsUpdating(false);
-        logger.debug('✅ Link edit update locks released');
-      }, UPDATE_LOCK_RELEASE_MS);
-    }
-  }, [editor, linkContextMenu.linkData, setIsUpdating]);
+    },
+    [editor, linkContextMenu.linkData, setIsUpdating],
+  );
 
   // Get selected text and Markdown insertion handler
   const handleInsertMarkdown = async (markdown: string, cursorOffset?: number) => {
@@ -430,15 +476,24 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       logger.debug(`🎯 Heading: level=${level}, selectedText="${selectedText}"`);
       if (selectedText) {
         // Replace selected text with heading
-        const result = editor.chain()
+        const result = editor
+          .chain()
           .deleteRange({ from, to })
-          .insertContent({ type: 'heading', attrs: { level }, content: [{ type: 'text', text: selectedText }] })
+          .insertContent({
+            type: 'heading',
+            attrs: { level },
+            content: [{ type: 'text', text: selectedText }],
+          })
           .focus(undefined, { scrollIntoView: false })
           .run();
         logger.debug(`✅ Heading insertion result: ${result}`);
       } else {
         // Set current block as heading
-        const result = editor.chain().setHeading({ level }).focus(undefined, { scrollIntoView: false }).run();
+        const result = editor
+          .chain()
+          .setHeading({ level })
+          .focus(undefined, { scrollIntoView: false })
+          .run();
         logger.debug(`✅ Set heading result: ${result}`);
       }
       return;
@@ -448,20 +503,27 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     if (markdown === '- ') {
       logger.debug(`🎯 Bullet list: selectedText="${selectedText}"`);
       if (selectedText) {
-        const result = editor.chain()
+        const result = editor
+          .chain()
           .deleteRange({ from, to })
           .insertContent({
             type: 'bulletList',
-            content: [{
-              type: 'listItem',
-              content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }]
-            }]
+            content: [
+              {
+                type: 'listItem',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }],
+              },
+            ],
           })
           .focus(undefined, { scrollIntoView: false })
           .run();
         logger.debug(`✅ Bullet list insertion result: ${result}`);
       } else {
-        const result = editor.chain().toggleBulletList().focus(undefined, { scrollIntoView: false }).run();
+        const result = editor
+          .chain()
+          .toggleBulletList()
+          .focus(undefined, { scrollIntoView: false })
+          .run();
         logger.debug(`✅ Toggle bullet list result: ${result}`);
       }
       return;
@@ -470,14 +532,17 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     // Handle ordered list
     if (markdown.match(/^\d+\.\s$/)) {
       if (selectedText) {
-        editor.chain()
+        editor
+          .chain()
           .deleteRange({ from, to })
           .insertContent({
             type: 'orderedList',
-            content: [{
-              type: 'listItem',
-              content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }]
-            }]
+            content: [
+              {
+                type: 'listItem',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }],
+              },
+            ],
           })
           .focus(undefined, { scrollIntoView: false })
           .run();
@@ -490,11 +555,12 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     // Handle blockquote
     if (markdown === '> ') {
       if (selectedText) {
-        editor.chain()
+        editor
+          .chain()
           .deleteRange({ from, to })
           .insertContent({
             type: 'blockquote',
-            content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }]
+            content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }],
           })
           .focus(undefined, { scrollIntoView: false })
           .run();
@@ -507,11 +573,12 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     // Handle code block
     if (markdown === '```\n\n```') {
       if (selectedText) {
-        editor.chain()
+        editor
+          .chain()
           .deleteRange({ from, to })
           .insertContent({
             type: 'codeBlock',
-            content: [{ type: 'text', text: selectedText }]
+            content: [{ type: 'text', text: selectedText }],
           })
           .focus(undefined, { scrollIntoView: false })
           .run();
@@ -542,27 +609,36 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
       const formatChecks = {
         bold: insertText.includes('**'),
-        italic: (insertText.includes('*') && !insertText.includes('**')),
+        italic: insertText.includes('*') && !insertText.includes('**'),
         strikethrough: insertText.includes('~~'),
         code: insertText.includes('`'),
         blockquote: insertText.startsWith('> '),
         bulletList: insertText.startsWith('- '),
         orderedList: /^\d+\.\s/.test(insertText),
-        link: (insertText.includes('[') && insertText.includes('](') && insertText.includes(')')),
-        table: (insertText.includes('|') && insertText.includes('\n') && insertText.includes('---')),
-        heading: insertText.startsWith('#')
+        link: insertText.includes('[') && insertText.includes('](') && insertText.includes(')'),
+        table: insertText.includes('|') && insertText.includes('\n') && insertText.includes('---'),
+        heading: insertText.startsWith('#'),
       };
 
       logger.debug('🔍 Format checks:', formatChecks);
 
-      const hasFormatting = formatChecks.bold || formatChecks.italic || formatChecks.strikethrough ||
-        formatChecks.code || formatChecks.blockquote || formatChecks.bulletList ||
-        formatChecks.orderedList || formatChecks.link || formatChecks.table || formatChecks.heading;
+      const hasFormatting =
+        formatChecks.bold ||
+        formatChecks.italic ||
+        formatChecks.strikethrough ||
+        formatChecks.code ||
+        formatChecks.blockquote ||
+        formatChecks.bulletList ||
+        formatChecks.orderedList ||
+        formatChecks.link ||
+        formatChecks.table ||
+        formatChecks.heading;
 
       logger.debug('🔍 Has formatting:', hasFormatting);
 
       if (hasFormatting) {
         logger.debug(`🔄 Converting to JSON for formatting: "${insertText}"`);
+
         setIsUpdating(true);
 
         // Security check: Execute URL validation for links
@@ -572,8 +648,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
             const linkUrl = linkMatch[2];
             if (linkUrl && !isValidUrl(linkUrl)) {
               logger.warn('⚠️ Invalid URL detected, treating as plain text:', linkUrl);
-              // Process as plain text if URL is invalid
-              editor.commands.insertContent(sanitizeText(insertText));
+              insertPlainText(insertText);
               return;
             }
             logger.debug('✅ Valid URL detected, proceeding with link creation');
@@ -597,14 +672,17 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           // Check editor state after insertion
           setTimeout(() => {
             const currentContent = editor.getJSON();
-            logger.debug('📄 Editor content after insertion - nodes:', currentContent?.content?.length || 0);
+            logger.debug(
+              '📄 Editor content after insertion - nodes:',
+              currentContent?.content?.length || 0,
+            );
           }, 100);
 
           // If failed, try insertion as HTML string
           if (!insertSuccess) {
             // Insert as Markdown when JSON insertion fails
             const markdown = MarkdownTipTapConverter.tipTapJsonToMarkdown(markdownJson);
-            editor.commands.insertContent(markdown);
+            insertPlainText(markdown);
           }
 
           // setLastMarkdown(insertText); // Removed: Not needed
@@ -612,7 +690,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         } else {
           // Fallback: Insert as plain text
           logger.warn('⚠️ JSON conversion failed, inserting as plain text');
-          editor.commands.insertContent(insertText);
+          insertPlainText(insertText);
         }
 
         setTimeout(() => {
@@ -622,7 +700,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         }, UPDATE_LOCK_RELEASE_MS);
       } else {
         // Insert plain Markdown (headings, lists, etc.) as is
-        editor.commands.insertContent(insertText);
+        insertPlainText(insertText);
 
         // Adjust cursor position if cursorOffset is specified
         if (cursorOffset !== undefined && cursorOffset > 0) {
@@ -636,7 +714,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     } catch (error) {
       logger.error('❌ Error inserting markdown:', error);
       // Fallback on error
-      editor.commands.insertContent(insertText);
+      insertPlainText(insertText);
       editor.commands.focus();
     }
   };
@@ -670,12 +748,14 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   return (
     <div className={`${className}`}>
-      <div className={`border border-gray-300 dark:border-gray-700 bg-[var(--mw-bg-canvas)] rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}>
+      <div
+        className={`border border-gray-300 dark:border-gray-700 bg-[var(--mw-bg-canvas)] rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}
+      >
         {/* Processing indicator (top right) */}
         {isProcessing && (
           <div className="absolute top-2 right-2 z-50">
             <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 flex items-center space-x-2 min-w-48">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />
               <div className="text-xs">
                 <div className="font-medium text-gray-700">Converting Markdown</div>
                 <div className="text-gray-500">
@@ -684,8 +764,10 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
                 <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                   <div
                     className="bg-blue-500 h-1 rounded-full transition-all duration-300"
-                    style={{ width: `${processingProgress.total > 0 ? (processingProgress.processed / processingProgress.total) * 100 : 0}%` }}
-                  ></div>
+                    style={{
+                      width: `${processingProgress.total > 0 ? (processingProgress.processed / processingProgress.total) * 100 : 0}%`,
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -693,10 +775,13 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         )}
 
         {effectiveShowToolbar && (
-          <div className="border-b p-2 rounded-t-lg transition-colors duration-200" style={{
-            backgroundColor: 'var(--mw-toolbar-bg)',
-            borderColor: 'var(--mw-toolbar-border)'
-          }}>
+          <div
+            className="border-b p-2 rounded-t-lg transition-colors duration-200"
+            style={{
+              backgroundColor: 'var(--mw-toolbar-bg)',
+              borderColor: 'var(--mw-toolbar-border)',
+            }}
+          >
             <MarkdownToolbar
               onInsertMarkdown={handleInsertMarkdown}
               onShowHelp={handleShowHelp}
@@ -712,12 +797,14 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         <div
           className={`relative ${enableVerticalScroll ? 'flex-1 overflow-hidden' : 'overflow-visible'} ${editable ? 'cursor-text' : 'cursor-default'}`}
           ref={editorElementRef}
-          onClick={(e) => {
+          onMouseDown={(e) => {
             // Make entire editor area clickable
             if (editor && editable) {
               // If clicked location is not inside EditorContent, focus editor
               const target = e.target as HTMLElement;
-              const proseMirrorElement = editorElementRef.current?.querySelector('.ProseMirror') as HTMLElement;
+              const proseMirrorElement = editorElementRef.current?.querySelector(
+                '.ProseMirror',
+              ) as HTMLElement;
 
               if (proseMirrorElement && !proseMirrorElement.contains(target)) {
                 // Move cursor to end of editor
@@ -733,37 +820,41 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         >
           <EditorContent
             editor={editor}
-            className={`markdown-editor-content ${autoHeight
-              ? 'markdown-editor-autoheight min-h-fit overflow-visible'
-              : (enableVerticalScroll ? 'h-full overflow-y-auto' : 'min-h-full')
-              }`}
+            className={`markdown-editor-content ${
+              autoHeight
+                ? 'markdown-editor-autoheight min-h-fit overflow-visible'
+                : enableVerticalScroll
+                  ? 'h-full overflow-y-auto'
+                  : 'min-h-full'
+            }`}
           />
-
         </div>
         {effectiveShowSyntaxStatus && (
-          <MarkdownSyntaxStatus
-            selectionInfo={selectionInfo}
-            className="rounded-b-md"
-          />
+          <MarkdownSyntaxStatus selectionInfo={selectionInfo} className="rounded-b-md" />
         )}
-      </div>
 
-      {
-        effectiveShowPasteDebug && (
-          <div className="mt-3 p-4 border border-gray-200 rounded-md bg-gray-50">
+        {effectiveShowPasteDebug && (
+          <div className="bg-gray-50 border-t border-gray-200 p-3">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-semibold text-gray-700">Paste Debug Panel</h3>
               <button
+                type="button"
                 onClick={clearPasteEvents}
                 className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
               >
                 Clear
               </button>
             </div>
+
             <div className="space-y-2">
-              {pasteEvents.map((event, idx) => (
-                <div key={idx} className="text-xs bg-white p-2 rounded border border-gray-300">
-                  <div className="font-semibold">{new Date(event.timestamp).toLocaleTimeString()}</div>
+              {pasteEvents.map((event) => (
+                <div
+                  key={`${event.timestamp}-${event.type}`}
+                  className="text-xs bg-white p-2 rounded border border-gray-300"
+                >
+                  <div className="font-semibold">
+                    {new Date(event.timestamp).toLocaleTimeString()}
+                  </div>
                   <div>Type: {event.type}</div>
                   <div className="truncate">Content: {event.content}</div>
                   <div className="truncate text-green-600">Result: {event.result}</div>
@@ -771,8 +862,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
               ))}
             </div>
           </div>
-        )
-      }
+        )}
+      </div>
 
       {/* Link context menu */}
       <LinkContextMenu
@@ -799,15 +890,16 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         texts={texts}
       />
 
-
       {/* Table toolbar */}
-      <TableToolbar
-        editor={editor!}
-        visible={tableToolbar.visible}
-        position={tableToolbar.position}
-      />
+      {editor && (
+        <TableToolbar
+          editor={editor}
+          visible={tableToolbar.visible}
+          position={tableToolbar.position}
+        />
+      )}
       {/* Table edge controls */}
       <TableEdgeControls editor={editor} />
-    </div >
+    </div>
   );
 };

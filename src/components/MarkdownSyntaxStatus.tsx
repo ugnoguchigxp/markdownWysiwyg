@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 
-import { ISelectionInfo } from '../utils/selectionUtils';
+import type { ISelectionInfo } from '../utils/selectionUtils';
 
 interface IMarkdownSyntaxStatusProps {
   selectionInfo: ISelectionInfo | null;
@@ -9,11 +9,13 @@ interface IMarkdownSyntaxStatusProps {
 
 export const MarkdownSyntaxStatus: React.FC<IMarkdownSyntaxStatusProps> = ({
   selectionInfo,
-  className = ''
+  className = '',
 }) => {
   if (!selectionInfo || !selectionInfo.selectedText.trim()) {
     return (
-      <div className={`bg-gray-50 border-t border-gray-200 px-4 py-2 text-sm text-gray-500 ${className}`}>
+      <div
+        className={`bg-gray-50 border-t border-gray-200 px-4 py-2 text-sm text-gray-500 ${className}`}
+      >
         <span>Place cursor on text or select text to display Markdown syntax</span>
       </div>
     );
@@ -24,9 +26,7 @@ export const MarkdownSyntaxStatus: React.FC<IMarkdownSyntaxStatusProps> = ({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-4">
           <span className="font-medium text-blue-700">Selected Text:</span>
-          <span className="text-gray-700 truncate max-w-xs">
-            "{selectionInfo.selectedText}"
-          </span>
+          <span className="text-gray-700 truncate max-w-xs">"{selectionInfo.selectedText}"</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -40,9 +40,9 @@ export const MarkdownSyntaxStatus: React.FC<IMarkdownSyntaxStatusProps> = ({
           <div className="flex items-center gap-4">
             <span className="font-medium text-blue-700">Styles:</span>
             <div className="flex gap-2">
-              {selectionInfo.marks.map((mark, index) => (
+              {selectionInfo.marks.map((mark) => (
                 <span
-                  key={index}
+                  key={mark}
                   className="bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full text-xs"
                 >
                   {mark}

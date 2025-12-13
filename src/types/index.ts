@@ -1,4 +1,4 @@
-import type { JSONContent, Editor } from '@tiptap/core';
+import type { Editor, JSONContent } from '@tiptap/core';
 
 /**
  * Language option for code blocks
@@ -25,26 +25,26 @@ export interface ISelectionInfo {
  */
 export interface IMarkdownEditorProps {
   // Content (required)
-  value?: string;                        // Markdown string (preferred)
+  value?: string; // Markdown string (preferred)
   onChange?: (value: string) => void;
 
   // Deprecated / Internal
-  initialContent?: string;              // @deprecated Use value instead
+  initialContent?: string; // @deprecated Use value instead
   onMarkdownChange?: (markdown: string) => void; // @deprecated Use onChange instead
 
   // Editor settings
-  editable?: boolean;                   // Enable editing (default: true)
-  placeholder?: string;                 // Placeholder text (default: "Start writing...")
+  editable?: boolean; // Enable editing (default: true)
+  placeholder?: string; // Placeholder text (default: "Start writing...")
 
   // Feature toggles
-  enableMermaid?: boolean;              // Mermaid diagrams (default: false)
-  enableImage?: boolean;                // Image insertion (default: true)
-  enableTable?: boolean;                // Tables (default: true)
-  enableCodeBlock?: boolean;            // Code blocks (default: true)
-  enableLink?: boolean;                 // Links (default: true)
+  enableMermaid?: boolean; // Mermaid diagrams (default: false)
+  enableImage?: boolean; // Image insertion (default: true)
+  enableTable?: boolean; // Tables (default: true)
+  enableCodeBlock?: boolean; // Code blocks (default: true)
+  enableLink?: boolean; // Links (default: true)
 
   // Mermaid settings (required if enableMermaid=true)
-  mermaidLib?: unknown;                 // Mermaid library instance
+  mermaidLib?: unknown; // Mermaid library instance
 
   // Styling
   className?: string;
@@ -58,17 +58,17 @@ export interface IMarkdownEditorProps {
   onEditorReady?: (editor: Editor) => void;
 
   // Advanced settings
-  extensions?: unknown[];               // Custom TipTap extensions
+  extensions?: unknown[]; // Custom TipTap extensions
   supportedLanguages?: ILanguageOption[]; // Code block languages
-  showSyntaxStatus?: boolean;           // Show syntax status bar (default: follows debug/editable)
-  showToolbar?: boolean;                // Show toolbar (default: true)
-  enableVerticalScroll?: boolean;       // Enable vertical scrolling (default: true)
-  autoHeight?: boolean;                 // Auto-adjust height (default: false)
-  showDownloadButton?: boolean;         // Show download button (default: false)
-  downloadFilename?: string;            // Download filename (default: 'document.md')
-  showPasteDebug?: boolean;             // Show paste debug panel (default: false)
-  debug?: boolean;                      // Debug mode - shows syntax status and paste debug (default: false)
-  texts?: Partial<ITexts>;              // i18n text labels (default: DEFAULT_TEXTS)
+  showSyntaxStatus?: boolean; // Show syntax status bar (default: follows debug/editable)
+  showToolbar?: boolean; // Show toolbar (default: true)
+  enableVerticalScroll?: boolean; // Enable vertical scrolling (default: true)
+  autoHeight?: boolean; // Auto-adjust height (default: false)
+  showDownloadButton?: boolean; // Show download button (default: false)
+  downloadFilename?: string; // Download filename (default: 'document.md')
+  showPasteDebug?: boolean; // Show paste debug panel (default: false)
+  debug?: boolean; // Debug mode - shows syntax status and paste debug (default: false)
+  texts?: Partial<ITexts>; // i18n text labels (default: DEFAULT_TEXTS)
 }
 
 /**

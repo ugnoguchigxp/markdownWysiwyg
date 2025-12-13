@@ -1,13 +1,17 @@
+import type { NodeViewProps } from '@tiptap/core';
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
-import { NodeViewProps } from '@tiptap/core';
+import { Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createLogger } from '../utils/logger';
-import { Trash2 } from 'lucide-react';
+import { sanitizeSvg } from '../utils/security';
+import {
+  getMermaidLib,
+  getMermaidLibVersion,
+  setMermaidLib,
+  subscribeMermaidLib,
+} from './mermaidRegistry';
 
 const log = createLogger('CodeBlockNodeView');
-
-// Mermaid library (optional)
-let mermaidLib: typeof import('mermaid').default | null = null;
 
 // Initialize mermaid if available
 try {
@@ -15,13 +19,7 @@ try {
   // @ts-expect-error - Mermaid is optional
   if (typeof window !== 'undefined' && window.mermaid) {
     // @ts-expect-error - Mermaid is optional
-    mermaidLib = window.mermaid;
-    mermaidLib?.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      securityLevel: 'loose',
-      fontFamily: 'inherit',
-    });
+    setMermaidLib(window.mermaid);
   }
 } catch {
   // Mermaid not available
@@ -37,6 +35,7 @@ interface IIconButtonProps {
 
 const IconButton = ({ onClick, title, children }: IIconButtonProps) => (
   <button
+    type="button"
     onClick={onClick}
     title={title}
     className="flex items-center justify-center w-7 h-7 bg-slate-700 border border-slate-600 rounded text-slate-200 hover:bg-slate-600 transition-colors text-sm"
@@ -70,19 +69,51 @@ const SUPPORTED_LANGUAGES = [
   { value: 'mermaid', label: 'Mermaid' },
 ];
 
-export const CodeBlockNodeView = ({ node, selected, editor, updateAttributes, deleteNode }: NodeViewProps) => {
+export const CodeBlockNodeView = ({
+  node,
+  selected,
+  editor,
+  updateAttributes,
+  deleteNode,
+}: NodeViewProps) => {
   const language = node.attrs.language || '';
   const code = node.textContent;
+  const [mermaidLibVersion, setMermaidLibVersion] = useState(getMermaidLibVersion());
+  const mermaidLib = getMermaidLib();
 
   log.debug('CodeBlockNodeView render', { language, editable: editor.isEditable, selected });
 
+  useEffect(() => {
+    return subscribeMermaidLib(() => {
+      setMermaidLibVersion(getMermaidLibVersion());
+    });
+  }, []);
+
   // Mermaid専用のレンダリング
   if (language === 'mermaid' && mermaidLib) {
-    return <MermaidCodeBlockView code={code} selected={selected} editable={editor.isEditable} updateAttributes={updateAttributes} deleteNode={deleteNode} />;
+    return (
+      <MermaidCodeBlockView
+        code={code}
+        selected={selected}
+        editable={editor.isEditable}
+        updateAttributes={updateAttributes}
+        deleteNode={deleteNode}
+        mermaidLib={mermaidLib}
+        mermaidLibVersion={mermaidLibVersion}
+      />
+    );
   }
 
   // 通常のコードブロック
-  return <RegularCodeBlockView language={language} selected={selected} editable={editor.isEditable} updateAttributes={updateAttributes} deleteNode={deleteNode} />;
+  return (
+    <RegularCodeBlockView
+      language={language}
+      selected={selected}
+      editable={editor.isEditable}
+      updateAttributes={updateAttributes}
+      deleteNode={deleteNode}
+    />
+  );
 };
 
 interface IRegularCodeBlockViewProps {
@@ -93,10 +124,16 @@ interface IRegularCodeBlockViewProps {
   deleteNode: () => void;
 }
 
-const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, deleteNode }: IRegularCodeBlockViewProps) => {
+const RegularCodeBlockView = ({
+  language,
+  selected,
+  editable,
+  updateAttributes,
+  deleteNode,
+}: IRegularCodeBlockViewProps) => {
   const [selectedLanguage, setSelectedLanguage] = useState(language || '');
   const [isEditable, setIsEditable] = useState(editable);
-  
+
   // Listen to editable changes
   useEffect(() => {
     setIsEditable(editable);
@@ -117,7 +154,9 @@ const RegularCodeBlockView = ({ language, selected, editable, updateAttributes, 
 
   return (
     <NodeViewWrapper className={`code-block ${selected ? 'ring-2 ring-blue-500' : ''}`}>
-      <div className={`relative bg-slate-800 rounded-md p-4 border ${selected ? 'border-blue-500' : 'border-slate-700'}`}>
+      <div
+        className={`relative bg-slate-800 rounded-md p-4 border ${selected ? 'border-blue-500' : 'border-slate-700'}`}
+      >
         <pre className="m-0 relative overflow-visible whitespace-pre text-slate-200">
           {/* 右上のコントロール */}
           {isEditable && (
@@ -156,9 +195,19 @@ interface IMermaidCodeBlockViewProps {
   editable: boolean;
   updateAttributes: (attrs: Record<string, unknown>) => void;
   deleteNode: () => void;
+  mermaidLib: typeof import('mermaid').default;
+  mermaidLibVersion: number;
 }
 
-const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, deleteNode }: IMermaidCodeBlockViewProps) => {
+const MermaidCodeBlockView = ({
+  code,
+  selected,
+  editable,
+  updateAttributes,
+  deleteNode,
+  mermaidLib,
+  mermaidLibVersion,
+}: IMermaidCodeBlockViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fullscreenContainerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -186,14 +235,27 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
 
       try {
         renderIdRef.current += 1;
-        const elementId = `mermaid-${renderIdRef.current}-${Date.now()}`;
+        const elementId = `mermaid-${mermaidLibVersion}-${renderIdRef.current}-${Date.now()}`;
 
-        log.debug('Rendering Mermaid diagram', { elementId, codeLength: code.length, isFullscreen });
+        log.debug('Rendering Mermaid diagram', {
+          elementId,
+          codeLength: code.length,
+          isFullscreen,
+          mermaidLibVersion,
+        });
 
         const { svg } = await mermaidLib.render(elementId, code);
 
         if (targetContainer) {
-          targetContainer.innerHTML = svg;
+          const safeSvg = sanitizeSvg(svg);
+          targetContainer.replaceChildren();
+          if (safeSvg) {
+            const doc = new DOMParser().parseFromString(safeSvg, 'image/svg+xml');
+            const svgEl = doc.documentElement;
+            if (svgEl) {
+              targetContainer.appendChild(document.importNode(svgEl, true));
+            }
+          }
 
           // フルスクリーン時はSVGを画面いっぱいに拡大
           if (isFullscreen) {
@@ -215,7 +277,7 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
     };
 
     renderDiagram();
-  }, [code, isEditing, isFullscreen]);
+  }, [code, isEditing, isFullscreen, mermaidLib, mermaidLibVersion]);
 
   const handleEditClick = () => {
     if (editable) {
@@ -387,10 +449,10 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
   }
 
   return (
-    <NodeViewWrapper
-      className={`mermaid-code-block ${selected ? 'selected' : ''}`}
-    >
-      <div className={`relative rounded-md p-4 bg-gray-50 border ${selected ? 'border-blue-500' : 'border-gray-200'}`}>
+    <NodeViewWrapper className={`mermaid-code-block ${selected ? 'selected' : ''}`}>
+      <div
+        className={`relative rounded-md p-4 bg-gray-50 border ${selected ? 'border-blue-500' : 'border-gray-200'}`}
+      >
         {/* 右上のコントロールボタン */}
         {isEditable && (
           <div className="absolute top-2 right-2 flex gap-1 z-10">
@@ -445,4 +507,3 @@ const MermaidCodeBlockView = ({ code, selected, editable, updateAttributes, dele
     </NodeViewWrapper>
   );
 };
-

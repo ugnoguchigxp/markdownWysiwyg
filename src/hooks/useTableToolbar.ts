@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
+import { useCallback, useEffect, useState } from 'react';
 import { createLogger } from '../utils/logger';
 
 const log = createLogger('useTableToolbar');
@@ -14,7 +14,7 @@ export const useTableToolbar = (editor: Editor | null) => {
   const [toolbarState, setToolbarState] = useState<ITableToolbarState>({
     visible: false,
     position: { x: 0, y: 0 },
-    tableElement: null
+    tableElement: null,
   });
 
   const updateToolbarPosition = useCallback((tableElement: HTMLTableElement) => {
@@ -22,30 +22,32 @@ export const useTableToolbar = (editor: Editor | null) => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-
-    setToolbarState(prev => ({
+    setToolbarState((prev) => ({
       ...prev,
       position: {
         x: rect.left + scrollLeft,
-        y: rect.top + scrollTop
-      }
+        y: rect.top + scrollTop,
+      },
     }));
   }, []);
 
-  const showToolbar = useCallback((tableElement: HTMLTableElement) => {
-    updateToolbarPosition(tableElement);
-    setToolbarState(prev => ({
-      ...prev,
-      visible: true,
-      tableElement
-    }));
-  }, [updateToolbarPosition]);
+  const showToolbar = useCallback(
+    (tableElement: HTMLTableElement) => {
+      updateToolbarPosition(tableElement);
+      setToolbarState((prev) => ({
+        ...prev,
+        visible: true,
+        tableElement,
+      }));
+    },
+    [updateToolbarPosition],
+  );
 
   const hideToolbar = useCallback(() => {
-    setToolbarState(prev => ({
+    setToolbarState((prev) => ({
       ...prev,
       visible: false,
-      tableElement: null
+      tableElement: null,
     }));
   }, []);
 
@@ -84,11 +86,13 @@ export const useTableToolbar = (editor: Editor | null) => {
     if (tableNode && tablePos !== null) {
       // DOMからテーブル要素を取得
       const view = editor.view;
-      const tableElement = view.dom.querySelector('table.tiptap-table-resizable') as HTMLTableElement;
+      const tableElement = view.dom.querySelector(
+        'table.tiptap-table-resizable',
+      ) as HTMLTableElement;
 
       if (tableElement) {
         // 🔧 直接state更新（無限ループ回避）
-        setToolbarState(prev => {
+        setToolbarState((prev) => {
           if (prev.visible && prev.tableElement === tableElement) return prev;
           const rect = tableElement.getBoundingClientRect();
           const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -98,9 +102,9 @@ export const useTableToolbar = (editor: Editor | null) => {
             visible: true,
             position: {
               x: rect.left + scrollLeft,
-              y: rect.top + scrollTop
+              y: rect.top + scrollTop,
             },
-            tableElement
+            tableElement,
           };
         });
         return;
@@ -108,7 +112,9 @@ export const useTableToolbar = (editor: Editor | null) => {
     }
 
     // 🔧 直接state更新（無限ループ回避）
-    setToolbarState(prev => prev.visible ? { visible: false, position: prev.position, tableElement: null } : prev);
+    setToolbarState((prev) =>
+      prev.visible ? { visible: false, position: prev.position, tableElement: null } : prev,
+    );
   }, [editor]);
 
   // 🔧 CLAUDE.mdルール準拠: 無限ループリスク完全排除
@@ -141,10 +147,10 @@ export const useTableToolbar = (editor: Editor | null) => {
       // テーブル外がクリックされた場合はツールバーを非表示
       if (!target.closest('table.tiptap-table-resizable')) {
         // 🔧 直接state更新（無限ループ回避）
-        setToolbarState(prev => ({
+        setToolbarState((prev) => ({
           ...prev,
           visible: false,
-          tableElement: null
+          tableElement: null,
         }));
       }
     };
@@ -156,12 +162,12 @@ export const useTableToolbar = (editor: Editor | null) => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-        setToolbarState(prev => ({
+        setToolbarState((prev) => ({
           ...prev,
           position: {
             x: rect.left + scrollLeft,
-            y: rect.top + scrollTop
-          }
+            y: rect.top + scrollTop,
+          },
         }));
       }
     };
@@ -173,12 +179,12 @@ export const useTableToolbar = (editor: Editor | null) => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-        setToolbarState(prev => ({
+        setToolbarState((prev) => ({
           ...prev,
           position: {
             x: rect.left + scrollLeft,
-            y: rect.top + scrollTop
-          }
+            y: rect.top + scrollTop,
+          },
         }));
       }
     };
@@ -200,6 +206,6 @@ export const useTableToolbar = (editor: Editor | null) => {
     tableElement: toolbarState.tableElement,
     showToolbar,
     hideToolbar,
-    checkTableSelection
+    checkTableSelection,
   };
 };
