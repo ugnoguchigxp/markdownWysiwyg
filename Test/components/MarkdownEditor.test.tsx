@@ -219,7 +219,7 @@ describe('MarkdownEditor', () => {
     // The click handler is on the div wrapping EditorContent
     const editorWrapper = container.querySelector('.cursor-text');
     if (editorWrapper) {
-      fireEvent.click(editorWrapper);
+      fireEvent.mouseDown(editorWrapper);
       expect(mockEditorCommands.focus).toHaveBeenCalled();
     }
   });
