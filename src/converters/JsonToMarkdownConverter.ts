@@ -97,7 +97,7 @@ export class JsonToMarkdownConverter {
    */
   private static processParagraph(node: JSONContent, depth: number): string {
     const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
-    return content + '\n\n';
+    return `${content}\n\n`;
   }
 
   /**
@@ -115,7 +115,7 @@ export class JsonToMarkdownConverter {
    */
   private static processBulletList(node: JSONContent, depth: number): string {
     const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
-    return content + '\n';
+    return `${content}\n`;
   }
 
   /**
@@ -123,7 +123,7 @@ export class JsonToMarkdownConverter {
    */
   private static processOrderedList(node: JSONContent, depth: number): string {
     const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
-    return content + '\n';
+    return `${content}\n`;
   }
 
   /**
@@ -147,13 +147,11 @@ export class JsonToMarkdownConverter {
    */
   private static processBlockquote(node: JSONContent): string {
     const content = node.content ? JsonToMarkdownConverter.processNodes(node.content) : '';
-    return (
-      content
-        .split('\n')
-        .filter((line) => line.trim())
-        .map((line) => `> ${line}`)
-        .join('\n') + '\n\n'
-    );
+    return `${content
+      .split('\n')
+      .filter((line) => line.trim())
+      .map((line) => `> ${line}`)
+      .join('\n')}\n\n`;
   }
 
   /**
@@ -193,7 +191,7 @@ export class JsonToMarkdownConverter {
         .map(() => '---')
         .join('|');
       lines.splice(1, 0, headerSeparator);
-      markdown = lines.join('\n') + '\n\n';
+      markdown = `${lines.join('\n')}\n\n`;
     }
 
     return markdown;

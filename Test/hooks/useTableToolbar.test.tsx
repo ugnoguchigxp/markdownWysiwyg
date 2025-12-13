@@ -44,7 +44,7 @@ describe('useTableToolbar', () => {
       (
         from: number,
         to: number,
-        callback: (node: { type: { name: string } }, pos: number) => boolean | void,
+        callback: (node: { type: { name: string } }, pos: number) => boolean | undefined,
       ) => {
         // Simulate finding a table
         // callback(node, pos, parent, index)

@@ -565,6 +565,11 @@ class BlockParser {
  * メイン変換クラス
  */
 export class MarkdownTipTapConverter {
+  private readonly _instanceMarker = 0;
+
+  private constructor() {
+    // Intentionally empty.
+  }
   /**
    * MarkdownがMarkdown構文を含むかチェック
    */
@@ -615,7 +620,7 @@ export class MarkdownTipTapConverter {
         if (text.startsWith('__TABLE_')) {
           const tableData = tables.get(text);
           if (tableData) {
-            return this.buildTableNode(tableData);
+            return MarkdownTipTapConverter.buildTableNode(tableData);
           }
         }
       }
@@ -667,19 +672,19 @@ export class MarkdownTipTapConverter {
   static tipTapJsonToMarkdown(json: JSONContent): string {
     if (!json || !json.content) return '';
 
-    return json.content.map((node) => this.nodeToMarkdown(node)).join('\n\n');
+    return json.content.map((node) => MarkdownTipTapConverter.nodeToMarkdown(node)).join('\n\n');
   }
 
   private static nodeToMarkdown(node: JSONContent): string {
     switch (node.type) {
       case 'heading': {
         const level = node.attrs?.level || 1;
-        const headingText = this.contentToText(node.content);
+        const headingText = MarkdownTipTapConverter.contentToText(node.content);
         return `${'#'.repeat(level)} ${headingText}`;
       }
 
       case 'paragraph':
-        return this.contentToText(node.content);
+        return MarkdownTipTapConverter.contentToText(node.content);
 
       case 'codeBlock': {
         const language = node.attrs?.language || '';
@@ -688,19 +693,24 @@ export class MarkdownTipTapConverter {
       }
 
       case 'bulletList':
-        return node.content?.map((item) => `- ${this.nodeToMarkdown(item)}`).join('\n') || '';
+        return (
+          node.content
+            ?.map((item) => `- ${MarkdownTipTapConverter.nodeToMarkdown(item)}`)
+            .join('\n') || ''
+        );
 
       case 'orderedList':
         return (
-          node.content?.map((item, idx) => `${idx + 1}. ${this.nodeToMarkdown(item)}`).join('\n') ||
-          ''
+          node.content
+            ?.map((item, idx) => `${idx + 1}. ${MarkdownTipTapConverter.nodeToMarkdown(item)}`)
+            .join('\n') || ''
         );
 
       case 'listItem':
-        return this.contentToText(node.content);
+        return MarkdownTipTapConverter.contentToText(node.content);
 
       case 'blockquote': {
-        const quoteText = this.contentToText(node.content);
+        const quoteText = MarkdownTipTapConverter.contentToText(node.content);
         return `> ${quoteText}`;
       }
 
@@ -708,10 +718,10 @@ export class MarkdownTipTapConverter {
         return '---';
 
       case 'table':
-        return this.tableToMarkdown(node);
+        return MarkdownTipTapConverter.tableToMarkdown(node);
 
       default:
-        return this.contentToText(node.content);
+        return MarkdownTipTapConverter.contentToText(node.content);
     }
   }
 
@@ -756,7 +766,7 @@ export class MarkdownTipTapConverter {
           return `![${alt}](${src})`;
         }
 
-        return this.nodeToMarkdown(node);
+        return MarkdownTipTapConverter.nodeToMarkdown(node);
       })
       .join('');
   }
@@ -769,14 +779,18 @@ export class MarkdownTipTapConverter {
     const dataRows = rows.slice(1);
 
     const headers =
-      headerRow?.content?.map((cell) => this.contentToText(cell.content?.[0]?.content)) || [];
+      headerRow?.content?.map((cell) =>
+        MarkdownTipTapConverter.contentToText(cell.content?.[0]?.content),
+      ) || [];
 
     const separator = headers.map(() => '---').join(' | ');
     const headerLine = headers.join(' | ');
 
     const dataLines = dataRows.map((row) => {
       const cells =
-        row.content?.map((cell) => this.contentToText(cell.content?.[0]?.content)) || [];
+        row.content?.map((cell) =>
+          MarkdownTipTapConverter.contentToText(cell.content?.[0]?.content),
+        ) || [];
       return cells.join(' | ');
     });
 
@@ -791,7 +805,7 @@ export class MarkdownTipTapConverter {
     editor: Editor,
     onChunkProcessed?: (processed: number, total: number) => void,
   ): Promise<void> {
-    const json = await this.markdownToTipTapJson(markdown);
+    const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
     const content = json.content || [];
 
     // 一括で設定

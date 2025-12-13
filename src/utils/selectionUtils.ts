@@ -12,6 +12,11 @@ type MarkLike = {
 };
 
 export class SelectionUtils {
+  private readonly _instanceMarker = 0;
+
+  private constructor() {
+    // Intentionally empty.
+  }
   /**
    * 現在の選択範囲からMarkdown構文情報を抽出
    */
