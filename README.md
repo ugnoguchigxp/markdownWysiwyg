@@ -6,9 +6,7 @@ Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 
 ---
 
-## English
-
-### Features
+## Features
 
 - Rich text editing with Markdown syntax
 - Code blocks with syntax highlighting (19 languages)
@@ -19,7 +17,7 @@ Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 - Link context menu
 - TypeScript support
 
-### Installation
+## Installation
 
 This editor is a React component targeting **React 18+ / ReactDOM 18+**.
 
@@ -31,7 +29,7 @@ npm install markdown-wysiwyg-editor
 yarn add markdown-wysiwyg-editor
 ```
 
-### Quick Start
+## Quick Start
 
 **⚠️ IMPORTANT**: You **MUST** import the CSS file for the editor to work properly.
 
@@ -47,9 +45,9 @@ function App() {
 }
 ```
 
-### Essential Setup Steps
+## Essential Setup Steps
 
-#### 1. CSS Import (Required)
+### 1. CSS Import (Required)
 
 **Without the CSS import, the editor will not display properly**. Make sure to import the stylesheet:
 
@@ -59,11 +57,11 @@ import 'markdown-wysiwyg-editor/style.css';
 
 You can import this in your main app file (e.g., `App.tsx` or `index.tsx`) to make it available globally.
 
-#### 2. Height and Scroll Configuration
+### 2. Height and Scroll Configuration
 
 The editor needs proper height configuration to enable scrolling. Choose one approach:
 
-**Option A: Fixed Height (Recommended)**
+#### Option A: Fixed Height (Recommended)
 
 ```tsx
 <MarkdownEditor
@@ -74,7 +72,7 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 />
 ```
 
-**Option B: Flex Layout (For Full-Height Containers)**
+#### Option B: Flex Layout (For Full-Height Containers)
 
 ```tsx
 // Parent container must have defined height
@@ -88,7 +86,7 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 </div>
 ```
 
-**Option C: Auto-Height (No Scroll)**
+#### Option C: Auto-Height (No Scroll)
 
 ```tsx
 <MarkdownEditor
@@ -99,25 +97,25 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 />
 ```
 
-#### 3. Common Issues and Solutions
+### 3. Common Issues and Solutions
 
-**Issue: Lists not displaying correctly**
+#### Issue: Lists not displaying correctly
 
 - Make sure the CSS is imported properly
 - The CSS file contains all necessary styles for headings, lists, tables, etc.
 
-**Issue: No scrollbar appears**
+#### Issue: No scrollbar appears
 
 - Set a fixed height using `className="h-96"` or similar
 - Enable scroll with `enableVerticalScroll={true}`
 
-**Issue: Styles not applying**
+#### Issue: Styles not applying
 
 - Verify the CSS import path: `'markdown-wysiwyg-editor/style.css'`
 - Check browser console for CSS loading errors
 - Make sure you're not using CSS modules that might interfere with global styles
 
-#### With Mermaid
+### With Mermaid
 
 ```tsx
 import { useState } from 'react';
@@ -136,13 +134,31 @@ function App() {
 }
 ```
 
-#### Disable Features
+### Disable Features
 
 ```tsx
 <MarkdownEditor value={content} onChange={setContent} enableImage={false} enableTable={false} />
 ```
 
-### API (Props)
+### Image whitelist (local images)
+
+For security reasons, **local image paths are not rendered by default**.
+
+- Remote images are allowed only with `http` / `https`.
+- For local paths (e.g. `/images/foo.png`), set `publicImagePathPrefix` and the `src` must start with that prefix.
+- The following are rejected: `javascript:` / `data:` / `file:` / protocol-relative (`//...`) / path traversal (`../`).
+
+Example:
+
+```tsx
+<MarkdownEditor
+  value={content}
+  onChange={setContent}
+  publicImagePathPrefix="/images"
+/>
+```
+
+## API (Props)
 
 | Prop              | Type                      | Default             | Description                                         |
 | ----------------- | ------------------------- | ------------------- | --------------------------------------------------- |
@@ -155,6 +171,7 @@ function App() {
 | `enableTable`     | `boolean`                 | `true`              | Enable table editing                                |
 | `enableCodeBlock` | `boolean`                 | `true`              | Enable code blocks                                  |
 | `enableLink`      | `boolean`                 | `true`              | Enable links                                        |
+| `publicImagePathPrefix` | `string`            | -                   | Allow local image `src` only when it starts with this prefix (e.g. `/images`) |
 | `mermaidLib`      | `typeof mermaid`          | -                   | Mermaid instance (required if `enableMermaid=true`) |
 | `texts`           | `Partial<ITexts>`         | `DEFAULT_TEXTS`     | i18n text labels (see i18n section)                 |
 | `debug`           | `boolean`                 | `false`             | Show debug info (syntax status, paste debug)        |
@@ -164,7 +181,7 @@ function App() {
 | `onFocus`         | `() => void`              | -                   | Focus event handler                                 |
 | `extensions`      | `Extension[]`             | -                   | Custom TipTap extensions                            |
 
-### Supported Languages (Code Blocks)
+## Supported Languages (Code Blocks)
 
 - JavaScript / TypeScript
 - Python
@@ -178,33 +195,33 @@ function App() {
 - JSON / YAML / XML
 - Mermaid (if enabled)
 
-### Bundle Size (rough guideline)
+## Bundle Size (rough guideline)
 
 - Without Mermaid: ~150KB (gzipped)
 - With Mermaid: +2.5MB
 
 Consider your app's performance and whether you really need Mermaid.
 
-### Limitations / Notes
+## Limitations / Notes
 
 - Focused on **Markdown-based WYSIWYG**. It is not a full block editor like Notion.
 - Styling assumes a relatively neutral, Tailwind-friendly base; you are expected to adapt it to your design system.
 - TipTap / Mermaid and other internals may receive major updates; this library will follow with its own major bumps.
 
-### Browser Support
+## Browser Support
 
 - Chrome / Edge: latest 2 versions
 - Firefox: latest 2 versions
 - Safari: latest 2 versions
 - Mobile: iOS Safari 15+, Chrome Android
 
-### Advanced Usage
+## Advanced Usage
 
-#### Internationalization (i18n)
+### Internationalization (i18n)
 
 This editor supports integration with external i18n systems like **react-i18next** or **next-intl**.
 
-##### Using Translation Keys with react-i18next
+#### Using Translation Keys with react-i18next
 
 ```tsx
 import { MarkdownEditor, I18N_KEYS } from 'markdown-wysiwyg-editor';
@@ -233,7 +250,7 @@ function App() {
 }
 ```
 
-##### Add to your i18n JSON files
+#### Add to your i18n JSON files
 
 **en.json:**
 
@@ -279,7 +296,7 @@ function App() {
 
 See [docs/i18n.md](./docs/i18n.md) for more details.
 
-#### Custom Toolbar
+### Custom Toolbar
 
 You can hide the built-in toolbar and provide your own UI:
 
@@ -287,7 +304,7 @@ You can hide the built-in toolbar and provide your own UI:
 <MarkdownEditor value={content} onChange={setContent} showToolbar={false} />
 ```
 
-#### Custom Extensions
+### Custom Extensions
 
 You can inject TipTap extensions directly:
 
@@ -305,9 +322,9 @@ import TextAlign from '@tiptap/extension-text-align';
 />;
 ```
 
-### Troubleshooting
+## Troubleshooting
 
-#### Styles not loading
+### Styles not loading
 
 ```tsx
 import 'markdown-wysiwyg-editor/style.css';
@@ -315,7 +332,7 @@ import 'markdown-wysiwyg-editor/style.css';
 
 Ensure the CSS is imported in your app entry.
 
-#### "ReferenceError: global is not defined"
+### "ReferenceError: global is not defined"
 
 With some Vite setups you may need:
 
@@ -325,7 +342,7 @@ define: {
 },
 ```
 
-### Development
+## Development
 
 ```bash
 pnpm install
@@ -335,11 +352,11 @@ pnpm test
 pnpm lint
 ```
 
-### License
+## License
 
 MIT
 
-### Credits
+## Credits
 
 Built with:
 
