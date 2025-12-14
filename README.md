@@ -1,6 +1,8 @@
-# @markdown-wysiwyg/editor
+# markdown-wysiwyg-editor
 
 Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
+
+![Screenshot](https://raw.githubusercontent.com/ugnoguchigxp/markdownWysiwyg/main/assets/example.png)
 
 ---
 
@@ -205,7 +207,7 @@ This editor supports integration with external i18n systems like **react-i18next
 ##### Using Translation Keys with react-i18next
 
 ```tsx
-import { MarkdownEditor, I18N_KEYS } from '@markdown-wysiwyg/editor';
+import { MarkdownEditor, I18N_KEYS } from 'markdown-wysiwyg-editor';
 import { useTranslation } from 'react-i18next';
 
 function App() {
@@ -308,7 +310,7 @@ import TextAlign from '@tiptap/extension-text-align';
 #### Styles not loading
 
 ```tsx
-import '@markdown-wysiwyg/editor/style.css';
+import 'markdown-wysiwyg-editor/style.css';
 ```
 
 Ensure the CSS is imported in your app entry.

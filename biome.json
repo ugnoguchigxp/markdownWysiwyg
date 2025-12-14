@@ -5,6 +5,7 @@
       "dist/**",
       "coverage/**",
       "node_modules/**",
+      "Test/**",
       "example/node_modules/**",
       "example/dist/**",
       "eslint.config.js",

@@ -33,6 +33,77 @@ export const normalizeUrlOrNull = (url: string): string | null => {
   }
 };
 
+export const normalizeImageSrcOrNull = (
+  src: string,
+  options?: {
+    publicPathPrefix?: string;
+  },
+): string | null => {
+  if (typeof src !== 'string') return null;
+  const trimmed = src.trim();
+  if (!trimmed) return null;
+
+  const unwrapped =
+    trimmed.startsWith('<') && trimmed.endsWith('>') ? trimmed.slice(1, -1).trim() : trimmed;
+  if (!unwrapped) return null;
+
+  const lower = unwrapped.toLowerCase();
+  if (
+    lower.startsWith('javascript:') ||
+    lower.startsWith('vbscript:') ||
+    lower.startsWith('data:') ||
+    lower.startsWith('file:')
+  ) {
+    return null;
+  }
+
+  if (unwrapped.startsWith('//')) {
+    return null;
+  }
+
+  const schemeMatch = unwrapped.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/);
+  if (schemeMatch) {
+    const scheme = schemeMatch[1]?.toLowerCase();
+    if (scheme === 'http' || scheme === 'https') {
+      return normalizeUrlOrNull(unwrapped);
+    }
+    return null;
+  }
+
+  const decodedOnce = (() => {
+    try {
+      return decodeURIComponent(unwrapped);
+    } catch {
+      return unwrapped;
+    }
+  })();
+
+  const hasTraversalSegment = (v: string) => /(^|\/)\.\.(\/|$)/.test(v);
+
+  if (hasTraversalSegment(unwrapped) || hasTraversalSegment(decodedOnce)) {
+    return null;
+  }
+
+  if (unwrapped.includes('\\') || decodedOnce.includes('\\')) {
+    return null;
+  }
+
+  const publicPathPrefix = options?.publicPathPrefix?.trim();
+  if (!publicPathPrefix) {
+    return null;
+  }
+
+  const normalizedPrefix = publicPathPrefix.endsWith('/')
+    ? publicPathPrefix
+    : `${publicPathPrefix}/`;
+
+  if (!unwrapped.startsWith(normalizedPrefix)) {
+    return null;
+  }
+
+  return unwrapped;
+};
+
 export const sanitizeSvg = (svg: string): string => {
   if (!svg || typeof window === 'undefined') return '';
 
@@ -40,7 +111,7 @@ export const sanitizeSvg = (svg: string): string => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(svg, 'image/svg+xml');
 
-    const forbiddenSelectors = ['script', 'foreignObject', 'iframe', 'object', 'embed', 'link'];
+    const forbiddenSelectors = ['script', 'iframe', 'object', 'embed', 'link'];
     for (const sel of forbiddenSelectors) {
       for (const el of doc.querySelectorAll(sel)) {
         el.remove();

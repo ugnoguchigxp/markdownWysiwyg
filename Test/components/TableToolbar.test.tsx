@@ -53,7 +53,7 @@ const createChain = () => {
 describe('TableToolbar', () => {
   it('returns null when not visible', () => {
     const chain = createChain();
-    const editor = { chain: () => chain } as any;
+    const editor = { chain: () => chain } as unknown as Parameters<typeof TableToolbar>[0]['editor'];
 
     const { container } = render(
       <TableToolbar editor={editor} visible={false} position={{ x: 10, y: 20 }} />,
@@ -63,7 +63,7 @@ describe('TableToolbar', () => {
 
   it('triggers row/column/cell/header operations', () => {
     const chain = createChain();
-    const editor = { chain: () => chain } as any;
+    const editor = { chain: () => chain } as unknown as Parameters<typeof TableToolbar>[0]['editor'];
 
     render(<TableToolbar editor={editor} visible={true} position={{ x: 10, y: 200 }} />);
 
@@ -100,7 +100,7 @@ describe('TableToolbar', () => {
 
   it('deletes table only when confirm returns true', () => {
     const chain = createChain();
-    const editor = { chain: () => chain } as any;
+    const editor = { chain: () => chain } as unknown as Parameters<typeof TableToolbar>[0]['editor'];
 
     const confirm = vi.spyOn(window, 'confirm');
     confirm.mockReturnValueOnce(false);

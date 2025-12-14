@@ -45,6 +45,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   placeholder = 'Start typing...',
   editable = true,
   enableMermaid = false,
+  publicImagePathPrefix,
   mermaidLib,
   onContentChange,
   onMarkdownChange, // Currently disabled to prevent infinite loops with TextEditor
@@ -222,6 +223,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     initialContent,
     editable,
     placeholder,
+    publicImagePathPrefix,
     onContentChange,
     onChange,
     onMarkdownChange,
@@ -289,7 +291,9 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           return;
         }
 
-        const json = await MarkdownTipTapConverter.markdownToTipTapJson(trimmed);
+        const json = await MarkdownTipTapConverter.markdownToTipTapJson(trimmed, {
+          publicImagePathPrefix,
+        });
 
         // Check code blocks
         const codeBlocks = json?.content?.filter((node) => node.type === 'codeBlock') || [];
@@ -322,7 +326,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     if (editor) {
       processInitialMarkdown();
     }
-  }, [editor, initialContent, value, editable]); // Execute when value changes
+  }, [editor, initialContent, value, editable, publicImagePathPrefix]); // Execute when value changes
 
   // Update editor editable state when prop changes
   useEffect(() => {
@@ -659,7 +663,9 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         const originalPreventUpdate = (editor as ExtendedEditor).__preventUpdate;
         (editor as ExtendedEditor).__preventUpdate = true;
 
-        const markdownJson = await MarkdownTipTapConverter.markdownToTipTapJson(insertText);
+        const markdownJson = await MarkdownTipTapConverter.markdownToTipTapJson(insertText, {
+          publicImagePathPrefix,
+        });
         logger.debug('📄 Converted JSON - nodes:', markdownJson?.content?.length || 0);
 
         if (markdownJson.content && markdownJson.content.length > 0) {

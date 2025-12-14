@@ -1,5 +1,6 @@
-import { MarkdownEditor } from 'markdown-wysiwyg-editor';
 import { useEffect, useState } from 'react';
+
+import { MarkdownEditor } from 'markdown-wysiwyg-editor';
 import 'markdown-wysiwyg-editor/style.css';
 import mermaid from 'mermaid';
 
@@ -24,10 +25,15 @@ function App() {
       '\n' +
       '- Bullet item 1\n' +
       '- Bullet item 2\n' +
-      '  - Nested bullet item\n' +
+      '  - Nested bullet item (level 2)\n' +
+      '    - Nested bullet item (level 3)\n' +
+      '      - Nested bullet item (level 4)\n' +
       '\n' +
       '1. Numbered item 1\n' +
       '2. Numbered item 2\n' +
+      '   1. Nested numbered item (level 2)\n' +
+      '   2. Nested numbered item (level 2)\n' +
+      '      - Mixed nested bullet under numbered\n' +
       '\n' +
       '## 3. Links & Images\n' +
       '\n' +
@@ -60,10 +66,29 @@ function App() {
       '## 6. Mermaid Diagram\n' +
       '\n' +
       '```mermaid\n' +
-      'graph TD;\n' +
-      '  A[Editor] --> B[Markdown];\n' +
-      '  B --> C[TipTap JSON];\n' +
-      '  C --> D[HTML];\n' +
+      'flowchart TD\n' +
+      '  %% More complex example to cover labels, subgraphs, and styles\n' +
+      '  A[Markdown Input] -->|Convert| B(TipTap JSON)\n' +
+      '  B --> C{Render Mode?}\n' +
+      '  C -->|WYSIWYG| D[ProseMirror View]\n' +
+      '  C -->|Raw| E[Markdown Output]\n' +
+      '  D --> F[User Edits]\n' +
+      '  F -->|Update| B\n' +
+      '\n' +
+      '  subgraph Extensions\n' +
+      '    X[CodeBlock NodeView]\n' +
+      '    Y[Mermaid Renderer]\n' +
+      '    Z[Image Whitelist]\n' +
+      '  end\n' +
+      '\n' +
+      '  X --> D\n' +
+      '  Y --> D\n' +
+      '  Z --> D\n' +
+      '\n' +
+      '  classDef core fill:#dbeafe,stroke:#2563eb,color:#111827;\n' +
+      '  classDef warn fill:#fee2e2,stroke:#dc2626,color:#111827;\n' +
+      '  class A,B,D,E,F core;\n' +
+      '  class C warn;\n' +
       '```\n',
   );
   const [isEditable, setIsEditable] = useState(true);
@@ -215,6 +240,7 @@ function App() {
                 editable={isEditable}
                 mermaidLib={mermaid}
                 enableMermaid={true}
+                publicImagePathPrefix="/images"
                 placeholder="Start typing your markdown..."
                 className="h-full flex flex-col"
                 autoHeight={false}

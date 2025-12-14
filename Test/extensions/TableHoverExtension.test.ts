@@ -1,9 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { TableHoverExtension } from '../../src/extensions/TableHoverExtension';
 
+type MouseoverHandler = (view: { dom: HTMLElement }, event: MouseEvent) => boolean;
+type MouseoutHandler = (view: { dom: HTMLElement }, event: MouseEvent) => boolean;
+
+type PluginLike = {
+  spec: {
+    props?: {
+      handleDOMEvents?: {
+        mouseover?: MouseoverHandler;
+        mouseout?: MouseoutHandler;
+      };
+    };
+  };
+};
+
+type ExtensionWithPlugins = {
+  config: {
+    addProseMirrorPlugins: () => PluginLike[];
+  };
+};
+
 describe('TableHoverExtension', () => {
   it('adds hover class on mouseover and removes from other cells', () => {
-    const plugin = (TableHoverExtension as any).config.addProseMirrorPlugins()[0];
+    const plugin = (TableHoverExtension as unknown as ExtensionWithPlugins).config.addProseMirrorPlugins()[0];
     const handle = plugin.spec.props?.handleDOMEvents;
 
     const root = document.createElement('div');
@@ -21,9 +41,10 @@ describe('TableHoverExtension', () => {
 
     td2.classList.add('table-cell-hover');
 
-    const view = { dom: root } as unknown as { dom: HTMLElement };
-
-    const ret = handle?.mouseover?.(view as any, { target: td1 } as unknown as MouseEvent);
+    const view = { dom: root } as { dom: HTMLElement };
+    const event = new MouseEvent('mouseover', { bubbles: true });
+    Object.defineProperty(event, 'target', { value: td1 });
+    const ret = handle?.mouseover?.(view, event);
     expect(ret).toBe(false);
 
     expect(td1.classList.contains('table-cell-hover')).toBe(true);
@@ -31,7 +52,7 @@ describe('TableHoverExtension', () => {
   });
 
   it('removes hover class on mouseout when leaving cell', () => {
-    const plugin = (TableHoverExtension as any).config.addProseMirrorPlugins()[0];
+    const plugin = (TableHoverExtension as unknown as ExtensionWithPlugins).config.addProseMirrorPlugins()[0];
     const handle = plugin.spec.props?.handleDOMEvents;
 
     const root = document.createElement('div');
@@ -39,13 +60,21 @@ describe('TableHoverExtension', () => {
     td.classList.add('table-cell-hover');
     root.appendChild(td);
 
+    const view = { dom: root } as { dom: HTMLElement };
+
     // relatedTarget inside cell -> keep
-    handle?.mouseout?.({ dom: root } as any, { target: td, relatedTarget: td } as any);
+    const inside = new MouseEvent('mouseout', { bubbles: true });
+    Object.defineProperty(inside, 'target', { value: td });
+    Object.defineProperty(inside, 'relatedTarget', { value: td });
+    handle?.mouseout?.(view, inside);
     expect(td.classList.contains('table-cell-hover')).toBe(true);
 
     // relatedTarget outside -> remove
     const outside = document.createElement('div');
-    handle?.mouseout?.({ dom: root } as any, { target: td, relatedTarget: outside } as any);
+    const outsideEvent = new MouseEvent('mouseout', { bubbles: true });
+    Object.defineProperty(outsideEvent, 'target', { value: td });
+    Object.defineProperty(outsideEvent, 'relatedTarget', { value: outside });
+    handle?.mouseout?.(view, outsideEvent);
     expect(td.classList.contains('table-cell-hover')).toBe(false);
   });
 });

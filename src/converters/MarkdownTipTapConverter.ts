@@ -13,13 +13,17 @@ import type { JSONContent } from '@tiptap/core';
 import type { Editor } from '@tiptap/react';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '../utils/logger';
-import { normalizeUrlOrNull } from '../utils/security';
+import { normalizeImageSrcOrNull, normalizeUrlOrNull } from '../utils/security';
 
 const log = createLogger('MarkdownTipTapConverter');
 
 interface TableData {
   headers: string[];
   rows: string[][];
+}
+
+interface MarkdownToTipTapOptions {
+  publicImagePathPrefix?: string;
 }
 
 /**
@@ -185,7 +189,7 @@ class InlineParser {
    * テキスト内のインライン要素を処理してTipTapノードに変換
    * すべてのインライン要素を同列で処理（bold, italic, strike, code, link, image）
    */
-  static parseInline(text: string): JSONContent[] {
+  static parseInline(text: string, options?: MarkdownToTipTapOptions): JSONContent[] {
     if (!text || !text.trim()) {
       return [];
     }
@@ -242,12 +246,13 @@ class InlineParser {
     });
 
     // プレースホルダーをJSONノードに変換
-    return InlineParser.convertToNodes(result, elements);
+    return InlineParser.convertToNodes(result, elements, options);
   }
 
   private static convertToNodes(
     text: string,
     elements: Map<string, { type: string; data: unknown }>,
+    options?: MarkdownToTipTapOptions,
   ): JSONContent[] {
     const nodes: JSONContent[] = [];
     let current = '';
@@ -310,9 +315,11 @@ class InlineParser {
 
                 case 'image': {
                   const imageData = element.data as { alt: string; src: string };
-                  const safeSrc = normalizeUrlOrNull(imageData.src);
+                  const safeSrc = normalizeImageSrcOrNull(imageData.src, {
+                    publicPathPrefix: options?.publicImagePathPrefix,
+                  });
 
-                  if (!safeSrc || !safeSrc.startsWith('http')) {
+                  if (!safeSrc) {
                     nodes.push({
                       type: 'text',
                       text: `![${imageData.alt}](${imageData.src})`,
@@ -330,7 +337,7 @@ class InlineParser {
                 case 'italic':
                 case 'strike': {
                   // ネストされたインライン要素を再帰的に処理
-                  const nestedNodes = InlineParser.parseInline(element.data as string);
+                  const nestedNodes = InlineParser.parseInline(element.data as string, options);
                   for (const node of nestedNodes) {
                     if (node.type === 'text') {
                       const marks = node.marks ? [...node.marks] : [];
@@ -374,7 +381,150 @@ class BlockParser {
     // Intentionally empty.
   }
 
-  static parseBlocks(markdown: string): JSONContent[] {
+  private static getIndentLength(line: string): number {
+    let count = 0;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === ' ') {
+        count += 1;
+        continue;
+      }
+      if (ch === '\t') {
+        // Treat tab as 4 spaces for indentation purposes
+        count += 4;
+        continue;
+      }
+      break;
+    }
+    return count;
+  }
+
+  private static parseListAt(
+    lines: string[],
+    startIndex: number,
+    options?: MarkdownToTipTapOptions,
+  ): { node: JSONContent; nextIndex: number } | null {
+    const firstLine = lines[startIndex] || '';
+
+    const getListType = (line: string): 'bulletList' | 'orderedList' | null => {
+      if (/^\s*[-*+]\s+/.test(line)) return 'bulletList';
+      if (/^\s*\d+\.\s+/.test(line)) return 'orderedList';
+      return null;
+    };
+
+    const getItemText = (line: string): string | null => {
+      const m1 = line.match(/^\s*[-*+]\s+(.+)$/);
+      if (m1) return m1[1] || '';
+      const m2 = line.match(/^\s*\d+\.\s+(.+)$/);
+      if (m2) return m2[1] || '';
+      return null;
+    };
+
+    const rootType = getListType(firstLine);
+    if (!rootType) {
+      return null;
+    }
+
+    const baseIndent = BlockParser.getIndentLength(firstLine);
+
+    const createList = (type: 'bulletList' | 'orderedList'): JSONContent => ({
+      type,
+      content: [],
+    });
+
+    const createListItem = (text: string): JSONContent => ({
+      type: 'listItem',
+      content: [
+        {
+          type: 'paragraph',
+          content: InlineParser.parseInline(text, options),
+        },
+      ],
+    });
+
+    const rootList = createList(rootType);
+    const stack: Array<{ indent: number; list: JSONContent; parentItem: JSONContent | null }> = [
+      { indent: 0, list: rootList, parentItem: null },
+    ];
+
+    let i = startIndex;
+    while (i < lines.length) {
+      const rawLine = lines[i] || '';
+      const trimmed = rawLine.trim();
+
+      if (!trimmed) {
+        break;
+      }
+
+      if (trimmed.startsWith('__CODEBLOCK_') || trimmed.startsWith('__TABLE_')) {
+        break;
+      }
+
+      const type = getListType(rawLine);
+      const itemText = getItemText(rawLine);
+      if (!type || itemText === null) {
+        break;
+      }
+
+      const indent = Math.max(0, BlockParser.getIndentLength(rawLine) - baseIndent);
+
+      while (stack.length > 1) {
+        const top = stack[stack.length - 1];
+        if (!top) {
+          break;
+        }
+        if (indent >= top.indent) {
+          break;
+        }
+        stack.pop();
+      }
+
+      const top = stack[stack.length - 1];
+      if (!top) {
+        break;
+      }
+
+      if (indent > top.indent) {
+        const parentList = top.list;
+        const parentItems = parentList.content || [];
+        const lastItem = parentItems[parentItems.length - 1];
+        if (!lastItem || lastItem.type !== 'listItem') {
+          break;
+        }
+
+        const nestedList = createList(type);
+        lastItem.content = lastItem.content || [];
+        lastItem.content.push(nestedList);
+        stack.push({ indent, list: nestedList, parentItem: lastItem });
+      } else if (indent === top.indent && top.list.type !== type) {
+        const currentFrame = top;
+        if (currentFrame.parentItem) {
+          const siblingList = createList(type);
+          currentFrame.parentItem.content = currentFrame.parentItem.content || [];
+          currentFrame.parentItem.content.push(siblingList);
+          currentFrame.list = siblingList;
+        } else {
+          // Top-level list type changed; stop and let the outer parser handle the next list
+          break;
+        }
+      }
+
+      const currentTop = stack[stack.length - 1];
+      if (!currentTop) {
+        break;
+      }
+
+      const currentList = currentTop.list;
+      currentList.content = currentList.content || [];
+      currentList.content.push(createListItem(itemText));
+
+      i++;
+    }
+
+    return { node: rootList, nextIndex: i };
+  }
+
+  static parseBlocks(markdown: string, options?: MarkdownToTipTapOptions): JSONContent[] {
     const lines = markdown.split('\n');
     const blocks: JSONContent[] = [];
 
@@ -407,7 +557,7 @@ class BlockParser {
         blocks.push({
           type: 'heading',
           attrs: { level },
-          content: InlineParser.parseInline(headingText),
+          content: InlineParser.parseInline(headingText, options),
         });
         i++;
         continue;
@@ -428,7 +578,7 @@ class BlockParser {
           content: [
             {
               type: 'paragraph',
-              content: InlineParser.parseInline(quoteText),
+              content: InlineParser.parseInline(quoteText, options),
             },
           ],
         });
@@ -436,89 +586,11 @@ class BlockParser {
         continue;
       }
 
-      // リスト（番号なし）
-      const unorderedMatch = trimmed.match(/^[-*+]\s+(.+)$/);
-      if (unorderedMatch) {
-        const items: JSONContent[] = [];
-        const itemText = unorderedMatch[1] || '';
-        items.push({
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: InlineParser.parseInline(itemText),
-            },
-          ],
-        });
-
-        let j = i + 1;
-        while (j < lines.length) {
-          const nextLine = lines[j]?.trim() || '';
-          const nextMatch = nextLine.match(/^[-*+]\s+(.+)$/);
-          if (nextMatch) {
-            items.push({
-              type: 'listItem',
-              content: [
-                {
-                  type: 'paragraph',
-                  content: InlineParser.parseInline(nextMatch[1] || ''),
-                },
-              ],
-            });
-            j++;
-          } else {
-            break;
-          }
-        }
-
-        blocks.push({
-          type: 'bulletList',
-          content: items,
-        });
-        i = j;
-        continue;
-      }
-
-      // リスト（番号付き）
-      const orderedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
-      if (orderedMatch) {
-        const items: JSONContent[] = [];
-        const itemText = orderedMatch[1] || '';
-        items.push({
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: InlineParser.parseInline(itemText),
-            },
-          ],
-        });
-
-        let j = i + 1;
-        while (j < lines.length) {
-          const nextLine = lines[j]?.trim() || '';
-          const nextMatch = nextLine.match(/^\d+\.\s+(.+)$/);
-          if (nextMatch) {
-            items.push({
-              type: 'listItem',
-              content: [
-                {
-                  type: 'paragraph',
-                  content: InlineParser.parseInline(nextMatch[1] || ''),
-                },
-              ],
-            });
-            j++;
-          } else {
-            break;
-          }
-        }
-
-        blocks.push({
-          type: 'orderedList',
-          content: items,
-        });
-        i = j;
+      // リスト（ネスト対応）
+      const listParsed = BlockParser.parseListAt(lines, i, options);
+      if (listParsed) {
+        blocks.push(listParsed.node);
+        i = listParsed.nextIndex;
         continue;
       }
 
@@ -550,7 +622,7 @@ class BlockParser {
       if (paragraphText) {
         blocks.push({
           type: 'paragraph',
-          content: InlineParser.parseInline(paragraphText),
+          content: InlineParser.parseInline(paragraphText, options),
         });
       }
 
@@ -582,7 +654,10 @@ export class MarkdownTipTapConverter {
   /**
    * MarkdownをTipTap JSON形式に変換
    */
-  static async markdownToTipTapJson(markdown: string): Promise<JSONContent> {
+  static async markdownToTipTapJson(
+    markdown: string,
+    options?: MarkdownToTipTapOptions,
+  ): Promise<JSONContent> {
     // Phase 1: ブロック要素の抽出
     const { text: withoutCodeBlocks, blocks: codeBlocks } =
       BlockExtractor.extractCodeBlocks(markdown);
@@ -591,7 +666,7 @@ export class MarkdownTipTapConverter {
     const { text: withoutTables, tables } = BlockExtractor.extractTables(withoutCodeBlocks);
 
     // Phase 2: ブロック要素のパース
-    const blocks = BlockParser.parseBlocks(withoutTables);
+    const blocks = BlockParser.parseBlocks(withoutTables, options);
 
     // Phase 3 & 4: プレースホルダーの復元
     const processedBlocks = blocks.map((block) => {
@@ -620,7 +695,7 @@ export class MarkdownTipTapConverter {
         if (text.startsWith('__TABLE_')) {
           const tableData = tables.get(text);
           if (tableData) {
-            return MarkdownTipTapConverter.buildTableNode(tableData);
+            return MarkdownTipTapConverter.buildTableNode(tableData, options);
           }
         }
       }
@@ -634,7 +709,10 @@ export class MarkdownTipTapConverter {
     };
   }
 
-  private static buildTableNode(tableData: TableData): JSONContent {
+  private static buildTableNode(
+    tableData: TableData,
+    options?: MarkdownToTipTapOptions,
+  ): JSONContent {
     return {
       type: 'table',
       content: [
@@ -645,7 +723,7 @@ export class MarkdownTipTapConverter {
             content: [
               {
                 type: 'paragraph',
-                content: InlineParser.parseInline(header),
+                content: InlineParser.parseInline(header, options),
               },
             ],
           })),
@@ -657,7 +735,7 @@ export class MarkdownTipTapConverter {
             content: [
               {
                 type: 'paragraph',
-                content: InlineParser.parseInline(cell),
+                content: InlineParser.parseInline(cell, options),
               },
             ],
           })),
@@ -804,8 +882,9 @@ export class MarkdownTipTapConverter {
     markdown: string,
     editor: Editor,
     onChunkProcessed?: (processed: number, total: number) => void,
+    options?: MarkdownToTipTapOptions,
   ): Promise<void> {
-    const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+    const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown, options);
     const content = json.content || [];
 
     // 一括で設定

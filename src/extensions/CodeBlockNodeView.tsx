@@ -157,29 +157,29 @@ const RegularCodeBlockView = ({
       <div
         className={`relative bg-slate-800 rounded-md p-4 border ${selected ? 'border-blue-500' : 'border-slate-700'}`}
       >
+        {/* 右上のコントロール */}
+        {isEditable && (
+          <div className="absolute top-0 right-0 flex gap-1 items-center z-10">
+            <select
+              value={selectedLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              className="px-2 py-1.5 border border-slate-600 rounded text-xs bg-slate-700 text-slate-200 cursor-pointer focus:outline-none focus:border-blue-500"
+            >
+              {SUPPORTED_LANGUAGES.map((lang) => (
+                <option key={lang.value} value={lang.value}>
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+            <IconButton onClick={handleRender} title="レンダリング">
+              &#x25B6;
+            </IconButton>
+            <IconButton onClick={handleDelete} title="削除">
+              <Trash2 size={16} />
+            </IconButton>
+          </div>
+        )}
         <pre className="m-0 relative overflow-visible whitespace-pre text-slate-200">
-          {/* 右上のコントロール */}
-          {isEditable && (
-            <div className="absolute top-2 right-2 flex gap-1 items-center z-10">
-              <select
-                value={selectedLanguage}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="px-2 py-1.5 border border-slate-600 rounded text-xs bg-slate-700 text-slate-200 cursor-pointer focus:outline-none focus:border-blue-500"
-              >
-                {SUPPORTED_LANGUAGES.map((lang) => (
-                  <option key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </option>
-                ))}
-              </select>
-              <IconButton onClick={handleRender} title="レンダリング">
-                &#x25B6;
-              </IconButton>
-              <IconButton onClick={handleDelete} title="削除">
-                <Trash2 size={16} />
-              </IconButton>
-            </div>
-          )}
           <code className="block overflow-auto text-slate-200">
             <NodeViewContent />
           </code>
@@ -455,7 +455,7 @@ const MermaidCodeBlockView = ({
       >
         {/* 右上のコントロールボタン */}
         {isEditable && (
-          <div className="absolute top-2 right-2 flex gap-1 z-10">
+          <div className="absolute top-0 right-0 flex gap-1 z-10">
             <IconButton
               onClick={(e) => {
                 e.stopPropagation();

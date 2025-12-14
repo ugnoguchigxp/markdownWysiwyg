@@ -7,7 +7,15 @@ vi.mock('@tiptap/extension-table', () => ({}));
 
 const createChain = () => {
   const chain: Record<string, unknown> = {};
-  const self = chain as any;
+
+  const self = chain as unknown as {
+    focus: () => typeof self;
+    addRowBefore: () => typeof self;
+    addRowAfter: () => typeof self;
+    addColumnBefore: () => typeof self;
+    addColumnAfter: () => typeof self;
+    run: () => void;
+  };
 
   self.focus = vi.fn(() => self);
   self.addRowBefore = vi.fn(() => self);
@@ -27,7 +35,7 @@ describe('TableEdgeControls', () => {
 
   it('shows portal controls on hover over tiptap table and triggers commands', async () => {
     const chain = createChain();
-    const editor = { chain: () => chain } as any;
+    const editor = { chain: () => chain } as unknown as Parameters<typeof TableEdgeControls>[0]['editor'];
 
     render(<TableEdgeControls editor={editor} />);
 
@@ -38,10 +46,18 @@ describe('TableEdgeControls', () => {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
 
-    table.getBoundingClientRect = vi.fn(() => ({
-      right: 100,
+    const rect: DOMRect = {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       top: 10,
-    })) as any;
+      right: 100,
+      bottom: 0,
+      left: 0,
+      toJSON: () => ({}),
+    };
+    table.getBoundingClientRect = vi.fn(() => rect);
 
     tr.appendChild(td);
     table.appendChild(tr);

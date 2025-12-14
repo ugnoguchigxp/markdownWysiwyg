@@ -13,6 +13,9 @@ interface HandleMarkdownPasteParams {
   setIsProcessing: SetProcessing;
   setProcessingProgress: SetProgress;
   largeTextThreshold: number;
+  markdownToTipTapOptions?: {
+    publicImagePathPrefix?: string;
+  };
 }
 
 const insertPlainText = (editor: ExtendedEditor, text: string) => {
@@ -31,6 +34,7 @@ export const handleMarkdownPaste = async ({
   setIsProcessing,
   setProcessingProgress,
   largeTextThreshold,
+  markdownToTipTapOptions,
 }: HandleMarkdownPasteParams): Promise<void> => {
   // STEP 1: Immediately insert plain text (for better user experience)
   editor.commands.deleteSelection();
@@ -62,6 +66,7 @@ export const handleMarkdownPaste = async ({
       (processed, total) => {
         setProcessingProgress({ processed, total });
       },
+      markdownToTipTapOptions,
     );
   } catch (error) {
     logger.warn('⚠️ Sequential rendering failed, keeping plain text:', error);

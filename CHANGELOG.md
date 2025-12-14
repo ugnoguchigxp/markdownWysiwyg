@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of `@markdown-wysiwyg/editor`.
+- Initial release of `markdown-wysiwyg-editor`.
 - Core Markdown editing features.
 - Mermaid diagram support.
 - Table editing support.

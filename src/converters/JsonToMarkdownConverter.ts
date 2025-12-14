@@ -114,7 +114,10 @@ export class JsonToMarkdownConverter {
    * 箇条書きリストの処理
    */
   private static processBulletList(node: JSONContent, depth: number): string {
-    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
+    const items = node.content || [];
+    const content = items
+      .map((item) => JsonToMarkdownConverter.processListItemWithMarker(item, depth, '-'))
+      .join('');
     return `${content}\n`;
   }
 
@@ -122,7 +125,12 @@ export class JsonToMarkdownConverter {
    * 番号付きリストの処理
    */
   private static processOrderedList(node: JSONContent, depth: number): string {
-    const content = node.content ? JsonToMarkdownConverter.processNodes(node.content, depth) : '';
+    const items = node.content || [];
+    const content = items
+      .map((item, idx) =>
+        JsonToMarkdownConverter.processListItemWithMarker(item, depth, `${idx + 1}.`),
+      )
+      .join('');
     return `${content}\n`;
   }
 
@@ -130,16 +138,55 @@ export class JsonToMarkdownConverter {
    * リストアイテムの処理
    */
   private static processListItem(node: JSONContent, depth: number): string {
-    const content = node.content
-      ? JsonToMarkdownConverter.processNodes(node.content, depth + 1)
-      : '';
+    // Fallback: if listItem appears without a parent list, treat as a bullet item.
+    return JsonToMarkdownConverter.processListItemWithMarker(node, depth, '-');
+  }
+
+  private static processListItemWithMarker(
+    node: JSONContent,
+    depth: number,
+    marker: string,
+  ): string {
     const indent = '  '.repeat(depth);
-    // コンテンツが改行で終わっている場合、その改行を維持しつつインデントを適用するのは難しい
-    // ここでは単純に先頭にインデントとマーカーを付与
-    // ネストされたリストがある場合、その部分は processBulletList/OrderedList で処理されるが
-    // インデントの扱いは複雑。
-    // 簡易的な実装として、コンテンツ全体をトリムして配置
-    return `${indent}- ${content.trim()}\n`;
+    const children = node.content || [];
+
+    // TipTap listItem content is typically: paragraph + (optional nested list)
+    let firstLine = '';
+    const rest: JSONContent[] = [];
+
+    for (const child of children) {
+      if (child.type === 'paragraph' && firstLine === '') {
+        firstLine = child.content
+          ? JsonToMarkdownConverter.processNodes(child.content, 0).trim()
+          : '';
+        continue;
+      }
+      rest.push(child);
+    }
+
+    let out = `${indent}${marker} ${firstLine}\n`;
+
+    for (const child of rest) {
+      if (child.type === 'bulletList' || child.type === 'orderedList') {
+        // Nested lists should be indented one level deeper
+        out += JsonToMarkdownConverter.processNode(child, depth + 1);
+        continue;
+      }
+
+      if (child.type === 'paragraph') {
+        const text = child.content
+          ? JsonToMarkdownConverter.processNodes(child.content, 0).trim()
+          : '';
+        if (text) {
+          out += `${indent}  ${text}\n`;
+        }
+        continue;
+      }
+
+      out += JsonToMarkdownConverter.processNode(child, depth + 1);
+    }
+
+    return out;
   }
 
   /**

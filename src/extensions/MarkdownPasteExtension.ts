@@ -12,6 +12,9 @@ export const createMarkdownPasteExtension = (
   setIsProcessing: (processing: boolean) => void,
   setProcessingProgress: (progress: { processed: number; total: number }) => void,
   onPasteComplete?: () => void,
+  markdownToTipTapOptions?: {
+    publicImagePathPrefix?: string;
+  },
 ) => {
   let pasteCount = 0;
   let lastPasteTime = 0;
@@ -80,6 +83,7 @@ export const createMarkdownPasteExtension = (
                 setIsProcessing,
                 setProcessingProgress,
                 largeTextThreshold: LARGE_TEXT_THRESHOLD,
+                markdownToTipTapOptions,
               })
                 .then(() => {
                   // Notify paste completion

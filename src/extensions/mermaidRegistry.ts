@@ -19,6 +19,9 @@ export const setMermaidLib = (lib: typeof import('mermaid').default | null) => {
       theme: 'default',
       securityLevel: 'strict',
       fontFamily: 'inherit',
+      flowchart: {
+        htmlLabels: false,
+      },
     });
   } catch {
     log.debug('Mermaid not available (optional)');

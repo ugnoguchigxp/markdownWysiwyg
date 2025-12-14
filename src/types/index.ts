@@ -43,6 +43,8 @@ export interface IMarkdownEditorProps {
   enableCodeBlock?: boolean; // Code blocks (default: true)
   enableLink?: boolean; // Links (default: true)
 
+  publicImagePathPrefix?: string;
+
   // Mermaid settings (required if enableMermaid=true)
   mermaidLib?: unknown; // Mermaid library instance
 

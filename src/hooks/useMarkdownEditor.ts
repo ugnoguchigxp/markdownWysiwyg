@@ -27,6 +27,7 @@ interface UseMarkdownEditorProps {
   initialContent?: string;
   editable: boolean;
   placeholder: string;
+  publicImagePathPrefix?: string;
   onContentChange?: (content: JSONContent) => void;
   onChange?: (markdown: string) => void;
   onMarkdownChange?: (markdown: string) => void;
@@ -53,6 +54,7 @@ export const useMarkdownEditor = ({
   initialContent,
   editable,
   placeholder,
+  publicImagePathPrefix,
   onContentChange,
   onChange,
   onMarkdownChange,
@@ -119,17 +121,24 @@ export const useMarkdownEditor = ({
       createLinkClickExtension(handleLinkContextMenu),
       createTableRightClickExtension(handleTableContextMenu),
       createMarkdownShortcutsExtension(),
-      createMarkdownPasteExtension(setIsProcessing, setProcessingProgress, () => {
-        if (editor && onChange) {
-          try {
-            const json = editor.getJSON();
-            const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-            onChange(markdown);
-          } catch (error) {
-            logger.warn('⚠️ Failed to update onChange after paste:', error);
+      createMarkdownPasteExtension(
+        setIsProcessing,
+        setProcessingProgress,
+        () => {
+          if (editor && onChange) {
+            try {
+              const json = editor.getJSON();
+              const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+              onChange(markdown);
+            } catch (error) {
+              logger.warn('⚠️ Failed to update onChange after paste:', error);
+            }
           }
-        }
-      }),
+        },
+        {
+          publicImagePathPrefix,
+        },
+      ),
     ],
     content: value || initialContent || '',
     editable,
