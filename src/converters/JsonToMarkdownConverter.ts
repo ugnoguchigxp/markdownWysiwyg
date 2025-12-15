@@ -233,10 +233,14 @@ export class JsonToMarkdownConverter {
     // ヘッダー行の区切り線を追加（2行目に）
     const lines = markdown.trim().split('\n');
     if (lines.length >= 2 && lines[0]) {
-      const headerSeparator = lines[0]
-        .split('|')
+      // NOTE: `processTableRow` always emits a leading and trailing `|`.
+      // `split('|')` therefore includes empty tokens at both ends.
+      // We derive column count from token length to preserve empty cells (e.g. "|||").
+      const headerParts = lines[0].split('|');
+      const columnCount = Math.max(1, headerParts.length - 2);
+      const headerSeparator = `|${Array.from({ length: columnCount })
         .map(() => '---')
-        .join('|');
+        .join('|')}|`;
       lines.splice(1, 0, headerSeparator);
       markdown = `${lines.join('\n')}\n\n`;
     }
@@ -254,7 +258,9 @@ export class JsonToMarkdownConverter {
 
     const cells = node.content.map((cell) => {
       const content = JsonToMarkdownConverter.processTableCell(cell);
-      return content.trim().replace(/\n/g, ' '); // セル内改行を除去
+      const normalized = content.trim().replace(/\n/g, ' '); // セル内改行を除去
+      // Empty cells must still include a placeholder (space) to be recognized as a table by parsers.
+      return normalized.length === 0 ? ' ' : normalized;
     });
 
     return `|${cells.join('|')}|\n`;

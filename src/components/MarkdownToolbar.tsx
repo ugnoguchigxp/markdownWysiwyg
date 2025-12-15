@@ -29,7 +29,6 @@ const log = createLogger('MarkdownToolbar');
 
 interface MarkdownToolbarProps {
   onInsertMarkdown: (markdown: string, cursorOffset?: number) => void;
-  onShowHelp: () => void;
   onImageUploadComplete?: (markdownImageUrl: string) => void;
   disabled?: boolean;
   selectedText?: string;
@@ -41,7 +40,6 @@ interface MarkdownToolbarProps {
 
 export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   onInsertMarkdown,
-  onShowHelp,
   disabled = false,
   selectedText = '',
   editor,
@@ -55,6 +53,23 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   const [showDownloadMenu, setShowDownloadMenu] = React.useState(false);
   const [linkText, setLinkText] = React.useState('');
   const [linkUrl, setLinkUrl] = React.useState('');
+
+  const getHeadingPreviewStyle = (level: number): React.CSSProperties => {
+    switch (level) {
+      case 1:
+        return { fontSize: '22px', fontWeight: 700, lineHeight: '28px' };
+      case 2:
+        return { fontSize: '18px', fontWeight: 700, lineHeight: '24px' };
+      case 3:
+        return { fontSize: '16px', fontWeight: 600, lineHeight: '22px' };
+      case 4:
+        return { fontSize: '14px', fontWeight: 600, lineHeight: '20px' };
+      case 5:
+        return { fontSize: '13px', fontWeight: 600, lineHeight: '18px' };
+      default:
+        return { fontSize: '12px', fontWeight: 600, lineHeight: '18px' };
+    }
+  };
 
   const headingLevels = [
     {
@@ -144,7 +159,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         '⚠️ This indicates the editor prop is not being passed correctly from parent components',
       );
       log.warn('⚠️ Fallback: Inserting Markdown text instead of HTML table');
-      onInsertMarkdown('| Column1 | Column2 |\n|---------|----------|\n| Content1 | Content2 |', 0);
+      onInsertMarkdown('|  |  |\n|---|---|\n|  |  |', 0);
       return;
     }
 
@@ -243,7 +258,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
       log.debug('🔧 TableInsert: Falling back to Markdown text insertion');
 
       // Final fallback: Markdown text
-      onInsertMarkdown('| Column1 | Column2 |\n|---------|----------|\n| Content1 | Content2 |', 0);
+      onInsertMarkdown('|  |  |\n|---|---|\n|  |  |', 0);
     }
   };
 
@@ -459,7 +474,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                       <div className="flex-shrink-0 ml-3">
                         <div
                           className="truncate max-w-[200px]"
-                          style={{ color: 'var(--mw-toolbar-text)' }}
+                          style={{
+                            color: 'var(--mw-toolbar-text)',
+                            ...getHeadingPreviewStyle(heading.level),
+                          }}
                         >
                           Sample Text
                         </div>
@@ -615,40 +633,6 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           )}
         </div>
       )}
-
-      {/* Help button */}
-      <div className="relative group">
-        <button
-          type="button"
-          onClick={onShowHelp}
-          disabled={disabled}
-          className="w-8 h-8 flex items-center justify-center rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            color: 'var(--mw-toolbar-text)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <title>Help</title>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </button>
-        {/* Help button tooltip */}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[60]">
-          Markdown Help
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-gray-800" />
-        </div>
-      </div>
 
       {/* Link modal */}
       {showLinkModal && (

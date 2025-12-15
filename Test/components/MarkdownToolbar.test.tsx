@@ -39,7 +39,6 @@ const createChain = () => {
 describe('MarkdownToolbar', () => {
   it('renders and triggers basic actions', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
 
     const chain = createChain();
     const editor = {
@@ -54,7 +53,6 @@ describe('MarkdownToolbar', () => {
     const { container } = render(
       <MarkdownToolbar
         onInsertMarkdown={onInsertMarkdown}
-        onShowHelp={onShowHelp}
         editor={editor}
       />,
     );
@@ -67,14 +65,10 @@ describe('MarkdownToolbar', () => {
     fireEvent.click(italicBtn);
     expect(chain.toggleItalic).toHaveBeenCalled();
 
-    const helpBtn = screen.getByTitle('Help').closest('button') as HTMLElement;
-    fireEvent.click(helpBtn);
-    expect(onShowHelp).toHaveBeenCalled();
   });
 
   it('opens heading menu and inserts selected heading', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
 
     const chain = createChain();
     const editor = {
@@ -89,7 +83,6 @@ describe('MarkdownToolbar', () => {
     const { container } = render(
       <MarkdownToolbar
         onInsertMarkdown={onInsertMarkdown}
-        onShowHelp={onShowHelp}
         editor={editor}
       />,
     );
@@ -106,7 +99,6 @@ describe('MarkdownToolbar', () => {
 
   it('opens link modal and inserts markdown link', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
 
     const chain = createChain();
     const editor = {
@@ -121,7 +113,6 @@ describe('MarkdownToolbar', () => {
     const { container } = render(
       <MarkdownToolbar
         onInsertMarkdown={onInsertMarkdown}
-        onShowHelp={onShowHelp}
         selectedText="Example"
         editor={editor}
       />,
@@ -141,7 +132,6 @@ describe('MarkdownToolbar', () => {
 
   it('shows download menu and triggers download handler', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
     const onDownloadAsMarkdown = vi.fn();
 
     const chain = createChain();
@@ -157,7 +147,6 @@ describe('MarkdownToolbar', () => {
     const { container } = render(
       <MarkdownToolbar
         onInsertMarkdown={onInsertMarkdown}
-        onShowHelp={onShowHelp}
         editor={editor}
         showDownloadButton={true}
         onDownloadAsMarkdown={onDownloadAsMarkdown}
@@ -175,10 +164,9 @@ describe('MarkdownToolbar', () => {
 
   it('falls back to markdown table insertion when editor is not provided', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
 
     const { container } = render(
-      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} onShowHelp={onShowHelp} />,
+      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} />,
     );
 
     const tableBtn = container.querySelector('[data-tooltip="Insert Table"]') as HTMLElement;
@@ -189,7 +177,6 @@ describe('MarkdownToolbar', () => {
 
   it('uses insertTable and JSON fallback paths based on command result', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
 
     const chain = createChain();
     const insertTable = vi.fn().mockReturnValue(false);
@@ -205,7 +192,7 @@ describe('MarkdownToolbar', () => {
     } as unknown as Parameters<typeof MarkdownToolbar>[0]['editor'];
 
     const { container } = render(
-      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} onShowHelp={onShowHelp} editor={editor} />,
+      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} editor={editor} />,
     );
 
     const tableBtn = container.querySelector('[data-tooltip="Insert Table"]') as HTMLElement;
@@ -218,7 +205,6 @@ describe('MarkdownToolbar', () => {
 
   it('falls back to markdown table insertion when insertTable throws', () => {
     const onInsertMarkdown = vi.fn();
-    const onShowHelp = vi.fn();
 
     const chain = createChain();
     const editor = {
@@ -233,7 +219,7 @@ describe('MarkdownToolbar', () => {
     } as unknown as Parameters<typeof MarkdownToolbar>[0]['editor'];
 
     const { container } = render(
-      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} onShowHelp={onShowHelp} editor={editor} />,
+      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} editor={editor} />,
     );
 
     const tableBtn = container.querySelector('[data-tooltip="Insert Table"]') as HTMLElement;

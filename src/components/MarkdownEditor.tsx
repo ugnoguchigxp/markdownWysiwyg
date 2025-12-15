@@ -206,11 +206,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   // handleInsertMarkdown is defined after useEditor, so removed
 
-  const handleShowHelp = () => {
-    logger.info('📚 Markdown help requested');
-    // Implement help functionality as needed
-  };
-
   const clearPasteEvents = () => {
     setPasteEvents([]);
   };
@@ -790,7 +785,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           >
             <MarkdownToolbar
               onInsertMarkdown={handleInsertMarkdown}
-              onShowHelp={handleShowHelp}
               selectedText={selectionInfo?.selectedText || ''}
               disabled={!editable}
               editor={editor}

@@ -97,13 +97,15 @@ class BlockExtractor {
     const lines = markdown.split('\n');
     const result: string[] = [];
 
+    const countPipes = (line: string): number => (line.match(/\|/g) || []).length;
+
     let i = 0;
     while (i < lines.length) {
       const line = lines[i] || '';
       const trimmed = line.trim();
 
       // テーブル検出（|を含み、複数の|がある）
-      if (trimmed.includes('|') && trimmed.split('|').filter(Boolean).length >= 2) {
+      if (trimmed.includes('|') && countPipes(trimmed) >= 2) {
         const tableLines: string[] = [line];
 
         let j = i + 1;
@@ -111,7 +113,7 @@ class BlockExtractor {
           const nextLine = lines[j] || '';
           const nextTrimmed = nextLine.trim();
 
-          if (nextTrimmed.includes('|') && nextTrimmed.split('|').filter(Boolean).length >= 2) {
+          if (nextTrimmed.includes('|') && countPipes(nextTrimmed) >= 2) {
             tableLines.push(nextLine);
             j++;
           } else {
@@ -143,10 +145,18 @@ class BlockExtractor {
     if (lines.length < 2) return null;
 
     const headerLine = lines[0]?.trim() || '';
-    const headers = headerLine
-      .split('|')
-      .filter(Boolean)
-      .map((h) => h.trim());
+
+    const splitRow = (rowLine: string): string[] => {
+      const raw = rowLine.trim();
+      const parts = raw.split('|');
+      // If the row has leading/trailing pipes, drop the empty edge tokens.
+      const inner = parts.length >= 2 && parts[0] === '' && parts[parts.length - 1] === ''
+        ? parts.slice(1, -1)
+        : parts;
+      return inner.map((c) => c.trim());
+    };
+
+    const headers = splitRow(headerLine);
 
     // セパレータ行を探す
     let separatorIndex = -1;
@@ -163,10 +173,7 @@ class BlockExtractor {
     const rows: string[][] = [];
     for (let i = separatorIndex + 1; i < lines.length; i++) {
       const line = lines[i]?.trim() || '';
-      const cells = line
-        .split('|')
-        .filter(Boolean)
-        .map((c) => c.trim());
+      const cells = splitRow(line);
       rows.push(cells);
     }
 
