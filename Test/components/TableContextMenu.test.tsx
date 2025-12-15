@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TableContextMenu } from '../../src/components/TableContextMenu';
+import { I18N_KEYS } from '../../src/types/index';
 
 describe('TableContextMenu', () => {
   it('returns null when not visible', () => {
@@ -48,29 +49,41 @@ describe('TableContextMenu', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Row Above/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.addRowAbove) }),
+    );
     expect(onAddRowAbove).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Row Below/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.addRowBelow) }),
+    );
     expect(onAddRowBelow).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Column Left/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.addColumnLeft) }),
+    );
     expect(onAddColumnBefore).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Column Right/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.addColumnRight) }),
+    );
     expect(onAddColumnAfter).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Delete Row/i }));
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.deleteRow) }));
     expect(onDeleteRow).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Delete Column/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.deleteColumn) }),
+    );
     expect(onDeleteColumn).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Delete Entire Table/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(I18N_KEYS.table.deleteTable) }),
+    );
     expect(onDeleteTable).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+    fireEvent.click(screen.getByRole('button', { name: I18N_KEYS.table.cancel }));
     expect(onClose).toHaveBeenCalled();
   });
 });

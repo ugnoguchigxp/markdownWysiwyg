@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { LinkContextMenu } from '../../src/components/LinkContextMenu';
+import { I18N_KEYS } from '../../src/types/index';
 
 describe('LinkContextMenu', () => {
   it('returns null when not visible', () => {
@@ -35,7 +36,7 @@ describe('LinkContextMenu', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open Link' }));
+    fireEvent.click(screen.getByRole('button', { name: I18N_KEYS.link.open }));
     expect(onOpenLink).toHaveBeenCalledWith('https://example.com');
     expect(onClose).toHaveBeenCalled();
   });
@@ -56,15 +57,15 @@ describe('LinkContextMenu', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit Link' }));
+    fireEvent.click(screen.getByRole('button', { name: I18N_KEYS.link.edit }));
 
-    const textInput = screen.getByLabelText('Link Text') as HTMLInputElement;
-    const urlInput = screen.getByLabelText('URL') as HTMLInputElement;
+    const textInput = screen.getByLabelText(I18N_KEYS.link.linkText) as HTMLInputElement;
+    const urlInput = screen.getByLabelText(I18N_KEYS.link.url) as HTMLInputElement;
 
     fireEvent.change(textInput, { target: { value: 'New Text' } });
     fireEvent.change(urlInput, { target: { value: 'https://changed.example' } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Update' }));
+    fireEvent.click(screen.getByRole('button', { name: I18N_KEYS.update }));
 
     expect(onEditLink).toHaveBeenCalledWith({
       href: 'https://changed.example',

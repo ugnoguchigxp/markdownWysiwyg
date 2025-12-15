@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TableEdgeControls } from '../../src/components/TableEdgeControls';
+import { I18N_KEYS } from '../../src/types/index';
 
 vi.mock('@tiptap/extension-table', () => ({}));
 
@@ -67,18 +68,18 @@ describe('TableEdgeControls', () => {
     // Dispatch event from the cell so that event.target is an element with closest()
     fireEvent.mouseOver(td);
 
-    expect(await screen.findByText('↑ Row Above')).toBeTruthy();
+    expect(await screen.findByText(I18N_KEYS.tableEdgeControls.addRowAbove)).toBeTruthy();
 
-    fireEvent.click(screen.getByText('↑ Row Above'));
+    fireEvent.click(screen.getByText(I18N_KEYS.tableEdgeControls.addRowAbove));
     expect(chain.addRowBefore).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText('↓ Row Below'));
+    fireEvent.click(screen.getByText(I18N_KEYS.tableEdgeControls.addRowBelow));
     expect(chain.addRowAfter).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText('← Column Left'));
+    fireEvent.click(screen.getByText(I18N_KEYS.tableEdgeControls.addColumnLeft));
     expect(chain.addColumnBefore).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText('→ Column Right'));
+    fireEvent.click(screen.getByText(I18N_KEYS.tableEdgeControls.addColumnRight));
     expect(chain.addColumnAfter).toHaveBeenCalled();
 
     // Leaving the portal should remove it

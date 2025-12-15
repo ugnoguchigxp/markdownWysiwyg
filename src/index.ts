@@ -29,11 +29,15 @@ export { TableResizeEnhancement } from './extensions/TableResizeEnhancement';
 // Hooks
 export { useTableToolbar } from './hooks/useTableToolbar';
 
+// i18n
+export { I18nProvider, useI18n, defaultT } from './i18n/I18nContext';
+export type { Translator } from './i18n/I18nContext';
+
 // Utils
 export { createLogger, createContextLogger } from './utils/logger';
 export { SelectionUtils } from './utils/selectionUtils';
 
 // Types
-export type { IMarkdownEditorProps, ILanguageOption, ISelectionInfo, ITexts } from './types/index';
+export type { IMarkdownEditorProps, ILanguageOption, ISelectionInfo, I18nKey } from './types/index';
 
-export { DEFAULT_TEXTS, I18N_KEYS } from './types/index';
+export { I18N_KEYS } from './types/index';

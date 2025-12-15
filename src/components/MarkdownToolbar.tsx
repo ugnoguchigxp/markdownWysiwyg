@@ -22,7 +22,8 @@ import {
   Table,
 } from 'lucide-react';
 
-import { DEFAULT_TEXTS, type ITexts } from '../types/index';
+import { I18N_KEYS } from '../types/index';
+import { useI18n } from '../i18n/I18nContext';
 import { createLogger } from '../utils/logger';
 
 const log = createLogger('MarkdownToolbar');
@@ -35,7 +36,6 @@ interface MarkdownToolbarProps {
   editor?: Editor | null; // TipTap editor instance (for table operations)
   showDownloadButton?: boolean; // Show download button flag
   onDownloadAsMarkdown?: () => void; // Markdown download handler
-  texts?: Partial<ITexts>; // i18n text labels
 }
 
 export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
@@ -45,9 +45,8 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   editor,
   showDownloadButton = false,
   onDownloadAsMarkdown,
-  texts = DEFAULT_TEXTS,
 }) => {
-  const t = { ...DEFAULT_TEXTS, ...texts };
+  const { t } = useI18n();
   const [showHeadingMenu, setShowHeadingMenu] = React.useState(false);
   const [showLinkModal, setShowLinkModal] = React.useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = React.useState(false);
@@ -306,61 +305,61 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   const toolbarItems = [
     {
       icon: Bold,
-      title: t.bold,
+      title: t(I18N_KEYS.bold),
       onClick: handleToggleBold,
       group: 'text',
     },
     {
       icon: Italic,
-      title: t.italic,
+      title: t(I18N_KEYS.italic),
       onClick: handleToggleItalic,
       group: 'text',
     },
     {
       icon: Strikethrough,
-      title: t.strikethrough,
+      title: t(I18N_KEYS.strikethrough),
       onClick: handleToggleStrike,
       group: 'text',
     },
     {
       icon: Code,
-      title: t.code,
+      title: t(I18N_KEYS.code),
       onClick: handleToggleInlineCode,
       group: 'code',
     },
     {
       icon: Quote,
-      title: t.blockquote,
+      title: t(I18N_KEYS.blockquote),
       onClick: handleToggleBlockquote,
       group: 'block',
     },
     {
       icon: FileCode,
-      title: t.insertCodeBlock,
+      title: t(I18N_KEYS.insertCodeBlock),
       onClick: handleToggleCodeBlock,
       group: 'code',
     },
     {
       icon: List,
-      title: t.bulletList,
+      title: t(I18N_KEYS.bulletList),
       onClick: handleToggleBulletList,
       group: 'list',
     },
     {
       icon: ListOrdered,
-      title: t.orderedList,
+      title: t(I18N_KEYS.orderedList),
       onClick: handleToggleOrderedList,
       group: 'list',
     },
     {
       icon: Link2,
-      title: t.insertLink,
+      title: t(I18N_KEYS.insertLink),
       onClick: handleLinkClick,
       group: 'media',
     },
     {
       icon: Table,
-      title: t.insertTable,
+      title: t(I18N_KEYS.insertTable),
       onClick: handleTableInsert,
       group: 'block',
     },
@@ -374,7 +373,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           type="button"
           onClick={() => setShowHeadingMenu(!showHeadingMenu)}
           disabled={disabled}
-          data-tooltip={t.heading1}
+          data-tooltip={t(I18N_KEYS.openHeadingMenu)}
           className={`
             w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
             disabled:opacity-50 disabled:cursor-not-allowed
@@ -396,7 +395,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             fill="currentColor"
             viewBox="0 0 20 20"
           >
-            <title>Open heading menu</title>
+            <title>{t(I18N_KEYS.openHeadingMenu)}</title>
             <path
               fillRule="evenodd"
               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -410,7 +409,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             {/* Background overlay */}
             <button
               type="button"
-              aria-label="Close heading menu"
+              aria-label={t(I18N_KEYS.closeHeadingMenu)}
               className="fixed inset-0 z-10 bg-transparent"
               onClick={() => setShowHeadingMenu(false)}
             />
@@ -479,7 +478,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                             ...getHeadingPreviewStyle(heading.level),
                           }}
                         >
-                          Sample Text
+                          {t(I18N_KEYS.sampleText)}
                         </div>
                       </div>
                     </div>
@@ -529,7 +528,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             type="button"
             onClick={handleDownloadClick}
             disabled={disabled}
-            data-tooltip={t.download}
+            data-tooltip={t(I18N_KEYS.download)}
             className={`
               w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -551,7 +550,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               fill="currentColor"
               viewBox="0 0 20 20"
             >
-              <title>Open download menu</title>
+              <title>{t(I18N_KEYS.openDownloadMenu)}</title>
               <path
                 fillRule="evenodd"
                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -565,7 +564,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               {/* Background overlay */}
               <button
                 type="button"
-                aria-label="Close download menu"
+                aria-label={t(I18N_KEYS.closeDownloadMenu)}
                 className="fixed inset-0 z-10 bg-transparent"
                 onClick={() => setShowDownloadMenu(false)}
               />
@@ -589,10 +588,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                       className="text-sm font-semibold"
                       style={{ color: 'var(--mw-toolbar-text)' }}
                     >
-                      Export
+                      {t(I18N_KEYS.exportMenuTitle)}
                     </h3>
                     <p className="text-xs mt-1" style={{ color: 'var(--mw-text-secondary)' }}>
-                      Save current content
+                      {t(I18N_KEYS.exportMenuDescription)}
                     </p>
                   </div>
 
@@ -619,10 +618,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                           className="text-sm font-medium"
                           style={{ color: 'var(--mw-toolbar-text)' }}
                         >
-                          Markdown File
+                          {t(I18N_KEYS.markdownFile)}
                         </div>
                         <div className="text-xs" style={{ color: 'var(--mw-text-secondary)' }}>
-                          Save document as .md file
+                          {t(I18N_KEYS.saveAsMarkdownFile)}
                         </div>
                       </div>
                     </div>
@@ -640,7 +639,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           {/* Background overlay (click target) */}
           <button
             type="button"
-            aria-label="Close link modal"
+            aria-label={t(I18N_KEYS.close)}
             className="absolute inset-0"
             onClick={handleLinkModalClose}
           />
@@ -655,7 +654,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             onMouseDown={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--mw-heading-color)' }}>
-              Insert Link
+              {t(I18N_KEYS.insertLink)}
             </h3>
 
             <div className="space-y-4">
@@ -666,7 +665,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   className="block text-sm font-medium mb-1"
                   style={{ color: 'var(--mw-text-secondary)' }}
                 >
-                  Link Text
+                  {t(I18N_KEYS.link.linkText)}
                 </label>
                 <input
                   id="mw-insert-link-text"
@@ -685,7 +684,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                     borderColor: 'var(--mw-toolbar-border)',
                     color: 'var(--mw-text-primary)',
                   }}
-                  placeholder="Enter link text"
+                  placeholder={t(I18N_KEYS.link.enterLinkText)}
                 />
               </div>
 
@@ -695,7 +694,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   htmlFor="mw-insert-link-url"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  URL
+                  {t(I18N_KEYS.link.url)}
                 </label>
                 <input
                   id="mw-insert-link-url"
@@ -709,7 +708,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://example.com"
+                  placeholder={t(I18N_KEYS.link.urlPlaceholder)}
                 />
               </div>
             </div>
@@ -721,7 +720,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                 onClick={handleLinkModalClose}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
               >
-                Cancel
+                {t(I18N_KEYS.cancelButton)}
               </button>
               <button
                 type="button"
@@ -729,7 +728,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                 disabled={!linkUrl.trim()}
                 className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
               >
-                Insert
+                {t(I18N_KEYS.insert)}
               </button>
             </div>
           </div>

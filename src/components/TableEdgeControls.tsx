@@ -5,6 +5,9 @@ import type { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
 import { createPortal } from 'react-dom';
 
+import { I18N_KEYS } from '../types/index';
+import { useI18n } from '../i18n/I18nContext';
+
 export interface ITableEdgeControlsProps {
   editor: Editor | null;
 }
@@ -14,6 +17,7 @@ export interface ITableEdgeControlsProps {
  * Uses React Portal to show row/column add buttons outside of the table
  */
 export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor }) => {
+  const { t } = useI18n();
   const [hoveredTable, setHoveredTable] = useState<HTMLElement | null>(null);
   const [controlPosition, setControlPosition] = useState<{ x: number; y: number } | null>(null);
 
@@ -96,33 +100,33 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
         type="button"
         className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddRowAbove}
-        title="Add row above"
+        title={t(I18N_KEYS.tableEdgeControls.addRowAbove)}
       >
-        ↑ Row Above
+        {t(I18N_KEYS.tableEdgeControls.addRowAbove)}
       </button>
       <button
         type="button"
         className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddRowBelow}
-        title="Add row below"
+        title={t(I18N_KEYS.tableEdgeControls.addRowBelow)}
       >
-        ↓ Row Below
+        {t(I18N_KEYS.tableEdgeControls.addRowBelow)}
       </button>
       <button
         type="button"
         className="text-xs px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddColumnLeft}
-        title="Add column left"
+        title={t(I18N_KEYS.tableEdgeControls.addColumnLeft)}
       >
-        ← Column Left
+        {t(I18N_KEYS.tableEdgeControls.addColumnLeft)}
       </button>
       <button
         type="button"
         className="text-xs px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded transition-colors duration-150 text-left"
         onClick={handleAddColumnRight}
-        title="Add column right"
+        title={t(I18N_KEYS.tableEdgeControls.addColumnRight)}
       >
-        → Column Right
+        {t(I18N_KEYS.tableEdgeControls.addColumnRight)}
       </button>
     </div>,
     document.body,

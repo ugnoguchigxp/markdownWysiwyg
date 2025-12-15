@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TableToolbar } from '../../src/components/TableToolbar';
+import { I18N_KEYS } from '../../src/types/index';
 
 vi.mock('../../src/utils/logger', () => ({
   createLogger: () => ({
@@ -67,34 +68,34 @@ describe('TableToolbar', () => {
 
     render(<TableToolbar editor={editor} visible={true} position={{ x: 10, y: 200 }} />);
 
-    fireEvent.click(screen.getByTitle('Insert row above'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.insertRowAbove));
     expect(chain.addRowBefore).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Insert row below'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.insertRowBelow));
     expect(chain.addRowAfter).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Delete row'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.deleteRow));
     expect(chain.deleteRow).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Insert column left'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.insertColumnLeft));
     expect(chain.addColumnBefore).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Insert column right'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.insertColumnRight));
     expect(chain.addColumnAfter).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Delete column'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.deleteColumn));
     expect(chain.deleteColumn).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Merge cells'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.mergeCells));
     expect(chain.mergeCells).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Split cell'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.splitCell));
     expect(chain.splitCell).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Toggle header row'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.toggleHeaderRow));
     expect(chain.toggleHeaderRow).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByTitle('Toggle header column'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.toggleHeaderColumn));
     expect(chain.toggleHeaderColumn).toHaveBeenCalled();
   });
 
@@ -107,11 +108,11 @@ describe('TableToolbar', () => {
 
     render(<TableToolbar editor={editor} visible={true} position={{ x: 10, y: 200 }} />);
 
-    fireEvent.click(screen.getByTitle('Delete table'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.deleteTable));
     expect(chain.deleteTable).not.toHaveBeenCalled();
 
     confirm.mockReturnValueOnce(true);
-    fireEvent.click(screen.getByTitle('Delete table'));
+    fireEvent.click(screen.getByTitle(I18N_KEYS.tableToolbar.deleteTable));
     expect(chain.deleteTable).toHaveBeenCalled();
 
     confirm.mockRestore();

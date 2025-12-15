@@ -34,7 +34,6 @@ export interface IMarkdownEditorProps {
 
   // Editor settings
   editable?: boolean; // Enable editing (default: true)
-  placeholder?: string; // Placeholder text (default: "Start writing...")
 
   // Feature toggles
   enableMermaid?: boolean; // Mermaid diagrams (default: false)
@@ -70,59 +69,7 @@ export interface IMarkdownEditorProps {
   downloadFilename?: string; // Download filename (default: 'document.md')
   showPasteDebug?: boolean; // Show paste debug panel (default: false)
   debug?: boolean; // Debug mode - shows syntax status and paste debug (default: false)
-  texts?: Partial<ITexts>; // i18n text labels (default: DEFAULT_TEXTS)
 }
-
-/**
- * Default text labels (for i18n replacement)
- */
-export const DEFAULT_TEXTS = {
-  placeholder: 'Start writing...',
-  deleteButton: 'Delete',
-  renderButton: 'Render',
-  cancelButton: 'Cancel',
-  editSource: 'Edit Source',
-  downloadImage: 'Download Image',
-  fullscreen: 'Fullscreen',
-  closeFullscreen: 'Close Fullscreen',
-  insertTable: 'Insert Table',
-  insertCodeBlock: 'Insert Code Block',
-  insertImage: 'Insert Image',
-  insertLink: 'Insert Link',
-  bold: 'Bold',
-  italic: 'Italic',
-  strikethrough: 'Strikethrough',
-  code: 'Inline Code',
-  heading1: 'Heading 1',
-  heading2: 'Heading 2',
-  heading3: 'Heading 3',
-  heading4: 'Heading 4',
-  heading5: 'Heading 5',
-  heading6: 'Heading 6',
-  bulletList: 'Bullet List',
-  orderedList: 'Ordered List',
-  blockquote: 'Blockquote',
-  horizontalRule: 'Horizontal Rule',
-  download: 'Download as Markdown',
-  // Table context menu
-  table: {
-    rowOperations: 'Row Operations',
-    addRowAbove: 'Add Row Above',
-    addRowBelow: 'Add Row Below',
-    deleteRow: 'Delete Row',
-    columnOperations: 'Column Operations',
-    addColumnLeft: 'Add Column Left',
-    addColumnRight: 'Add Column Right',
-    deleteColumn: 'Delete Column',
-    deleteTable: 'Delete Entire Table',
-    cancel: 'Cancel',
-  },
-};
-
-/**
- * i18n text type
- */
-export type ITexts = typeof DEFAULT_TEXTS;
 
 /**
  * i18n translation keys (for external i18n systems)
@@ -156,6 +103,63 @@ export const I18N_KEYS = {
   blockquote: 'markdown_editor.blockquote',
   horizontalRule: 'markdown_editor.horizontal_rule',
   download: 'markdown_editor.download',
+  loadingEditor: 'markdown_editor.loading_editor',
+  convertingMarkdown: 'markdown_editor.converting_markdown',
+  linesCompleted: 'markdown_editor.lines_completed',
+  pasteDebugPanel: 'markdown_editor.paste_debug_panel',
+  clear: 'markdown_editor.clear',
+  type: 'markdown_editor.type',
+  content: 'markdown_editor.content',
+  result: 'markdown_editor.result',
+  openHeadingMenu: 'markdown_editor.open_heading_menu',
+  closeHeadingMenu: 'markdown_editor.close_heading_menu',
+  openDownloadMenu: 'markdown_editor.open_download_menu',
+  closeDownloadMenu: 'markdown_editor.close_download_menu',
+  exportMenuTitle: 'markdown_editor.export_menu_title',
+  exportMenuDescription: 'markdown_editor.export_menu_description',
+  markdownFile: 'markdown_editor.markdown_file',
+  saveAsMarkdownFile: 'markdown_editor.save_as_markdown_file',
+  sampleText: 'markdown_editor.sample_text',
+  insert: 'markdown_editor.insert',
+  close: 'markdown_editor.close',
+  update: 'markdown_editor.update',
+  link: {
+    open: 'markdown_editor.link.open',
+    edit: 'markdown_editor.link.edit',
+    linkText: 'markdown_editor.link.text',
+    url: 'markdown_editor.link.url',
+    enterLinkText: 'markdown_editor.link.enter_text',
+    urlPlaceholder: 'markdown_editor.link.url_placeholder',
+  },
+  syntaxStatus: {
+    help: 'markdown_editor.syntax_status.help',
+    selectedText: 'markdown_editor.syntax_status.selected_text',
+    markdownSyntax: 'markdown_editor.syntax_status.markdown_syntax',
+    styles: 'markdown_editor.syntax_status.styles',
+    nodeType: 'markdown_editor.syntax_status.node_type',
+  },
+  tableToolbar: {
+    confirmDeleteTable: 'markdown_editor.table_toolbar.confirm_delete_table',
+    insertRowAbove: 'markdown_editor.table_toolbar.insert_row_above',
+    insertRowBelow: 'markdown_editor.table_toolbar.insert_row_below',
+    deleteRow: 'markdown_editor.table_toolbar.delete_row',
+    insertColumnLeft: 'markdown_editor.table_toolbar.insert_column_left',
+    insertColumnRight: 'markdown_editor.table_toolbar.insert_column_right',
+    deleteColumn: 'markdown_editor.table_toolbar.delete_column',
+    mergeCells: 'markdown_editor.table_toolbar.merge_cells',
+    splitCell: 'markdown_editor.table_toolbar.split_cell',
+    toggleHeaderRow: 'markdown_editor.table_toolbar.toggle_header_row',
+    toggleHeaderColumn: 'markdown_editor.table_toolbar.toggle_header_column',
+    deleteTable: 'markdown_editor.table_toolbar.delete_table',
+    headerRow: 'markdown_editor.table_toolbar.header_row',
+    headerColumn: 'markdown_editor.table_toolbar.header_column',
+  },
+  tableEdgeControls: {
+    addRowAbove: 'markdown_editor.table_edge_controls.add_row_above',
+    addRowBelow: 'markdown_editor.table_edge_controls.add_row_below',
+    addColumnLeft: 'markdown_editor.table_edge_controls.add_column_left',
+    addColumnRight: 'markdown_editor.table_edge_controls.add_column_right',
+  },
   table: {
     rowOperations: 'markdown_editor.table.row_operations',
     addRowAbove: 'markdown_editor.table.add_row_above',
@@ -169,3 +173,11 @@ export const I18N_KEYS = {
     cancel: 'markdown_editor.table.cancel',
   },
 } as const;
+
+type NestedValues<T> = T extends string
+  ? T
+  : T extends Record<string, unknown>
+    ? { [K in keyof T]: NestedValues<T[K]> }[keyof T]
+    : never;
+
+export type I18nKey = NestedValues<typeof I18N_KEYS>;

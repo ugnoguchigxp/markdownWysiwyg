@@ -165,7 +165,6 @@ Example:
 | `value`           | `string`                  | -                   | Markdown content (required)                         |
 | `onChange`        | `(value: string) => void` | -                   | Change handler (required)                           |
 | `editable`        | `boolean`                 | `true`              | Enable editing                                      |
-| `placeholder`     | `string`                  | `'Start typing...'` | Placeholder text                                    |
 | `enableMermaid`   | `boolean`                 | `false`             | Enable Mermaid diagrams                             |
 | `enableImage`     | `boolean`                 | `true`              | Enable image insertion                              |
 | `enableTable`     | `boolean`                 | `true`              | Enable table editing                                |
@@ -173,7 +172,6 @@ Example:
 | `enableLink`      | `boolean`                 | `true`              | Enable links                                        |
 | `publicImagePathPrefix` | `string`            | -                   | Allow local image `src` only when it starts with this prefix (e.g. `/images`) |
 | `mermaidLib`      | `typeof mermaid`          | -                   | Mermaid instance (required if `enableMermaid=true`) |
-| `texts`           | `Partial<ITexts>`         | `DEFAULT_TEXTS`     | i18n text labels (see i18n section)                 |
 | `debug`           | `boolean`                 | `false`             | Show debug info (syntax status, paste debug)        |
 | `className`       | `string`                  | -                   | Additional CSS class                                |
 | `style`           | `React.CSSProperties`     | -                   | Inline styles                                       |
@@ -219,34 +217,29 @@ Consider your app's performance and whether you really need Mermaid.
 
 ### Internationalization (i18n)
 
-This editor supports integration with external i18n systems like **react-i18next** or **next-intl**.
+This editor uses a host-driven i18n strategy.
 
-#### Using Translation Keys with react-i18next
+- Your app provides a translator function `t(key)` via `I18nProvider`.
+- All UI labels are defined by `I18N_KEYS` (translation keys).
+- If you don't provide a translator, the default behavior is to render the key itself.
+
+#### With react-i18next
 
 ```tsx
-import { MarkdownEditor, I18N_KEYS } from 'markdown-wysiwyg-editor';
+import { I18nProvider, MarkdownEditor, type Translator } from 'markdown-wysiwyg-editor';
 import { useTranslation } from 'react-i18next';
 
 function App() {
-  const { t } = useTranslation();
+  const { t: t18n } = useTranslation();
   const [content, setContent] = useState('');
 
-  const texts = {
-    table: {
-      rowOperations: t(I18N_KEYS.table.rowOperations),
-      addRowAbove: t(I18N_KEYS.table.addRowAbove),
-      addRowBelow: t(I18N_KEYS.table.addRowBelow),
-      deleteRow: t(I18N_KEYS.table.deleteRow),
-      columnOperations: t(I18N_KEYS.table.columnOperations),
-      addColumnLeft: t(I18N_KEYS.table.addColumnLeft),
-      addColumnRight: t(I18N_KEYS.table.addColumnRight),
-      deleteColumn: t(I18N_KEYS.table.deleteColumn),
-      deleteTable: t(I18N_KEYS.table.deleteTable),
-      cancel: t(I18N_KEYS.table.cancel),
-    },
-  };
+  const t: Translator = (key, fallback) => t18n(key, { defaultValue: fallback ?? key });
 
-  return <MarkdownEditor value={content} onChange={setContent} texts={texts} />;
+  return (
+    <I18nProvider t={t}>
+      <MarkdownEditor value={content} onChange={setContent} />
+    </I18nProvider>
+  );
 }
 ```
 

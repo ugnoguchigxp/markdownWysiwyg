@@ -2,13 +2,12 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { MarkdownSyntaxStatus } from '../../src/components/MarkdownSyntaxStatus';
+import { I18N_KEYS } from '../../src/types/index';
 
 describe('MarkdownSyntaxStatus', () => {
   it('renders hint when no selectionInfo', () => {
     render(<MarkdownSyntaxStatus selectionInfo={null} />);
-    expect(
-      screen.getByText('Place cursor on text or select text to display Markdown syntax'),
-    ).toBeTruthy();
+    expect(screen.getByText(I18N_KEYS.syntaxStatus.help)).toBeTruthy();
   });
 
   it('renders selected text, markdown syntax, marks, and node type', () => {
@@ -23,9 +22,9 @@ describe('MarkdownSyntaxStatus', () => {
       />,
     );
 
-    expect(screen.getByText('Selected Text:')).toBeTruthy();
+    expect(screen.getByText(new RegExp(`${I18N_KEYS.syntaxStatus.selectedText}`))).toBeTruthy();
     expect(screen.getByText('"Hello"')).toBeTruthy();
-    expect(screen.getByText('Markdown Syntax:')).toBeTruthy();
+    expect(screen.getByText(new RegExp(`${I18N_KEYS.syntaxStatus.markdownSyntax}`))).toBeTruthy();
     expect(screen.getByText('**Hello**')).toBeTruthy();
     expect(screen.getByText('Bold')).toBeTruthy();
     expect(screen.getByText('Italic')).toBeTruthy();
@@ -44,8 +43,6 @@ describe('MarkdownSyntaxStatus', () => {
       />,
     );
 
-    expect(
-      screen.getByText('Place cursor on text or select text to display Markdown syntax'),
-    ).toBeTruthy();
+    expect(screen.getByText(I18N_KEYS.syntaxStatus.help)).toBeTruthy();
   });
 });

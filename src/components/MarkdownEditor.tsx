@@ -23,7 +23,8 @@ import { TableToolbar } from './TableToolbar';
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { setMermaidLib } from '../extensions/mermaidRegistry';
-import type { IMarkdownEditorProps } from '../types/index';
+import { I18N_KEYS, type IMarkdownEditorProps } from '../types/index';
+import { useI18n } from '../i18n/I18nContext';
 import { isValidUrl, normalizeUrlOrNull } from '../utils/security';
 
 const logger = createLogger('MarkdownEditor');
@@ -42,7 +43,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   value,
   onChange,
   initialContent, // Keep for backward compatibility or internal use
-  placeholder = 'Start typing...',
   editable = true,
   enableMermaid = false,
   publicImagePathPrefix,
@@ -60,11 +60,14 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   showDownloadButton = false,
   downloadFilename = 'document.md',
   debug = false,
-  texts,
 }) => {
   const [, setContent] = useState<JSONContent>();
   const [selectionInfo, setSelectionInfo] = useState<ISelectionInfo | null>(null);
   const [pasteEvents, setPasteEvents] = useState<IPasteEvent[]>([]);
+
+  const { t } = useI18n();
+
+  const placeholder = t(I18N_KEYS.placeholder);
 
   // Determine visibility based on props and editable state
   // If showToolbar is not explicitly provided, it defaults to the value of editable
@@ -742,7 +745,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   if (!editor) {
     return (
       <div className="flex items-center justify-center h-64 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="text-gray-500">Loading editor...</div>
+        <div className="text-gray-500">{t(I18N_KEYS.loadingEditor)}</div>
       </div>
     );
   }
@@ -758,9 +761,9 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
             <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 flex items-center space-x-2 min-w-48">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />
               <div className="text-xs">
-                <div className="font-medium text-gray-700">Converting Markdown</div>
+                <div className="font-medium text-gray-700">{t(I18N_KEYS.convertingMarkdown)}</div>
                 <div className="text-gray-500">
-                  {processingProgress.processed}/{processingProgress.total} lines completed
+                  {processingProgress.processed}/{processingProgress.total} {t(I18N_KEYS.linesCompleted)}
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                   <div
@@ -790,7 +793,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
               editor={editor}
               showDownloadButton={showDownloadButton}
               onDownloadAsMarkdown={handleDownloadAsMarkdown}
-              texts={texts}
             />
           </div>
         )}
@@ -836,13 +838,13 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         {effectiveShowPasteDebug && (
           <div className="bg-gray-50 border-t border-gray-200 p-3">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-semibold text-gray-700">Paste Debug Panel</h3>
+              <h3 className="text-sm font-semibold text-gray-700">{t(I18N_KEYS.pasteDebugPanel)}</h3>
               <button
                 type="button"
                 onClick={clearPasteEvents}
                 className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
               >
-                Clear
+                {t(I18N_KEYS.clear)}
               </button>
             </div>
 
@@ -855,9 +857,15 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
                   <div className="font-semibold">
                     {new Date(event.timestamp).toLocaleTimeString()}
                   </div>
-                  <div>Type: {event.type}</div>
-                  <div className="truncate">Content: {event.content}</div>
-                  <div className="truncate text-green-600">Result: {event.result}</div>
+                  <div>
+                    {t(I18N_KEYS.type)}: {event.type}
+                  </div>
+                  <div className="truncate">
+                    {t(I18N_KEYS.content)}: {event.content}
+                  </div>
+                  <div className="truncate text-green-600">
+                    {t(I18N_KEYS.result)}: {event.result}
+                  </div>
                 </div>
               ))}
             </div>
@@ -887,7 +895,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         onDeleteRow={handleDeleteRow}
         onDeleteColumn={handleDeleteColumn}
         onDeleteTable={handleDeleteTable}
-        texts={texts}
       />
 
       {/* Table toolbar */}

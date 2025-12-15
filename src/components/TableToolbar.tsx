@@ -4,6 +4,8 @@ import type { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
 import { ArrowLeft, Columns3, LayoutGrid, Minus, Plus, Rows3, Trash2 } from 'lucide-react';
 
+import { I18N_KEYS } from '../types/index';
+import { useI18n } from '../i18n/I18nContext';
 import { createLogger } from '../utils/logger';
 
 const log = createLogger('TableToolbar');
@@ -16,6 +18,8 @@ interface ITableToolbarProps {
 
 export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, position }) => {
   if (!visible || !editor) return null;
+
+  const { t } = useI18n();
 
   const insertRowAbove = () => {
     log.debug('🔧 TableToolbar: insertRowAbove command');
@@ -73,7 +77,11 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
 
   const deleteTable = () => {
     log.debug('🔧 TableToolbar: deleteTable command');
-    if (typeof window !== 'undefined' && window.confirm && window.confirm('Delete table?')) {
+    if (
+      typeof window !== 'undefined' &&
+      window.confirm &&
+      window.confirm(t(I18N_KEYS.tableToolbar.confirmDeleteTable))
+    ) {
       editor.chain().focus().deleteTable().run();
     }
   };
@@ -99,7 +107,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={buttonClass}
         onClick={insertRowAbove}
-        title="Insert row above"
+        title={t(I18N_KEYS.tableToolbar.insertRowAbove)}
       >
         <Rows3 className="mr-1 w-3 h-3" />
         <Plus className="w-2 h-2" />↑
@@ -109,13 +117,18 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={buttonClass}
         onClick={insertRowBelow}
-        title="Insert row below"
+        title={t(I18N_KEYS.tableToolbar.insertRowBelow)}
       >
         <Rows3 className="mr-1 w-3 h-3" />
         <Plus className="w-2 h-2" />↓
       </button>
 
-      <button type="button" className={deleteButtonClass} onClick={deleteRow} title="Delete row">
+      <button
+        type="button"
+        className={deleteButtonClass}
+        onClick={deleteRow}
+        title={t(I18N_KEYS.tableToolbar.deleteRow)}
+      >
         <Rows3 className="mr-1 w-3 h-3" />
         <Minus className="w-2 h-2" />
       </button>
@@ -127,7 +140,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={buttonClass}
         onClick={insertColumnLeft}
-        title="Insert column left"
+        title={t(I18N_KEYS.tableToolbar.insertColumnLeft)}
       >
         <ArrowLeft className="mr-1 w-3 h-3" />
         <Plus className="w-2 h-2" />
@@ -138,7 +151,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={buttonClass}
         onClick={insertColumnRight}
-        title="Insert column right"
+        title={t(I18N_KEYS.tableToolbar.insertColumnRight)}
       >
         <Columns3 className="mr-1 w-3 h-3" />
         <Plus className="w-2 h-2" />→
@@ -148,7 +161,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={deleteButtonClass}
         onClick={deleteColumn}
-        title="Delete column"
+        title={t(I18N_KEYS.tableToolbar.deleteColumn)}
       >
         <Columns3 className="mr-1 w-3 h-3" />
         <Minus className="w-2 h-2" />
@@ -157,11 +170,21 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
       <div className={separatorClass} />
 
       {/* Cell operations */}
-      <button type="button" className={actionButtonClass} onClick={mergeCells} title="Merge cells">
+      <button
+        type="button"
+        className={actionButtonClass}
+        onClick={mergeCells}
+        title={t(I18N_KEYS.tableToolbar.mergeCells)}
+      >
         <LayoutGrid className="w-3 h-3" />
       </button>
 
-      <button type="button" className={actionButtonClass} onClick={splitCell} title="Split cell">
+      <button
+        type="button"
+        className={actionButtonClass}
+        onClick={splitCell}
+        title={t(I18N_KEYS.tableToolbar.splitCell)}
+      >
         <LayoutGrid className="w-3 h-3" />
       </button>
 
@@ -172,18 +195,18 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={`${buttonClass} hover:bg-yellow-50 hover:border-yellow-300`}
         onClick={toggleHeaderRow}
-        title="Toggle header row"
+        title={t(I18N_KEYS.tableToolbar.toggleHeaderRow)}
       >
-        H-Row
+        {t(I18N_KEYS.tableToolbar.headerRow)}
       </button>
 
       <button
         type="button"
         className={`${buttonClass} hover:bg-yellow-50 hover:border-yellow-300`}
         onClick={toggleHeaderColumn}
-        title="Toggle header column"
+        title={t(I18N_KEYS.tableToolbar.toggleHeaderColumn)}
       >
-        H-Col
+        {t(I18N_KEYS.tableToolbar.headerColumn)}
       </button>
 
       <div className={separatorClass} />
@@ -193,7 +216,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         type="button"
         className={deleteButtonClass}
         onClick={deleteTable}
-        title="Delete table"
+        title={t(I18N_KEYS.tableToolbar.deleteTable)}
       >
         <Trash2 className="w-3 h-3" />
       </button>

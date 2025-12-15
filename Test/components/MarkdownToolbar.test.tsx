@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { MarkdownToolbar } from '../../src/components/MarkdownToolbar';
+import { I18N_KEYS } from '../../src/types/index';
 
 vi.mock('../../src/utils/logger', () => ({
   createLogger: () => ({
@@ -57,11 +58,11 @@ describe('MarkdownToolbar', () => {
       />,
     );
 
-    const boldBtn = container.querySelector('[data-tooltip="Bold"]') as HTMLElement;
+    const boldBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.bold}"]`) as HTMLElement;
     fireEvent.click(boldBtn);
     expect(chain.toggleBold).toHaveBeenCalled();
 
-    const italicBtn = container.querySelector('[data-tooltip="Italic"]') as HTMLElement;
+    const italicBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.italic}"]`) as HTMLElement;
     fireEvent.click(italicBtn);
     expect(chain.toggleItalic).toHaveBeenCalled();
 
@@ -87,7 +88,9 @@ describe('MarkdownToolbar', () => {
       />,
     );
 
-    const headingBtn = container.querySelector('[data-tooltip="Heading 1"]') as HTMLElement;
+    const headingBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.openHeadingMenu}"]`,
+    ) as HTMLElement;
     fireEvent.click(headingBtn);
 
     const preview = screen.getAllByText('H1')[0];
@@ -118,13 +121,13 @@ describe('MarkdownToolbar', () => {
       />,
     );
 
-    const linkBtn = container.querySelector('[data-tooltip="Insert Link"]') as HTMLElement;
+    const linkBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.insertLink}"]`) as HTMLElement;
     fireEvent.click(linkBtn);
 
-    const urlInput = screen.getByLabelText('URL') as HTMLInputElement;
+    const urlInput = screen.getByLabelText(I18N_KEYS.link.url) as HTMLInputElement;
     fireEvent.change(urlInput, { target: { value: 'https://example.com' } });
 
-    const insertBtn = screen.getByRole('button', { name: 'Insert' });
+    const insertBtn = screen.getByRole('button', { name: I18N_KEYS.insert });
     fireEvent.click(insertBtn);
 
     expect(onInsertMarkdown).toHaveBeenCalledWith('[Example](https://example.com)');
@@ -153,10 +156,10 @@ describe('MarkdownToolbar', () => {
       />,
     );
 
-    const downloadBtn = container.querySelector('[data-tooltip="Download as Markdown"]') as HTMLElement;
+    const downloadBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.download}"]`) as HTMLElement;
     fireEvent.click(downloadBtn);
 
-    const markdownFileBtn = screen.getByRole('button', { name: /Markdown File/i });
+    const markdownFileBtn = screen.getByRole('button', { name: new RegExp(I18N_KEYS.markdownFile) });
     fireEvent.click(markdownFileBtn);
 
     expect(onDownloadAsMarkdown).toHaveBeenCalled();
@@ -169,7 +172,7 @@ describe('MarkdownToolbar', () => {
       <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} />,
     );
 
-    const tableBtn = container.querySelector('[data-tooltip="Insert Table"]') as HTMLElement;
+    const tableBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.insertTable}"]`) as HTMLElement;
     fireEvent.click(tableBtn);
 
     expect(onInsertMarkdown).toHaveBeenCalled();
@@ -195,7 +198,7 @@ describe('MarkdownToolbar', () => {
       <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} editor={editor} />,
     );
 
-    const tableBtn = container.querySelector('[data-tooltip="Insert Table"]') as HTMLElement;
+    const tableBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.insertTable}"]`) as HTMLElement;
     fireEvent.click(tableBtn);
 
     expect(insertTable).toHaveBeenCalled();
@@ -222,7 +225,7 @@ describe('MarkdownToolbar', () => {
       <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} editor={editor} />,
     );
 
-    const tableBtn = container.querySelector('[data-tooltip="Insert Table"]') as HTMLElement;
+    const tableBtn = container.querySelector(`[data-tooltip="${I18N_KEYS.insertTable}"]`) as HTMLElement;
     fireEvent.click(tableBtn);
 
     expect(onInsertMarkdown).toHaveBeenCalled();

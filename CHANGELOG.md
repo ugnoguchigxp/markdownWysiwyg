@@ -7,9 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-12-15
+
 ### Added
 
-- Initial release of `markdown-wysiwyg-editor`.
-- Core Markdown editing features.
-- Mermaid diagram support.
-- Table editing support.
+- Exported `I18nKey` type for typed translation keys.
+
+### Changed
+
+- Memoized `I18nProvider` context value to reduce unnecessary rerenders.
+- Updated documentation to match host-driven i18n (`I18nProvider` + `t(key)`) and removed obsolete `texts`/`placeholder` references.
+- Made `prepublishOnly` use `npm run` to improve compatibility when publishing.
+
+## [0.2.0] - 2025-12-15
+
+### Added
+
+- Host-driven i18n via `I18nProvider` and injected `t(key)`.
+- `I18N_KEYS` exported for defining all UI labels by translation keys.
+
+### Changed
+
+- All UI labels now resolve through `t(I18N_KEYS.*)`.
+
+### Removed
+
+- Removed `texts` prop, `DEFAULT_TEXTS`, and related types from the public API.
+- Removed `placeholder` prop (placeholder is derived from `t(I18N_KEYS.placeholder)`).

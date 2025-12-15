@@ -1,6 +1,6 @@
 {
   "name": "markdown-wysiwyg-editor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Lightweight Markdown WYSIWYG editor with TipTap, Mermaid support",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,7 +24,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "prepublishOnly": "pnpm build && pnpm test"
+    "prepublishOnly": "npm run build && npm run test"
   },
   "keywords": ["markdown", "wysiwyg", "editor", "tiptap", "mermaid", "react", "typescript"],
   "author": "Yuji Noguchi (https://github.com/ugnoguchigxp)",

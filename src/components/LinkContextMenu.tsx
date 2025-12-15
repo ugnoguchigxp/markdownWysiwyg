@@ -8,6 +8,8 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 
 import { Edit3, ExternalLink, X } from 'lucide-react';
+import { I18N_KEYS } from '../types/index';
+import { useI18n } from '../i18n/I18nContext';
 
 interface LinkContextMenuProps {
   visible: boolean;
@@ -29,6 +31,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
   onOpenLink,
   onEditLink,
 }) => {
+  const { t } = useI18n();
   const [showEditModal, setShowEditModal] = useState(false);
   const [editText, setEditText] = useState('');
   const [editUrl, setEditUrl] = useState('');
@@ -121,7 +124,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
           onClick={handleOpenLink}
         >
           <ExternalLink className="w-3 h-3 text-blue-500" />
-          <span>Open Link</span>
+          <span>{t(I18N_KEYS.link.open)}</span>
         </button>
 
         <button
@@ -130,7 +133,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
           onClick={handleEditClick}
         >
           <Edit3 className="w-3 h-3 text-gray-600" />
-          <span>Edit Link</span>
+          <span>{t(I18N_KEYS.link.edit)}</span>
         </button>
 
         <div className="border-t border-gray-200 my-1" />
@@ -146,12 +149,12 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
             onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Link</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t(I18N_KEYS.link.edit)}</h3>
               <button
                 type="button"
                 onClick={handleEditCancel}
                 className="text-gray-400 hover:text-gray-600 p-1"
-                aria-label="Close"
+                aria-label={t(I18N_KEYS.close)}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -164,7 +167,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                   htmlFor="mw-link-edit-text"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Link Text
+                  {t(I18N_KEYS.link.linkText)}
                 </label>
                 <input
                   id="mw-link-edit-text"
@@ -178,7 +181,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter link text"
+                  placeholder={t(I18N_KEYS.link.enterLinkText)}
                 />
               </div>
 
@@ -188,7 +191,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                   htmlFor="mw-link-edit-url"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  URL
+                  {t(I18N_KEYS.link.url)}
                 </label>
                 <input
                   id="mw-link-edit-url"
@@ -202,7 +205,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://example.com"
+                  placeholder={t(I18N_KEYS.link.urlPlaceholder)}
                 />
               </div>
             </div>
@@ -214,7 +217,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                 onClick={handleEditCancel}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
-                Cancel
+                {t(I18N_KEYS.cancelButton)}
               </button>
               <button
                 type="button"
@@ -222,7 +225,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                 disabled={!editUrl.trim()}
                 className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
               >
-                Update
+                {t(I18N_KEYS.update)}
               </button>
             </div>
           </div>
