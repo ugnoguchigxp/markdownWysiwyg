@@ -57,7 +57,75 @@ import 'markdown-wysiwyg-editor/style.css';
 
 You can import this in your main app file (e.g., `App.tsx` or `index.tsx`) to make it available globally.
 
-### 2. Height and Scroll Configuration
+### 2. Theming (shadcn CSS Variables)
+
+This library uses **shadcn-style CSS variables** for theming. Define these variables in your host project's global CSS:
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+}
+
+/* Dark mode - use .dark class or @media (prefers-color-scheme: dark) */
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 48%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+}
+```
+
+> **Note**: If you already use shadcn/ui in your project, these variables are likely already defined. The editor will automatically use your existing theme.
+
+#### Tailwind CSS Configuration
+
+Make sure Tailwind scans this package's output:
+
+```js
+// tailwind.config.js
+export default {
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+    './node_modules/markdown-wysiwyg-editor/dist/**/*.{js,cjs,mjs}',
+  ],
+}
+```
+
+### 3. Height and Scroll Configuration
 
 The editor needs proper height configuration to enable scrolling. Choose one approach:
 
@@ -97,7 +165,7 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 />
 ```
 
-### 3. Common Issues and Solutions
+### 4. Common Issues and Solutions
 
 #### Issue: Lists not displaying correctly
 

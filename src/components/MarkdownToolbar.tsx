@@ -22,8 +22,8 @@ import {
   Table,
 } from 'lucide-react';
 
-import { I18N_KEYS } from '../types/index';
 import { useI18n } from '../i18n/I18nContext';
+import { I18N_KEYS } from '../types/index';
 import { createLogger } from '../utils/logger';
 
 const log = createLogger('MarkdownToolbar');
@@ -74,42 +74,37 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
     {
       level: 1,
       markdown: '# ',
-      className: 'text-4xl font-bold text-gray-800 dark:text-gray-100',
+      className: 'text-4xl font-bold text-foreground',
       preview: 'H1',
-      bgColor:
-        'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100',
+      bgColor: 'bg-background hover:bg-accent',
     },
     {
       level: 2,
       markdown: '## ',
-      className: 'text-3xl font-bold text-gray-800 dark:text-gray-100',
+      className: 'text-3xl font-bold text-foreground',
       preview: 'H2',
-      bgColor:
-        'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100',
+      bgColor: 'bg-background hover:bg-accent',
     },
     {
       level: 3,
       markdown: '### ',
-      className: 'text-2xl font-semibold text-gray-800 dark:text-gray-100',
+      className: 'text-2xl font-semibold text-foreground',
       preview: 'H3',
-      bgColor:
-        'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100',
+      bgColor: 'bg-background hover:bg-accent',
     },
     {
       level: 4,
       markdown: '#### ',
-      className: 'text-xl font-semibold text-gray-800 dark:text-gray-100',
+      className: 'text-xl font-semibold text-foreground',
       preview: 'H4',
-      bgColor:
-        'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100',
+      bgColor: 'bg-background hover:bg-accent',
     },
     {
       level: 5,
       markdown: '##### ',
-      className: 'text-lg font-medium text-gray-800 dark:text-gray-100',
+      className: 'text-lg font-medium text-foreground',
       preview: 'H5',
-      bgColor:
-        'bg-white hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-100',
+      bgColor: 'bg-background hover:bg-accent',
     },
   ];
 
@@ -573,7 +568,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               <div
                 className="absolute top-full left-0 mt-2 w-64 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200"
                 style={{
-                  backgroundColor: 'var(--mw-toolbar-bg)',
+                  backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
                   borderColor: 'var(--mw-toolbar-border)',
                   borderWidth: '1px',
                   borderStyle: 'solid',
@@ -582,7 +577,10 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                 <div className="py-2">
                   <div
                     className="px-4 py-2"
-                    style={{ borderBottom: '1px solid var(--mw-toolbar-border)' }}
+                    style={{
+                      backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
+                      borderBottom: '1px solid var(--mw-toolbar-border)',
+                    }}
                   >
                     <h3
                       className="text-sm font-semibold"
@@ -603,7 +601,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                       e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-bg)';
                     }}
                   >
                     <div className="flex items-center space-x-3">
@@ -635,7 +633,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
 
       {/* Link modal */}
       {showLinkModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           {/* Background overlay (click target) */}
           <button
             type="button"
@@ -692,7 +690,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               <div>
                 <label
                   htmlFor="mw-insert-link-url"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-1"
                 >
                   {t(I18N_KEYS.link.url)}
                 </label>
@@ -707,7 +705,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                       handleLinkModalSubmit();
                     }
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
                   placeholder={t(I18N_KEYS.link.urlPlaceholder)}
                 />
               </div>
@@ -718,7 +716,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               <button
                 type="button"
                 onClick={handleLinkModalClose}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+                className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
               >
                 {t(I18N_KEYS.cancelButton)}
               </button>
@@ -726,7 +724,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                 type="button"
                 onClick={handleLinkModalSubmit}
                 disabled={!linkUrl.trim()}
-                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
+                className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed rounded-md transition-colors"
               >
                 {t(I18N_KEYS.insert)}
               </button>

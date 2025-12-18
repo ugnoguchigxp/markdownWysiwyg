@@ -5,8 +5,8 @@ import type { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
 import { createPortal } from 'react-dom';
 
-import { I18N_KEYS } from '../types/index';
 import { useI18n } from '../i18n/I18nContext';
+import { I18N_KEYS } from '../types/index';
 
 export interface ITableEdgeControlsProps {
   editor: Editor | null;
@@ -83,7 +83,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
 
   return createPortal(
     <div
-      className="table-edge-controls bg-white shadow-lg border border-gray-200 rounded-lg p-2 flex flex-col gap-1 fixed z-50 min-w-[140px]"
+      className="table-edge-controls bg-background shadow-lg border border-border rounded-lg p-2 flex flex-col gap-1 fixed z-50 min-w-[140px]"
       style={{
         left: controlPosition.x,
         top: controlPosition.y,
@@ -98,7 +98,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
     >
       <button
         type="button"
-        className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-colors duration-150 text-left"
+        className="text-xs px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded transition-colors duration-150 text-left"
         onClick={handleAddRowAbove}
         title={t(I18N_KEYS.tableEdgeControls.addRowAbove)}
       >
@@ -106,7 +106,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
       </button>
       <button
         type="button"
-        className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-colors duration-150 text-left"
+        className="text-xs px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded transition-colors duration-150 text-left"
         onClick={handleAddRowBelow}
         title={t(I18N_KEYS.tableEdgeControls.addRowBelow)}
       >
@@ -114,7 +114,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
       </button>
       <button
         type="button"
-        className="text-xs px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded transition-colors duration-150 text-left"
+        className="text-xs px-2 py-1 bg-accent hover:bg-accent/80 text-accent-foreground rounded transition-colors duration-150 text-left"
         onClick={handleAddColumnLeft}
         title={t(I18N_KEYS.tableEdgeControls.addColumnLeft)}
       >
@@ -122,7 +122,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
       </button>
       <button
         type="button"
-        className="text-xs px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded transition-colors duration-150 text-left"
+        className="text-xs px-2 py-1 bg-accent hover:bg-accent/80 text-accent-foreground rounded transition-colors duration-150 text-left"
         onClick={handleAddColumnRight}
         title={t(I18N_KEYS.tableEdgeControls.addColumnRight)}
       >

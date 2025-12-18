@@ -23,8 +23,8 @@ import { TableToolbar } from './TableToolbar';
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { setMermaidLib } from '../extensions/mermaidRegistry';
-import { I18N_KEYS, type IMarkdownEditorProps } from '../types/index';
 import { useI18n } from '../i18n/I18nContext';
+import { I18N_KEYS, type IMarkdownEditorProps } from '../types/index';
 import { isValidUrl, normalizeUrlOrNull } from '../utils/security';
 
 const logger = createLogger('MarkdownEditor');
@@ -744,8 +744,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   if (!editor) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="text-gray-500">{t(I18N_KEYS.loadingEditor)}</div>
+      <div className="flex items-center justify-center h-64 bg-muted border border-border rounded-md">
+        <div className="text-muted-foreground">{t(I18N_KEYS.loadingEditor)}</div>
       </div>
     );
   }
@@ -753,21 +753,22 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   return (
     <div className={`${className}`}>
       <div
-        className={`border border-gray-300 dark:border-gray-700 bg-[var(--mw-bg-canvas)] rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}
+        className={`border border-border bg-background rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative`}
       >
         {/* Processing indicator (top right) */}
         {isProcessing && (
           <div className="absolute top-2 right-2 z-50">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 flex items-center space-x-2 min-w-48">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />
+            <div className="bg-background border border-border rounded-lg shadow-lg p-3 flex items-center space-x-2 min-w-48">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
               <div className="text-xs">
-                <div className="font-medium text-gray-700">{t(I18N_KEYS.convertingMarkdown)}</div>
-                <div className="text-gray-500">
-                  {processingProgress.processed}/{processingProgress.total} {t(I18N_KEYS.linesCompleted)}
+                <div className="font-medium text-foreground">{t(I18N_KEYS.convertingMarkdown)}</div>
+                <div className="text-muted-foreground">
+                  {processingProgress.processed}/{processingProgress.total}{' '}
+                  {t(I18N_KEYS.linesCompleted)}
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                <div className="w-full bg-muted rounded-full h-1 mt-1">
                   <div
-                    className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                    className="bg-primary h-1 rounded-full transition-all duration-300"
                     style={{
                       width: `${processingProgress.total > 0 ? (processingProgress.processed / processingProgress.total) * 100 : 0}%`,
                     }}
@@ -836,13 +837,15 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         )}
 
         {effectiveShowPasteDebug && (
-          <div className="bg-gray-50 border-t border-gray-200 p-3">
+          <div className="bg-muted border-t border-border p-3">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-semibold text-gray-700">{t(I18N_KEYS.pasteDebugPanel)}</h3>
+              <h3 className="text-sm font-semibold text-foreground">
+                {t(I18N_KEYS.pasteDebugPanel)}
+              </h3>
               <button
                 type="button"
                 onClick={clearPasteEvents}
-                className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                className="text-xs px-2 py-1 bg-destructive/10 text-destructive rounded hover:bg-destructive/20"
               >
                 {t(I18N_KEYS.clear)}
               </button>
@@ -852,7 +855,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
               {pasteEvents.map((event) => (
                 <div
                   key={`${event.timestamp}-${event.type}`}
-                  className="text-xs bg-white p-2 rounded border border-gray-300"
+                  className="text-xs bg-background p-2 rounded border border-border"
                 >
                   <div className="font-semibold">
                     {new Date(event.timestamp).toLocaleTimeString()}
@@ -863,7 +866,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
                   <div className="truncate">
                     {t(I18N_KEYS.content)}: {event.content}
                   </div>
-                  <div className="truncate text-green-600">
+                  <div className="truncate text-primary">
                     {t(I18N_KEYS.result)}: {event.result}
                   </div>
                 </div>

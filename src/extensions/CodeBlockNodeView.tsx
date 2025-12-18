@@ -451,7 +451,7 @@ const MermaidCodeBlockView = ({
   return (
     <NodeViewWrapper className={`mermaid-code-block ${selected ? 'selected' : ''}`}>
       <div
-        className={`relative rounded-md p-4 bg-gray-50 border ${selected ? 'border-blue-500' : 'border-gray-200'}`}
+        className={`relative rounded-md p-4 bg-muted border ${selected ? 'border-primary' : 'border-border'}`}
       >
         {/* 右上のコントロールボタン */}
         {isEditable && (

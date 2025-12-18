@@ -1,17 +1,76 @@
+/* ========================================
+ * Markdown WYSIWYG Editor - Styles
+ * ========================================
+ * 
+ * This library expects the host project to define shadcn-style CSS variables.
+ * The library will use these variables for theming.
+ * 
+ * Required CSS variables (define in your global CSS):
+ *   --background, --foreground, --primary, --primary-foreground,
+ *   --secondary, --secondary-foreground, --muted, --muted-foreground,
+ *   --accent, --accent-foreground, --destructive, --destructive-foreground,
+ *   --border, --input, --ring, --popover, --popover-foreground,
+ *   --card, --card-foreground, --radius
+ * 
+ * For dark mode, define these variables under `.dark` or 
+ * `@media (prefers-color-scheme: dark)` in your host project.
+ * 
+ * Example (host project's global CSS):
+ *   :root {
+ *     --background: 0 0% 100%;
+ *     --foreground: 222.2 84% 4.9%;
+ *     ...
+ *   }
+ *   .dark {
+ *     --background: 222.2 84% 4.9%;
+ *     --foreground: 210 40% 98%;
+ *     ...
+ *   }
+ * ======================================== */
+
 :root {
+  /* ========================================
+   * Fallback values for shadcn tokens
+   * (Used only if host project doesn't define them)
+   * ======================================== */
+  --background: var(--background, 0 0% 100%);
+  --foreground: var(--foreground, 222.2 84% 4.9%);
+  --card: var(--card, 0 0% 100%);
+  --card-foreground: var(--card-foreground, 222.2 84% 4.9%);
+  --popover: var(--popover, 0 0% 100%);
+  --popover-foreground: var(--popover-foreground, 222.2 84% 4.9%);
+  --primary: var(--primary, 221.2 83.2% 53.3%);
+  --primary-foreground: var(--primary-foreground, 210 40% 98%);
+  --secondary: var(--secondary, 210 40% 96.1%);
+  --secondary-foreground: var(--secondary-foreground, 222.2 47.4% 11.2%);
+  --muted: var(--muted, 210 40% 96.1%);
+  --muted-foreground: var(--muted-foreground, 215.4 16.3% 46.9%);
+  --accent: var(--accent, 210 40% 96.1%);
+  --accent-foreground: var(--accent-foreground, 222.2 47.4% 11.2%);
+  --destructive: var(--destructive, 0 84.2% 60.2%);
+  --destructive-foreground: var(--destructive-foreground, 210 40% 98%);
+  --border: var(--border, 214.3 31.8% 91.4%);
+  --input: var(--input, 214.3 31.8% 91.4%);
+  --ring: var(--ring, 221.2 83.2% 53.3%);
+  --radius: var(--radius, 0.5rem);
+
+  /* ========================================
+   * Editor-specific Tokens (referencing shadcn tokens)
+   * ======================================== */
+
   /* Editor Background & Text */
-  --mw-bg-canvas: #ffffff;
-  --mw-text-primary: #111827;
-  --mw-text-secondary: #374151;
+  --mw-bg-canvas: hsl(var(--background));
+  --mw-text-primary: hsl(var(--foreground));
+  --mw-text-secondary: hsl(var(--muted-foreground));
 
   /* Headings */
-  --mw-heading-color: #111827;
-  --mw-heading-secondary: #1f2937;
+  --mw-heading-color: hsl(var(--foreground));
+  --mw-heading-secondary: hsl(var(--foreground));
 
-  /* Code Blocks */
+  /* Code Blocks - using specific colors for better contrast */
   --mw-code-bg: #1e293b;
   --mw-code-text: #e2e8f0;
-  --mw-code-border: #d1d5db;
+  --mw-code-border: hsl(var(--border));
 
   /* Inline Code */
   --mw-inline-code-bg: #fef2f2;
@@ -19,122 +78,28 @@
   --mw-inline-code-border: #fecaca;
 
   /* Tables */
-  --mw-table-border: color-mix(in srgb, var(--mw-text-primary) 40%, var(--mw-bg-canvas));
-  --mw-table-header-bg: #f9fafb;
-  --mw-table-header-text: #111827;
-  --mw-table-header-border-bottom: var(--mw-table-border);
-  --mw-table-row-hover: #f9fafb;
-  --mw-table-resize-handle: #3b82f6;
+  --mw-table-border: hsl(var(--border));
+  --mw-table-header-bg: hsl(var(--muted));
+  --mw-table-header-text: hsl(var(--foreground));
+  --mw-table-header-border-bottom: hsl(var(--border));
+  --mw-table-row-hover: hsl(var(--accent));
+  --mw-table-resize-handle: hsl(var(--primary));
 
   /* Blockquotes */
-  --mw-quote-border: #3b82f6;
-  --mw-quote-text: #4b5563;
-  --mw-quote-bg: #f9fafb;
+  --mw-quote-border: hsl(var(--primary));
+  --mw-quote-text: hsl(var(--muted-foreground));
+  --mw-quote-bg: hsl(var(--muted));
 
   /* Toolbar Tooltip */
-  --mw-tooltip-bg: #1f2937;
-  --mw-tooltip-text: #ffffff;
+  --mw-tooltip-bg: hsl(var(--popover));
+  --mw-tooltip-text: hsl(var(--popover-foreground));
 
   /* Toolbar */
-  --mw-toolbar-bg: #ffffff;
-  --mw-toolbar-border: #e5e7eb;
-  --mw-toolbar-text: #374151;
-  --mw-toolbar-hover-bg: #f3f4f6;
-  --mw-toolbar-active-bg: #e5e7eb;
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Apply if system is dark AND data-theme is NOT light */
-  :root:not([data-theme="light"]) {
-    /* Editor Background & Text */
-    --mw-bg-canvas: #1f2937;
-    --mw-text-primary: #f9fafb;
-    --mw-text-secondary: #d1d5db;
-
-    /* Headings */
-    --mw-heading-color: #f9fafb;
-    --mw-heading-secondary: #e5e7eb;
-
-    /* Code Blocks */
-    --mw-code-bg: #111827;
-    --mw-code-text: #e5e7eb;
-    --mw-code-border: #374151;
-
-    /* Inline Code */
-    --mw-inline-code-bg: #374151;
-    --mw-inline-code-text: #fca5a5;
-    --mw-inline-code-border: #4b5563;
-
-    /* Tables */
-    --mw-table-border: color-mix(in srgb, var(--mw-text-primary) 40%, var(--mw-bg-canvas));
-    --mw-table-header-bg: #111827;
-    --mw-table-header-text: #f9fafb;
-    --mw-table-header-border-bottom: var(--mw-table-border);
-    --mw-table-row-hover: #1f2937;
-    --mw-table-resize-handle: #60a5fa;
-
-    /* Blockquotes */
-    --mw-quote-border: #60a5fa;
-    --mw-quote-text: #9ca3af;
-    --mw-quote-bg: #111827;
-
-    /* Toolbar Tooltip */
-    --mw-tooltip-bg: #000000;
-    --mw-tooltip-text: #ffffff;
-
-    /* Toolbar */
-    --mw-toolbar-bg: #1e293b;
-    --mw-toolbar-border: #374151;
-    --mw-toolbar-text: #e5e7eb;
-    --mw-toolbar-hover-bg: #374151;
-    --mw-toolbar-active-bg: #4b5563;
-  }
-}
-
-:root[data-theme="dark"],
-.dark {
-  /* Editor Background & Text */
-  --mw-bg-canvas: #1f2937;
-  --mw-text-primary: #f9fafb;
-  --mw-text-secondary: #d1d5db;
-
-  /* Headings */
-  --mw-heading-color: #f9fafb;
-  --mw-heading-secondary: #e5e7eb;
-
-  /* Code Blocks */
-  --mw-code-bg: #111827;
-  --mw-code-text: #e5e7eb;
-  --mw-code-border: #374151;
-
-  /* Inline Code */
-  --mw-inline-code-bg: #374151;
-  --mw-inline-code-text: #fca5a5;
-  --mw-inline-code-border: #4b5563;
-
-  /* Tables */
-  --mw-table-border: color-mix(in srgb, var(--mw-text-primary) 40%, var(--mw-bg-canvas));
-  --mw-table-header-bg: #111827;
-  --mw-table-header-text: #f9fafb;
-  --mw-table-header-border-bottom: var(--mw-table-border);
-  --mw-table-row-hover: #1f2937;
-  --mw-table-resize-handle: #60a5fa;
-
-  /* Blockquotes */
-  --mw-quote-border: #60a5fa;
-  --mw-quote-text: #9ca3af;
-  --mw-quote-bg: #111827;
-
-  /* Toolbar Tooltip */
-  --mw-tooltip-bg: #000000;
-  --mw-tooltip-text: #ffffff;
-
-  /* Toolbar */
-  --mw-toolbar-bg: #1e293b;
-  --mw-toolbar-border: #374151;
-  --mw-toolbar-text: #e5e7eb;
-  --mw-toolbar-hover-bg: #374151;
-  --mw-toolbar-active-bg: #4b5563;
+  --mw-toolbar-bg: hsl(var(--background));
+  --mw-toolbar-border: hsl(var(--border));
+  --mw-toolbar-text: hsl(var(--foreground));
+  --mw-toolbar-hover-bg: hsl(var(--accent));
+  --mw-toolbar-active-bg: hsl(var(--accent));
 }
 
 /* Base Editor Styles */

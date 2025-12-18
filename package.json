@@ -1,6 +1,6 @@
 {
   "name": "markdown-wysiwyg-editor",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Lightweight Markdown WYSIWYG editor with TipTap, Mermaid support",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,7 +30,7 @@
   "author": "Yuji Noguchi (https://github.com/ugnoguchigxp)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ugnoguchigxp/markdownWysiwyg.git"
+    "url": "git+https://github.com/ugnoguchigxp/markdownWysiwyg.git"
   },
   "license": "MIT",
   "engines": {

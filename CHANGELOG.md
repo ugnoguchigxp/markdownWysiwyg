@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-12-18
+
+### Changed
+
+- Fixed the toolbar download menu background styling to avoid transparency issues.
+- Updated the example app to wire `I18nProvider` so `I18N_KEYS` translations resolve correctly.
+
 ## [0.2.1] - 2025-12-15
 
 ### Added

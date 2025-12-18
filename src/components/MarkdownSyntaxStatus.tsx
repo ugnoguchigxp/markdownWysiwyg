@@ -1,8 +1,8 @@
 import type React from 'react';
 
-import type { ISelectionInfo } from '../utils/selectionUtils';
-import { I18N_KEYS } from '../types/index';
 import { useI18n } from '../i18n/I18nContext';
+import { I18N_KEYS } from '../types/index';
+import type { ISelectionInfo } from '../utils/selectionUtils';
 
 interface IMarkdownSyntaxStatusProps {
   selectionInfo: ISelectionInfo | null;
@@ -18,7 +18,7 @@ export const MarkdownSyntaxStatus: React.FC<IMarkdownSyntaxStatusProps> = ({
   if (!selectionInfo || !selectionInfo.selectedText.trim()) {
     return (
       <div
-        className={`bg-gray-50 border-t border-gray-200 px-4 py-2 text-sm text-gray-500 ${className}`}
+        className={`bg-muted border-t border-border px-4 py-2 text-sm text-muted-foreground ${className}`}
       >
         <span>{t(I18N_KEYS.syntaxStatus.help)}</span>
       </div>
@@ -29,12 +29,16 @@ export const MarkdownSyntaxStatus: React.FC<IMarkdownSyntaxStatusProps> = ({
     <div className={`bg-blue-50 border-t border-blue-200 px-4 py-2 text-sm ${className}`}>
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-4">
-          <span className="font-medium text-blue-700">{t(I18N_KEYS.syntaxStatus.selectedText)}:</span>
-          <span className="text-gray-700 truncate max-w-xs">"{selectionInfo.selectedText}"</span>
+          <span className="font-medium text-blue-700">
+            {t(I18N_KEYS.syntaxStatus.selectedText)}:
+          </span>
+          <span className="text-foreground truncate max-w-xs">"{selectionInfo.selectedText}"</span>
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="font-medium text-blue-700">{t(I18N_KEYS.syntaxStatus.markdownSyntax)}:</span>
+          <span className="font-medium text-blue-700">
+            {t(I18N_KEYS.syntaxStatus.markdownSyntax)}:
+          </span>
           <code className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono">
             {selectionInfo.markdownSyntax}
           </code>
@@ -58,7 +62,7 @@ export const MarkdownSyntaxStatus: React.FC<IMarkdownSyntaxStatusProps> = ({
 
         <div className="flex items-center gap-4">
           <span className="font-medium text-blue-700">{t(I18N_KEYS.syntaxStatus.nodeType)}:</span>
-          <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs">
+          <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded text-xs">
             {selectionInfo.nodeType}
           </span>
         </div>

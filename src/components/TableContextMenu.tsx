@@ -3,8 +3,8 @@
  */
 
 import type React from 'react';
-import { I18N_KEYS } from '../types/index';
 import { useI18n } from '../i18n/I18nContext';
+import { I18N_KEYS } from '../types/index';
 
 export interface ITableContextMenuProps {
   isVisible: boolean;
@@ -37,20 +37,20 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
   return (
     <div
-      className="table-context-menu fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg py-2 min-w-48 max-h-[400px] overflow-y-auto"
+      className="table-context-menu fixed z-50 bg-background border border-border rounded-lg shadow-lg py-2 min-w-48 max-h-[400px] overflow-y-auto"
       style={{
         left: position.x,
         top: position.y,
       }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-1">
+      <div className="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b border-border mb-1">
         {t(I18N_KEYS.table.rowOperations)}
       </div>
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent flex items-center gap-2"
         onClick={() => {
           onAddRowAbove();
           onClose();
@@ -62,7 +62,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent flex items-center gap-2"
         onClick={() => {
           onAddRowBelow();
           onClose();
@@ -74,7 +74,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2"
         onClick={() => {
           onDeleteRow();
           onClose();
@@ -84,15 +84,15 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         {t(I18N_KEYS.table.deleteRow)}
       </button>
 
-      <div className="border-t border-gray-100 my-1" />
+      <div className="border-t border-border my-1" />
 
-      <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+      <div className="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
         {t(I18N_KEYS.table.columnOperations)}
       </div>
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent flex items-center gap-2"
         onClick={() => {
           onAddColumnBefore();
           onClose();
@@ -104,7 +104,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent flex items-center gap-2"
         onClick={() => {
           onAddColumnAfter();
           onClose();
@@ -116,7 +116,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2"
         onClick={() => {
           onDeleteColumn();
           onClose();
@@ -126,11 +126,11 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         {t(I18N_KEYS.table.deleteColumn)}
       </button>
 
-      <div className="border-t border-gray-100 my-1" />
+      <div className="border-t border-border my-1" />
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+        className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2"
         onClick={() => {
           onDeleteTable();
           onClose();
@@ -140,11 +140,11 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
         {t(I18N_KEYS.table.deleteTable)}
       </button>
 
-      <div className="border-t border-gray-100 my-1" />
+      <div className="border-t border-border my-1" />
 
       <button
         type="button"
-        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-600"
+        className="w-full text-left px-4 py-2 text-sm hover:bg-accent text-muted-foreground"
         onClick={onClose}
       >
         {t(I18N_KEYS.table.cancel)}

@@ -150,9 +150,10 @@ class BlockExtractor {
       const raw = rowLine.trim();
       const parts = raw.split('|');
       // If the row has leading/trailing pipes, drop the empty edge tokens.
-      const inner = parts.length >= 2 && parts[0] === '' && parts[parts.length - 1] === ''
-        ? parts.slice(1, -1)
-        : parts;
+      const inner =
+        parts.length >= 2 && parts[0] === '' && parts[parts.length - 1] === ''
+          ? parts.slice(1, -1)
+          : parts;
       return inner.map((c) => c.trim());
     };
 

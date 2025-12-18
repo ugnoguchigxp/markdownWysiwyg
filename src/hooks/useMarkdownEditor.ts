@@ -113,7 +113,7 @@ export const useMarkdownEditor = ({
         inline: true,
         allowBase64: false,
         HTMLAttributes: {
-          class: 'max-w-full h-auto rounded-lg shadow-sm border border-gray-200 my-2',
+          class: 'max-w-full h-auto rounded-lg shadow-sm border border-border my-2',
         },
       }),
       CharacterCount,

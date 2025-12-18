@@ -37,3 +37,4 @@ coverage/
 # Temporary
 tmp/
 temp/
+*.tgz
