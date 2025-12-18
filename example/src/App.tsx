@@ -223,10 +223,10 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-8rem)]">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-4rem)]">
           {/* Editor Column */}
-          <div className="flex flex-col gap-2 h-full">
+          <div className="flex flex-col gap-2 h-full flex-1 min-w-0">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
                 Editor
@@ -250,7 +250,7 @@ function App() {
           </div>
 
           {/* Preview Column */}
-          <div className="flex flex-col gap-2 h-full">
+          <div className="flex flex-col gap-2 h-full lg:w-[624px] lg:flex-none">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
                 Raw Output

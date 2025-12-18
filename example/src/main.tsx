@@ -86,6 +86,13 @@ const translations: Record<string, string> = {
   'markdown_editor.table.delete_column': '列を削除',
   'markdown_editor.table.delete_table': '表を削除',
   'markdown_editor.table.cancel': 'キャンセル',
+  'markdown_editor.image.button': '画像',
+  'markdown_editor.image.picker_title': '画像を挿入',
+  'markdown_editor.image.url_label': 'URL',
+  'markdown_editor.image.url_placeholder': 'https://example.com/image.png',
+  'markdown_editor.image.alt_label': 'Alt',
+  'markdown_editor.image.alt_placeholder': '代替テキスト',
+  'markdown_editor.image.insert': '挿入',
 };
 
 const t = (key: string, fallback?: string) => translations[key] ?? fallback ?? key;
