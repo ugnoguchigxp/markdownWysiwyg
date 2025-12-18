@@ -89,7 +89,7 @@ describe('MarkdownToolbar', () => {
     );
 
     const headingBtn = container.querySelector(
-      `[data-tooltip="${I18N_KEYS.openHeadingMenu}"]`,
+      `[data-tooltip="${I18N_KEYS.heading}"]`,
     ) as HTMLElement;
     fireEvent.click(headingBtn);
 

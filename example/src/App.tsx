@@ -241,7 +241,6 @@ function App() {
                 mermaidLib={mermaid}
                 enableMermaid={true}
                 publicImagePathPrefix="/images"
-                placeholder="Start typing your markdown..."
                 className="h-full flex flex-col"
                 autoHeight={false}
                 enableVerticalScroll={true}

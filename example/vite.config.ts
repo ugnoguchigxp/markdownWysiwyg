@@ -5,6 +5,9 @@ import { defineConfig } from 'vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    cssMinify: false,
+  },
   server: {
     port: 4123,
     strictPort: true,

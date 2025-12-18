@@ -368,7 +368,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           type="button"
           onClick={() => setShowHeadingMenu(!showHeadingMenu)}
           disabled={disabled}
-          data-tooltip={t(I18N_KEYS.openHeadingMenu)}
+          data-tooltip={t(I18N_KEYS.heading)}
           className={`
             w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
             disabled:opacity-50 disabled:cursor-not-allowed
@@ -390,7 +390,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             fill="currentColor"
             viewBox="0 0 20 20"
           >
-            <title>{t(I18N_KEYS.openHeadingMenu)}</title>
+            <title>{t(I18N_KEYS.heading)}</title>
             <path
               fillRule="evenodd"
               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -413,7 +413,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             <div
               className="absolute top-full left-0 mt-2 w-80 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200"
               style={{
-                backgroundColor: 'var(--mw-toolbar-bg)',
+                backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
                 borderColor: 'var(--mw-toolbar-border)',
                 borderWidth: '1px',
                 borderStyle: 'solid',
@@ -429,7 +429,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                       w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent
                     `}
                     style={{
-                      backgroundColor: 'var(--mw-toolbar-bg)',
+                      backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
                       borderBottom:
                         index !== headingLevels.length - 1
                           ? '1px solid var(--mw-toolbar-border)'
@@ -439,7 +439,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                       e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-bg)';
+                      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-bg, #ffffff)';
                     }}
                   >
                     <div className="flex items-center justify-between">
@@ -473,7 +473,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                             ...getHeadingPreviewStyle(heading.level),
                           }}
                         >
-                          {t(I18N_KEYS.sampleText)}
+                          {`${t(I18N_KEYS.heading)}${heading.level}`}
                         </div>
                       </div>
                     </div>
