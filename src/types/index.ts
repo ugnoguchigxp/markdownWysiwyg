@@ -167,6 +167,34 @@ export const I18N_KEYS = {
     deleteTable: 'markdown_editor.table.delete_table',
     cancel: 'markdown_editor.table.cancel',
   },
+  emoji: {
+    button: 'markdown_editor.emoji.button',
+    pickerTitle: 'markdown_editor.emoji.picker_title',
+    searchPlaceholder: 'markdown_editor.emoji.search_placeholder',
+    recentlyUsed: 'markdown_editor.emoji.recently_used',
+    clearRecent: 'markdown_editor.emoji.clear_recent',
+    noResults: 'markdown_editor.emoji.no_results',
+    categories: {
+      smileys: 'markdown_editor.emoji.categories.smileys',
+      people: 'markdown_editor.emoji.categories.people',
+      animals: 'markdown_editor.emoji.categories.animals',
+      food: 'markdown_editor.emoji.categories.food',
+      activities: 'markdown_editor.emoji.categories.activities',
+      travel: 'markdown_editor.emoji.categories.travel',
+      objects: 'markdown_editor.emoji.categories.objects',
+      symbols: 'markdown_editor.emoji.categories.symbols',
+      flags: 'markdown_editor.emoji.categories.flags',
+    },
+  },
+  image: {
+    button: 'markdown_editor.image.button',
+    pickerTitle: 'markdown_editor.image.picker_title',
+    urlLabel: 'markdown_editor.image.url_label',
+    urlPlaceholder: 'markdown_editor.image.url_placeholder',
+    altLabel: 'markdown_editor.image.alt_label',
+    altPlaceholder: 'markdown_editor.image.alt_placeholder',
+    insert: 'markdown_editor.image.insert',
+  },
 } as const;
 
 type NestedValues<T> = T extends string
@@ -176,3 +204,37 @@ type NestedValues<T> = T extends string
     : never;
 
 export type I18nKey = NestedValues<typeof I18N_KEYS>;
+
+/**
+ * Emoji data structure
+ */
+export interface IEmoji {
+  /** Emoji character (e.g., "😀") */
+  char: string;
+  /** English name for search and accessibility (e.g., "grinning face") */
+  name: string;
+  /** Search keywords (e.g., ["happy", "smile"]) */
+  keywords: string[];
+  /** Category ID */
+  category: EmojiCategory;
+}
+
+export type EmojiCategory =
+  | 'smileys'
+  | 'people'
+  | 'animals'
+  | 'food'
+  | 'activities'
+  | 'travel'
+  | 'objects'
+  | 'symbols'
+  | 'flags';
+
+/**
+ * Category metadata for display
+ */
+export interface IEmojiCategoryMeta {
+  id: EmojiCategory;
+  icon: string; // Representative emoji
+  i18nKey: string; // I18N key for category name
+}

@@ -13,11 +13,13 @@ import {
   Download,
   FileCode,
   Heading1,
+  Image as ImageIcon,
   Italic,
   Link2,
   List,
   ListOrdered,
   Quote,
+  Smile,
   Strikethrough,
   Table,
 } from 'lucide-react';
@@ -25,6 +27,8 @@ import {
 import { useI18n } from '../i18n/I18nContext';
 import { I18N_KEYS } from '../types/index';
 import { createLogger } from '../utils/logger';
+import { EmojiPicker } from './EmojiPicker';
+import { ImagePicker } from './ImagePicker';
 
 const log = createLogger('MarkdownToolbar');
 
@@ -50,6 +54,8 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   const [showHeadingMenu, setShowHeadingMenu] = React.useState(false);
   const [showLinkModal, setShowLinkModal] = React.useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = React.useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [showImagePicker, setShowImagePicker] = React.useState(false);
   const [linkText, setLinkText] = React.useState('');
   const [linkUrl, setLinkUrl] = React.useState('');
 
@@ -294,7 +300,18 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
 
   const handleToggleCodeBlock = () => {
     if (!editor) return;
-    onInsertMarkdown('```\n\n```');
+    onInsertMarkdown('```\n', 4);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    if (editor) {
+      editor.chain().focus().insertContent(emoji).run();
+    }
+  };
+
+  const handleInsertImageMarkdown = (markdown: string) => {
+    onInsertMarkdown(markdown);
+    setShowImagePicker(false);
   };
 
   const toolbarItems = [
@@ -353,10 +370,27 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
       group: 'media',
     },
     {
+      icon: ImageIcon,
+      title: t(I18N_KEYS.image.button),
+      onClick: () => {
+        setShowImagePicker(!showImagePicker);
+        setShowEmojiPicker(false);
+        setShowHeadingMenu(false);
+        setShowDownloadMenu(false);
+      },
+      group: 'media',
+    },
+    {
       icon: Table,
       title: t(I18N_KEYS.insertTable),
       onClick: handleTableInsert,
       group: 'block',
+    },
+    {
+      icon: Smile,
+      title: t(I18N_KEYS.emoji.button),
+      onClick: () => setShowEmojiPicker(!showEmojiPicker),
+      group: 'insert',
     },
   ];
 
@@ -512,6 +546,28 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             >
               <Icon className="w-4 h-4" />
             </button>
+
+            {item.icon === Smile && showEmojiPicker && (
+              <div className="absolute top-full left-0 mt-1 z-20">
+                <EmojiPicker
+                  onSelect={handleEmojiSelect}
+                  onClose={() => setShowEmojiPicker(false)}
+                  disabled={disabled}
+                  t={t}
+                />
+              </div>
+            )}
+
+            {item.icon === ImageIcon && showImagePicker && (
+              <div className="absolute top-full left-0 mt-1 z-20">
+                <ImagePicker
+                  onInsertMarkdown={handleInsertImageMarkdown}
+                  onClose={() => setShowImagePicker(false)}
+                  disabled={disabled}
+                  t={t}
+                />
+              </div>
+            )}
           </div>
         );
       })}
@@ -646,12 +702,16 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           <div
             className="relative rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl"
             style={{
-              backgroundColor: 'var(--mw-bg-canvas)',
-              color: 'var(--mw-text-primary)',
+              backgroundColor: 'var(--mw-bg-canvas, #ffffff)',
+              color: 'var(--mw-text-primary, #111827)',
+              border: '1px solid var(--mw-toolbar-border, #d1d5db)',
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--mw-heading-color)' }}>
+            <h3
+              className="text-lg font-semibold mb-4"
+              style={{ color: 'var(--mw-heading-color, var(--mw-text-primary, #111827))' }}
+            >
               {t(I18N_KEYS.insertLink)}
             </h3>
 
@@ -678,9 +738,9 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                   }}
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   style={{
-                    backgroundColor: 'var(--mw-bg-canvas)',
-                    borderColor: 'var(--mw-toolbar-border)',
-                    color: 'var(--mw-text-primary)',
+                    backgroundColor: 'var(--mw-bg-canvas, #ffffff)',
+                    borderColor: 'var(--mw-toolbar-border, #d1d5db)',
+                    color: 'var(--mw-text-primary, #111827)',
                   }}
                   placeholder={t(I18N_KEYS.link.enterLinkText)}
                 />
@@ -706,6 +766,11 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
                     }
                   }}
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
+                  style={{
+                    backgroundColor: 'var(--mw-bg-canvas, #ffffff)',
+                    borderColor: 'var(--mw-toolbar-border, #d1d5db)',
+                    color: 'var(--mw-text-primary, #111827)',
+                  }}
                   placeholder={t(I18N_KEYS.link.urlPlaceholder)}
                 />
               </div>

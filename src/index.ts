@@ -14,6 +14,8 @@ export { LinkContextMenu } from './components/LinkContextMenu';
 export { TableContextMenu } from './components/TableContextMenu';
 export { TableToolbar } from './components/TableToolbar';
 export { TableEdgeControls } from './components/TableEdgeControls';
+export { EmojiPicker } from './components/EmojiPicker';
+export { ImagePicker } from './components/ImagePicker';
 
 // Converters
 export { default as JsonToMarkdownConverter } from './converters/JsonToMarkdownConverter';
@@ -38,6 +40,17 @@ export { createLogger, createContextLogger } from './utils/logger';
 export { SelectionUtils } from './utils/selectionUtils';
 
 // Types
-export type { IMarkdownEditorProps, ILanguageOption, ISelectionInfo, I18nKey } from './types/index';
+export type {
+  IMarkdownEditorProps,
+  ILanguageOption,
+  ISelectionInfo,
+  I18nKey,
+  IEmoji,
+  EmojiCategory,
+  IEmojiCategoryMeta,
+} from './types/index';
 
 export { I18N_KEYS } from './types/index';
+
+// Constants (for advanced customization)
+export { EMOJI_DATA, EMOJI_CATEGORIES, EMOJI_BY_CATEGORY } from './constants/emojiData';

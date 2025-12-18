@@ -23,6 +23,7 @@ const createChain = () => {
     toggleItalic: () => typeof self;
     toggleStrike: () => typeof self;
     toggleCode: () => typeof self;
+    insertContent: (content: unknown) => typeof self;
     focus: () => typeof self;
     run: () => void;
   };
@@ -31,6 +32,7 @@ const createChain = () => {
   self.toggleItalic = vi.fn(() => self);
   self.toggleStrike = vi.fn(() => self);
   self.toggleCode = vi.fn(() => self);
+  self.insertContent = vi.fn(() => self);
   self.focus = vi.fn(() => self);
   self.run = vi.fn();
 
@@ -66,6 +68,69 @@ describe('MarkdownToolbar', () => {
     fireEvent.click(italicBtn);
     expect(chain.toggleItalic).toHaveBeenCalled();
 
+  });
+
+  it('opens emoji picker and inserts emoji via editor chain', () => {
+    const onInsertMarkdown = vi.fn();
+
+    const chain = createChain();
+    const editor = {
+      chain: () => chain,
+      commands: {
+        insertTable: vi.fn().mockReturnValue(true),
+        insertContent: vi.fn().mockReturnValue(true),
+      },
+      extensionManager: { extensions: [{ name: 'table' }] },
+    } as unknown as Parameters<typeof MarkdownToolbar>[0]['editor'];
+
+    const { container } = render(
+      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} editor={editor} />,
+    );
+
+    const emojiBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.emoji.button}"]`,
+    ) as HTMLElement;
+    fireEvent.click(emojiBtn);
+
+    const firstEmoji = document.querySelectorAll('.mw-emoji-item')[0] as HTMLElement;
+    fireEvent.click(firstEmoji);
+
+    expect(chain.insertContent).toHaveBeenCalledTimes(1);
+    expect(chain.run).toHaveBeenCalled();
+  });
+
+  it('opens image picker and inserts markdown image tag', () => {
+    const onInsertMarkdown = vi.fn();
+
+    const chain = createChain();
+    const editor = {
+      chain: () => chain,
+      commands: {
+        insertTable: vi.fn().mockReturnValue(true),
+        insertContent: vi.fn().mockReturnValue(true),
+      },
+      extensionManager: { extensions: [{ name: 'table' }] },
+    } as unknown as Parameters<typeof MarkdownToolbar>[0]['editor'];
+
+    const { container } = render(
+      <MarkdownToolbar onInsertMarkdown={onInsertMarkdown} editor={editor} />,
+    );
+
+    const imageBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.image.button}"]`,
+    ) as HTMLElement;
+    fireEvent.click(imageBtn);
+
+    const urlInput = screen.getByLabelText('URL') as HTMLInputElement;
+    fireEvent.change(urlInput, { target: { value: 'https://example.com/a.png' } });
+
+    const altInput = screen.getByLabelText('Alt') as HTMLInputElement;
+    fireEvent.change(altInput, { target: { value: 'alt' } });
+
+    const insertBtn = screen.getByRole('button', { name: 'Insert' });
+    fireEvent.click(insertBtn);
+
+    expect(onInsertMarkdown).toHaveBeenCalledWith('![alt](https://example.com/a.png)');
   });
 
   it('opens heading menu and inserts selected heading', () => {
