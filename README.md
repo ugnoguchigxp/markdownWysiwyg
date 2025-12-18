@@ -13,6 +13,7 @@ Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 - Table editing with context menu and resize controls
 - Optional Mermaid diagram support
 - Optional image insertion
+- Emoji picker for inserting emojis
 - Bidirectional Markdown conversion
 - Link context menu
 - TypeScript support
@@ -20,6 +21,8 @@ Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 ## Installation
 
 This editor is a React component targeting **React 18+ / ReactDOM 18+**.
+
+This package is **Tailwind CSS + shadcn/ui token compatible**. It ships its own base CSS (`style.css`) for the editor content, but the UI uses Tailwind utility classes (e.g. `bg-background`, `text-foreground`).
 
 ```bash
 pnpm add markdown-wysiwyg-editor
@@ -31,7 +34,10 @@ yarn add markdown-wysiwyg-editor
 
 ## Quick Start
 
-**⚠️ IMPORTANT**: You **MUST** import the CSS file for the editor to work properly.
+**⚠️ IMPORTANT**
+
+- **You MUST import the CSS file** for the editor content styles.
+- **Your app MUST have Tailwind CSS** configured so the editor's utility classes are generated.
 
 ```tsx
 import { useState } from 'react';
@@ -113,15 +119,65 @@ This library uses **shadcn-style CSS variables** for theming. Define these varia
 
 #### Tailwind CSS Configuration
 
-Make sure Tailwind scans this package's output:
+This library uses Tailwind utility classes like `bg-background`, `text-foreground`, `border-border`.
+
+- If you already initialized shadcn/ui in your project, your Tailwind config should already include the required theme tokens.
+- If you did **not** initialize shadcn/ui, you must define shadcn-style theme tokens (colors/radius) in your Tailwind config.
+
+Make sure Tailwind scans this package's output **and** has shadcn-compatible theme tokens:
 
 ```js
 // tailwind.config.js
 export default {
+  darkMode: ['class'],
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
     './node_modules/markdown-wysiwyg-editor/dist/**/*.{js,cjs,mjs}',
   ],
+  theme: {
+    extend: {
+      colors: {
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+    },
+  },
 }
 ```
 
@@ -183,7 +239,22 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 - Check browser console for CSS loading errors
 - Make sure you're not using CSS modules that might interfere with global styles
 
+#### Issue: Toolbar / menus look unstyled
+
+- Ensure Tailwind CSS is installed and running in your app build pipeline
+- Ensure your `tailwind.config.*` `content` includes this package:
+  - `./node_modules/markdown-wysiwyg-editor/dist/**/*.{js,cjs,mjs}`
+- Ensure your Tailwind theme has shadcn-compatible tokens (see Tailwind config snippet above)
+
 ### With Mermaid
+
+`mermaid` is an optional peer dependency. Install it only if you enable Mermaid:
+
+```bash
+pnpm add mermaid
+# or
+npm install mermaid
+```
 
 ```tsx
 import { useState } from 'react';
@@ -206,6 +277,12 @@ function App() {
 
 ```tsx
 <MarkdownEditor value={content} onChange={setContent} enableImage={false} enableTable={false} />
+```
+
+Emoji insertion is available via the built-in toolbar. To hide it, hide the toolbar:
+
+```tsx
+<MarkdownEditor value={content} onChange={setContent} showToolbar={false} />
 ```
 
 ### Image whitelist (local images)
@@ -392,6 +469,8 @@ import 'markdown-wysiwyg-editor/style.css';
 ```
 
 Ensure the CSS is imported in your app entry.
+
+If the editor content is styled but the toolbar/buttons are not, Tailwind is not generating the required utility classes. Re-check the Tailwind `content` paths and shadcn-compatible theme tokens.
 
 ### "ReferenceError: global is not defined"
 
