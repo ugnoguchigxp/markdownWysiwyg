@@ -1,8 +1,24 @@
 import type { JSONContent } from '@tiptap/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { JsonToMarkdownConverter } from '../../src/converters/JsonToMarkdownConverter';
 
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
+
+vi.mock('../../src/utils/logger', () => ({
+  createLogger: () => mockLogger,
+}));
+
 describe('JsonToMarkdownConverter', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('convertToMarkdown', () => {
     it('should return empty string for empty/invalid json', () => {
       expect(JsonToMarkdownConverter.convertToMarkdown({} as unknown as JSONContent)).toBe('');
@@ -176,6 +192,147 @@ describe('JsonToMarkdownConverter', () => {
 
       const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
       expect(markdown).toBe('```javascript\nconsole.log("Hello");\n```\n\n');
+    });
+
+    it('handles ordered lists and listItem fallback', () => {
+      const json = {
+        type: 'doc',
+        content: [
+          {
+            type: 'orderedList',
+            content: [
+              {
+                type: 'listItem',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'First' }] }],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Fallback' }] }],
+          },
+        ],
+      };
+
+      const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+      expect(markdown).toContain('1. First');
+      expect(markdown).toContain('- Fallback');
+    });
+
+    it('converts tables with empty cells', () => {
+      const json = {
+        type: 'doc',
+        content: [
+          {
+            type: 'table',
+            content: [
+              {
+                type: 'tableRow',
+                content: [
+                  { type: 'tableCell', content: [{ type: 'paragraph', content: [] }] },
+                  {
+                    type: 'tableCell',
+                    content: [
+                      {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'B' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: 'tableRow',
+                content: [
+                  { type: 'tableCell', content: [{ type: 'paragraph', content: [] }] },
+                  {
+                    type: 'tableCell',
+                    content: [
+                      {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'D' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+      expect(markdown).toContain('| |B|');
+      expect(markdown).toContain('|---|---|');
+    });
+
+    it('converts hard breaks and links with titles', () => {
+      const json = {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'Line1' },
+              { type: 'hardBreak' },
+              {
+                type: 'text',
+                text: 'Link',
+                marks: [{ type: 'link', attrs: { href: '/path', title: 'Title' } }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+      expect(markdown).toContain('Line1');
+      expect(markdown).toContain('[Link](/path "Title")');
+    });
+
+    it('falls back for unsupported node types', () => {
+      const json = {
+        type: 'doc',
+        content: [
+          {
+            type: 'unknown',
+            content: [{ type: 'text', text: 'Fallback' }],
+          },
+        ],
+      };
+
+      const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
+      expect(markdown).toContain('Fallback');
+      expect(mockLogger.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe('downloadAsMarkdown', () => {
+    it('skips download for empty content', () => {
+      JsonToMarkdownConverter.downloadAsMarkdown({ type: 'doc', content: [] });
+      expect(mockLogger.warn).toHaveBeenCalled();
+    });
+
+    it('throws when download fails', () => {
+      const originalCreate = URL.createObjectURL;
+      URL.createObjectURL = () => {
+        throw new Error('fail');
+      };
+
+      expect(() =>
+        JsonToMarkdownConverter.downloadAsMarkdown({
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [{ type: 'text', text: 'text' }],
+            },
+          ],
+        }),
+      ).toThrow('Markdownファイルのダウンロードに失敗しました');
+      expect(mockLogger.error).toHaveBeenCalled();
+
+      URL.createObjectURL = originalCreate;
     });
   });
 });

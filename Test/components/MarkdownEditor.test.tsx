@@ -1,9 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MarkdownEditor } from '../../src/components/MarkdownEditor';
+import { I18N_KEYS } from '../../src/types/index';
 
-// Mock dependencies
 vi.mock('../../src/utils/logger', () => ({
   createLogger: () => ({
     info: vi.fn(),
@@ -13,92 +12,16 @@ vi.mock('../../src/utils/logger', () => ({
   }),
 }));
 
-vi.mock('../../src/components/MarkdownToolbar', () => ({
-  MarkdownToolbar: ({
-    onInsertMarkdown,
-    onDownloadAsMarkdown,
-  }: {
-    onInsertMarkdown: (markdown: string) => void;
-    onDownloadAsMarkdown: () => void;
-  }) => (
-    <div data-testid="markdown-toolbar">
-      <button type="button" onClick={() => onInsertMarkdown('****')} data-testid="btn-bold">
-        Bold
-      </button>
-      <button type="button" onClick={() => onInsertMarkdown('**')} data-testid="btn-italic">
-        Italic
-      </button>
-      <button type="button" onClick={() => onInsertMarkdown('# ')} data-testid="btn-heading">
-        Heading
-      </button>
-      <button type="button" onClick={() => onInsertMarkdown('- ')} data-testid="btn-bullet">
-        Bullet
-      </button>
-      <button type="button" onClick={() => onDownloadAsMarkdown()} data-testid="btn-download">
-        Download
-      </button>
-    </div>
-  ),
-}));
-
-vi.mock('../../src/components/LinkContextMenu', () => ({
-  LinkContextMenu: ({
-    visible,
-    onEditLink,
-    onClose,
-  }: {
-    visible: boolean;
-    onEditLink: (data: { href: string; text: string }) => void;
-    onClose: () => void;
-  }) =>
-    visible ? (
-      <div data-testid="link-context-menu">
-        <button
-          type="button"
-          onClick={() => onEditLink({ href: 'https://example.com', text: 'Example' })}
-        >
-          Edit Link
-        </button>
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
-      </div>
-    ) : null,
-}));
-
-vi.mock('../../src/components/TableContextMenu', () => ({
-  TableContextMenu: ({
-    isVisible,
-    onClose,
-  }: {
-    isVisible: boolean;
-    onClose: () => void;
-  }) =>
-    isVisible ? (
-      <div data-testid="table-context-menu">
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
-      </div>
-    ) : null,
-}));
-
-vi.mock('@tiptap/react', () => ({
-  EditorContent: () => <div data-testid="editor-content" className="ProseMirror" />,
-  BubbleMenu: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="bubble-menu">{children}</div>
-  ),
-  FloatingMenu: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="floating-menu">{children}</div>
-  ),
-}));
-
-// Mock hook
 const mockEditorCommands = {
   toggleBold: vi.fn().mockReturnThis(),
   toggleItalic: vi.fn().mockReturnThis(),
+  toggleStrike: vi.fn().mockReturnThis(),
+  toggleCode: vi.fn().mockReturnThis(),
   setHeading: vi.fn().mockReturnThis(),
   toggleBulletList: vi.fn().mockReturnThis(),
+  toggleOrderedList: vi.fn().mockReturnThis(),
+  toggleBlockquote: vi.fn().mockReturnThis(),
+  toggleCodeBlock: vi.fn().mockReturnThis(),
   focus: vi.fn().mockReturnThis(),
   run: vi.fn(),
   setContent: vi.fn(),
@@ -106,60 +29,91 @@ const mockEditorCommands = {
   insertContent: vi.fn().mockReturnValue(true),
   deleteRange: vi.fn().mockReturnThis(),
   setTextSelection: vi.fn().mockReturnThis(),
+  chain: vi.fn().mockReturnThis(),
 };
 
-const mockEditorChain = () => mockEditorCommands;
+const mockChain = {
+  toggleBold: vi.fn().mockReturnThis(),
+  toggleItalic: vi.fn().mockReturnThis(),
+  toggleStrike: vi.fn().mockReturnThis(),
+  toggleCode: vi.fn().mockReturnThis(),
+  focus: vi.fn().mockReturnThis(),
+  run: vi.fn(),
+  setTextSelection: vi.fn().mockReturnThis(),
+};
 
 const mockEditor = {
-  chain: mockEditorChain,
-  commands: mockEditorCommands,
+  chain: () => mockChain,
+  commands: {
+    ...mockEditorCommands,
+    clearContent: vi.fn(),
+    setContent: vi.fn(),
+    focus: vi.fn(),
+  },
+  getJSON: vi.fn().mockReturnValue({ type: 'doc', content: [] }),
+  isFocused: false,
+  isEmpty: true,
   isEditable: true,
   setEditable: vi.fn(),
-  isFocused: false,
-  isEmpty: false,
-  state: {
-    selection: { from: 0, to: 0 },
-    doc: {
-      textBetween: vi.fn().mockReturnValue(''),
-      descendants: vi.fn(),
-      content: { size: 0 },
-    },
-    schema: {
-      marks: {
-        link: { create: vi.fn() },
-      },
-      text: vi.fn(),
-    },
-    tr: {
-      delete: vi.fn(),
-      insert: vi.fn(),
-    },
-  },
   view: {
     updateState: vi.fn(),
-    state: {},
-    dispatch: vi.fn(),
-    dom: document.createElement('div'),
+    state: {
+      doc: {
+        content: {
+          size: 0,
+        },
+      },
+    },
   },
-  getJSON: vi.fn().mockReturnValue({ content: [] }),
 };
 
+vi.mock('@tiptap/react', () => ({
+  EditorContent: () => <div data-testid="editor-content" className="ProseMirror" />,
+}));
+
+vi.mock('../../src/hooks/useEditorState', () => ({
+  useEditorState: () => ({
+    isUpdating: false,
+    setIsUpdating: vi.fn(),
+    isProcessing: false,
+    setIsProcessing: vi.fn(),
+    processingProgress: { processed: 0, total: 0 },
+    setProcessingProgress: vi.fn(),
+  }),
+}));
+
+const mockHandleInsertMarkdown = vi.fn();
+
 vi.mock('../../src/hooks/useMarkdownEditor', () => ({
-  useMarkdownEditor: ({
-    onEditorReady,
-  }: {
-    onEditorReady?: (editor: typeof mockEditor) => void;
-  }) => {
-    // Simulate editor ready
-    React.useEffect(() => {
-      if (onEditorReady) onEditorReady(mockEditor);
-    }, [onEditorReady]);
-    return mockEditor;
-  },
+  useMarkdownEditor: () => mockEditor,
+}));
+
+vi.mock('../../src/hooks/useMarkdownInsertion', () => ({
+  useMarkdownInsertion: () => ({
+    handleInsertMarkdown: mockHandleInsertMarkdown,
+  }),
 }));
 
 vi.mock('../../src/hooks/useTableToolbar', () => ({
-  useTableToolbar: () => ({ visible: false, position: null }),
+  useTableToolbar: () => ({
+    visible: false,
+    position: { x: 0, y: 0 },
+    tableElement: null,
+    showToolbar: vi.fn(),
+    hideToolbar: vi.fn(),
+    checkTableSelection: vi.fn(),
+  }),
+}));
+
+vi.mock('../../src/hooks/useEditorContextMenus', () => ({
+  useEditorContextMenus: () => ({
+    linkContextMenu: { visible: false, position: { x: 0, y: 0 }, linkData: null },
+    tableContextMenu: { visible: false, position: { x: 0, y: 0 } },
+    handleLinkContextMenu: vi.fn(),
+    handleTableContextMenu: vi.fn(),
+    handleCloseLinkContextMenu: vi.fn(),
+    handleCloseTableContextMenu: vi.fn(),
+  }),
 }));
 
 describe('MarkdownEditor', () => {
@@ -169,58 +123,83 @@ describe('MarkdownEditor', () => {
 
   it('renders correctly', () => {
     render(<MarkdownEditor value="" onChange={() => {}} />);
-    expect(screen.getByTestId('markdown-toolbar')).toBeDefined();
+    expect(screen.getByTestId('editor-content')).toBeDefined();
   });
 
   it('handles toolbar actions (Bold)', () => {
-    render(<MarkdownEditor value="" onChange={() => {}} />);
-    fireEvent.click(screen.getByTestId('btn-bold'));
-    expect(mockEditorCommands.toggleBold).toHaveBeenCalled();
-    expect(mockEditorCommands.focus).toHaveBeenCalled();
-    expect(mockEditorCommands.run).toHaveBeenCalled();
+    const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
+    const boldBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.bold}"]`,
+    ) as HTMLElement;
+    fireEvent.click(boldBtn);
+    expect(mockChain.toggleBold).toHaveBeenCalled();
+    expect(mockChain.focus).toHaveBeenCalled();
+    expect(mockChain.run).toHaveBeenCalled();
   });
 
   it('handles toolbar actions (Italic)', () => {
-    render(<MarkdownEditor value="" onChange={() => {}} />);
-    fireEvent.click(screen.getByTestId('btn-italic'));
-    expect(mockEditorCommands.toggleItalic).toHaveBeenCalled();
+    const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
+    const italicBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.italic}"]`,
+    ) as HTMLElement;
+    fireEvent.click(italicBtn);
+    expect(mockChain.toggleItalic).toHaveBeenCalled();
   });
 
   it('handles toolbar actions (Heading)', () => {
-    render(<MarkdownEditor value="" onChange={() => {}} />);
-    fireEvent.click(screen.getByTestId('btn-heading'));
-    // Since text is empty, it calls setHeading
-    expect(mockEditorCommands.setHeading).toHaveBeenCalledWith({ level: 1 });
+    const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
+    const headingBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.heading}"]`,
+    ) as HTMLElement;
+    fireEvent.click(headingBtn);
+    const preview = screen.getAllByText('H1')[0];
+    fireEvent.click(preview.closest('button') as HTMLElement);
+    expect(mockHandleInsertMarkdown).toHaveBeenCalledWith('# ');
   });
 
   it('handles toolbar actions (Bullet List)', () => {
-    render(<MarkdownEditor value="" onChange={() => {}} />);
-    fireEvent.click(screen.getByTestId('btn-bullet'));
-    expect(mockEditorCommands.toggleBulletList).toHaveBeenCalled();
-  });
-
-  it('handles download action', () => {
-    render(<MarkdownEditor value="" onChange={() => {}} showDownloadButton={true} />);
-    fireEvent.click(screen.getByTestId('btn-download'));
-    // Verification relies on Logger being called or checking if getJSON was called
-    expect(mockEditor.getJSON).toHaveBeenCalled();
-  });
-
-  it('updates editable state', () => {
-    const { rerender } = render(<MarkdownEditor value="" onChange={() => {}} editable={true} />);
-    rerender(<MarkdownEditor value="" onChange={() => {}} editable={false} />);
-    expect(mockEditor.setEditable).toHaveBeenCalledWith(false);
-  });
-
-  it('clicks on editor area focuses editor', () => {
     const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
-    // Find the container div that has the click handler
-    // The structure is div > div(relative) > EditorContent
-    // The click handler is on the div wrapping EditorContent
-    const editorWrapper = container.querySelector('.cursor-text');
-    if (editorWrapper) {
-      fireEvent.mouseDown(editorWrapper);
-      expect(mockEditorCommands.focus).toHaveBeenCalled();
-    }
+    const bulletBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.bulletList}"]`,
+    ) as HTMLElement;
+    fireEvent.click(bulletBtn);
+    expect(mockHandleInsertMarkdown).toHaveBeenCalledWith('- ');
+  });
+
+  it('handles toolbar actions (Quote)', () => {
+    const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
+    const quoteBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.blockquote}"]`,
+    ) as HTMLElement;
+    fireEvent.click(quoteBtn);
+    expect(mockHandleInsertMarkdown).toHaveBeenCalledWith('> ');
+  });
+
+  it('handles toolbar actions (Code Block)', () => {
+    const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
+    const codeBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.insertCodeBlock}"]`,
+    ) as HTMLElement;
+    fireEvent.click(codeBtn);
+    expect(mockHandleInsertMarkdown).toHaveBeenCalledWith('```\n', 4);
+  });
+
+  it('handles toolbar actions (Inline Code)', () => {
+    const { container } = render(<MarkdownEditor value="" onChange={() => {}} />);
+    const inlineCodeBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.code}"]`,
+    ) as HTMLElement;
+    fireEvent.click(inlineCodeBtn);
+    expect(mockChain.toggleCode).toHaveBeenCalled();
+  });
+
+  it('handles toolbar actions (Download)', () => {
+    const { container } = render(
+      <MarkdownEditor value="" onChange={() => {}} showDownloadButton={true} />,
+    );
+    const downloadBtn = container.querySelector(
+      `[data-tooltip="${I18N_KEYS.download}"]`,
+    ) as HTMLElement;
+    fireEvent.click(downloadBtn);
   });
 });

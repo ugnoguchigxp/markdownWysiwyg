@@ -30,11 +30,11 @@ const createMockEditor = (
         empty: selectionRange.empty,
         $from: {
           parent: parentNode,
-          marks: () => marks, // Return the marks passed to the factory
+          marks: () => marks,
+          content: () => ({
+            content: [],
+          }),
         },
-        content: () => ({
-          content: [],
-        }),
       },
     },
     isActive: vi.fn().mockImplementation((markType) => {
@@ -64,7 +64,6 @@ describe('SelectionUtils', () => {
     });
 
     it('should detect active marks', () => {
-      // Mock marks on the selection
       const marks = [{ type: { name: 'bold' } }];
       const editor = createMockEditor(
         { from: 0, to: 5, empty: false },
@@ -120,6 +119,117 @@ describe('SelectionUtils', () => {
       const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
       expect(info?.marks).toContain('Link');
       expect(info?.markdownSyntax).toBe('[Link](http://example.com)');
+    });
+
+    it('should return null for empty text with selection', () => {
+      const editor = createMockEditor({ from: 0, to: 5, empty: false }, '   ') as unknown as Editor;
+      const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
+      expect(info).toBe(null);
+    });
+
+    it('should return null for null editor', () => {
+      const info = SelectionUtils.getSelectionMarkdownSyntax(null);
+      expect(info).toBe(null);
+    });
+
+    it('should handle italic mark', () => {
+      const marks = [{ type: { name: 'italic' } }];
+      const editor = createMockEditor(
+        { from: 0, to: 5, empty: false },
+        'Text',
+        marks,
+      ) as unknown as Editor;
+
+      const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
+      expect(info?.marks).toContain('Italic');
+      expect(info?.markdownSyntax).toBe('*Text*');
+    });
+
+    it('should handle inline code mark', () => {
+      const marks = [{ type: { name: 'code' } }];
+      const editor = createMockEditor(
+        { from: 0, to: 5, empty: false },
+        'code',
+        marks,
+      ) as unknown as Editor;
+
+      const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
+      expect(info?.marks).toContain('Inline Code');
+      expect(info?.markdownSyntax).toBe('`code`');
+    });
+
+    it('should handle strikethrough mark', () => {
+      const marks = [{ type: { name: 'strike' } }];
+      const editor = createMockEditor(
+        { from: 0, to: 5, empty: false },
+        'Text',
+        marks,
+      ) as unknown as Editor;
+
+      const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
+      expect(info?.marks).toContain('Strikethrough');
+      expect(info?.markdownSyntax).toBe('~~Text~~');
+    });
+
+    it('should handle heading node', () => {
+      const editor = createMockEditor({ from: 0, to: 5, empty: false }, 'Title', [], {
+        type: { name: 'heading' },
+        attrs: { level: 2 },
+      }) as unknown as Editor;
+
+      const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
+      expect(info?.marks).toContain('H2');
+      expect(info?.markdownSyntax).toBe('## Title');
+    });
+
+    it('should handle empty cursor in heading', () => {
+      const editor = createMockEditor({ from: 0, to: 0, empty: true }, '', [], {
+        type: { name: 'heading' },
+        attrs: { level: 1 },
+      }) as unknown as Editor;
+
+      const info = SelectionUtils.getSelectionMarkdownSyntax(editor);
+      expect(info?.marks).toContain('H1');
+      expect(info?.markdownSyntax).toBe('# (ヘッダー1)');
+    });
+  });
+
+  describe('getCurrentNodeInfo', () => {
+    it('should return null for null editor', () => {
+      const info = SelectionUtils.getCurrentNodeInfo(null);
+      expect(info).toBe(null);
+    });
+
+    it('should return node type and level for heading', () => {
+      const editor = createMockEditor({ from: 0, to: 0, empty: true }, '', [], {
+        type: { name: 'heading' },
+        attrs: { level: 3 },
+      }) as unknown as Editor;
+
+      const info = SelectionUtils.getCurrentNodeInfo(editor);
+      expect(info?.nodeType).toBe('heading');
+      expect(info?.level).toBe(3);
+    });
+
+    it('should return node type for paragraph', () => {
+      const editor = createMockEditor({ from: 0, to: 0, empty: true }, '', [], {
+        type: { name: 'paragraph' },
+        attrs: {},
+      }) as unknown as Editor;
+
+      const info = SelectionUtils.getCurrentNodeInfo(editor);
+      expect(info?.nodeType).toBe('paragraph');
+      expect(info?.level).toBe(undefined);
+    });
+
+    it('should return node type for codeBlock', () => {
+      const editor = createMockEditor({ from: 0, to: 0, empty: true }, '', [], {
+        type: { name: 'codeBlock' },
+        attrs: { language: 'js' },
+      }) as unknown as Editor;
+
+      const info = SelectionUtils.getCurrentNodeInfo(editor);
+      expect(info?.nodeType).toBe('codeBlock');
     });
   });
 });

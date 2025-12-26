@@ -1,7 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { MarkdownTipTapConverter } from '../../src/converters/MarkdownTipTapConverter';
 
 describe('MarkdownTipTapConverter', () => {
+  describe('isMarkdownText', () => {
+    it('detects markdown syntax', () => {
+      expect(MarkdownTipTapConverter.isMarkdownText('# Heading')).toBe(true);
+      expect(MarkdownTipTapConverter.isMarkdownText('```js')).toBe(true);
+      expect(MarkdownTipTapConverter.isMarkdownText('1. Item')).toBe(true);
+    });
+
+    it('returns false for plain text', () => {
+      expect(MarkdownTipTapConverter.isMarkdownText('Just words')).toBe(false);
+    });
+  });
+
   describe('markdownToTipTapJson', () => {
     it('should convert plain text to paragraph', async () => {
       const markdown = 'Hello World';
@@ -133,9 +145,106 @@ describe('MarkdownTipTapConverter', () => {
       expect(json.content?.[0].type).toBe('table');
       // More detailed checks can be added if needed
     });
+
+    it('should preserve literal section sign tokens', async () => {
+      const markdown = 'Value NOTAPLACEHOLDER end';
+      const json = await MarkdownTipTapConverter.markdownToTipTapJson(markdown);
+      expect(json).toEqual({
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'Value NOTAPLACEHOLDER end' }],
+          },
+        ],
+      });
+    });
   });
 
   describe('tipTapJsonToMarkdown', () => {
+    it('should convert lists, code blocks, and images', () => {
+      const json = {
+        type: 'doc',
+        content: [
+          {
+            type: 'bulletList',
+            content: [
+              {
+                type: 'listItem',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Item' }] }],
+              },
+            ],
+          },
+          {
+            type: 'codeBlock',
+            attrs: { language: 'js' },
+            content: [{ type: 'text', text: 'const x = 1;' }],
+          },
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'image', attrs: { src: 'img.png', alt: 'Alt' } },
+              {
+                type: 'text',
+                text: 'Link',
+                marks: [{ type: 'link', attrs: { href: 'https://example.com' } }],
+              },
+            ],
+          },
+        ],
+      };
+      const markdown = MarkdownTipTapConverter.tipTapJsonToMarkdown(json);
+      expect(markdown).toContain('- Item');
+      expect(markdown).toContain('```js');
+      expect(markdown).toContain('![Alt](img.png)');
+      expect(markdown).toContain('[Link](https://example.com)');
+    });
+
+    it('should convert tables and horizontal rules', () => {
+      const json = {
+        type: 'doc',
+        content: [
+          {
+            type: 'table',
+            content: [
+              {
+                type: 'tableRow',
+                content: [
+                  {
+                    type: 'tableHeader',
+                    content: [
+                      {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'H1' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: 'tableRow',
+                content: [
+                  {
+                    type: 'tableCell',
+                    content: [
+                      {
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: 'C1' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          { type: 'horizontalRule' },
+        ],
+      };
+      const markdown = MarkdownTipTapConverter.tipTapJsonToMarkdown(json);
+      expect(markdown).toContain('| H1 |');
+      expect(markdown).toContain('---');
+    });
+
     it('should convert paragraph to plain text', () => {
       const json = {
         type: 'doc',
@@ -165,5 +274,25 @@ describe('MarkdownTipTapConverter', () => {
     });
 
     // Add more reverse conversion tests as needed
+  });
+
+  describe('processMarkdownInSmallChunksWithRender', () => {
+    it('sets content and notifies progress', async () => {
+      const editor = {
+        commands: {
+          setContent: vi.fn(),
+        },
+      } as unknown as Parameters<typeof MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender>[1];
+      const onChunkProcessed = vi.fn();
+
+      await MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender(
+        'Hello',
+        editor,
+        onChunkProcessed,
+      );
+
+      expect(editor.commands.setContent).toHaveBeenCalled();
+      expect(onChunkProcessed).toHaveBeenCalledWith(1, 1);
+    });
   });
 });

@@ -5,27 +5,27 @@ import type { JSONContent } from '@tiptap/react';
 
 import { createLogger } from '../utils/logger';
 
-import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
-
 import { useEditorState } from '../hooks/useEditorState';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
+import { useMarkdownInsertion } from '../hooks/useMarkdownInsertion';
 import { useTableToolbar } from '../hooks/useTableToolbar';
+import { useEditorContextMenus } from '../hooks/useEditorContextMenus';
 import type { ExtendedEditor } from '../types/editor';
 import type { ISelectionInfo } from '../utils/selectionUtils';
 
+import { EditorChrome } from './EditorChrome';
 import { LinkContextMenu } from './LinkContextMenu';
-import { MarkdownSyntaxStatus } from './MarkdownSyntaxStatus';
-import { MarkdownToolbar } from './MarkdownToolbar';
 import { TableContextMenu } from './TableContextMenu';
 import { TableEdgeControls } from './TableEdgeControls';
 import { TableToolbar } from './TableToolbar';
 
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
+import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
 import { setMermaidLib } from '../extensions/mermaidRegistry';
 import { useI18n } from '../i18n/I18nContext';
 import { I18N_KEYS, type IMarkdownEditorProps } from '../types/index';
-import { isValidUrl, normalizeUrlOrNull } from '../utils/security';
+import { normalizeUrlOrNull } from '../utils/security';
 
 const logger = createLogger('MarkdownEditor');
 
@@ -89,96 +89,15 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   // Manage editor instance using global variable (used only within component)
   // onMarkdownChange will be re-enabled after TextEditor bypass
 
-  // Link context menu state
-  const [linkContextMenu, setLinkContextMenu] = useState<{
-    visible: boolean;
-    position: { x: number; y: number };
-    linkData: { href: string; text: string } | null;
-  }>({
-    visible: false,
-    position: { x: 0, y: 0 },
-    linkData: null,
-  });
-
-  const [tableContextMenu, setTableContextMenu] = useState<{
-    visible: boolean;
-    position: { x: number; y: number };
-  }>({
-    visible: false,
-    position: { x: 0, y: 0 },
-  });
-
   const editorElementRef = React.useRef<HTMLDivElement>(null);
-
-  // Link context menu event handler
-  const handleLinkContextMenu = useCallback(
-    (event: React.MouseEvent, linkData: { href: string; text: string }) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      setLinkContextMenu({
-        visible: true,
-        position: { x: event.clientX, y: event.clientY },
-        linkData,
-      });
-    },
-    [],
-  );
-
-  // Table context menu event handler
-  const handleTableContextMenu = useCallback((event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    setTableContextMenu({
-      visible: true,
-      position: { x: event.clientX, y: event.clientY },
-    });
-  }, []);
-
-  const handleCloseLinkContextMenu = useCallback(() => {
-    setLinkContextMenu({
-      visible: false,
-      position: { x: 0, y: 0 },
-      linkData: null,
-    });
-  }, []);
-
-  const handleCloseTableContextMenu = useCallback(() => {
-    setTableContextMenu({
-      visible: false,
-      position: { x: 0, y: 0 },
-    });
-  }, []);
-
-  // Global click to close context menu
-  useEffect(() => {
-    const handleGlobalClick = (event: MouseEvent) => {
-      // Close if clicked outside TableContextMenu
-      const target = event.target as HTMLElement;
-      if (!target.closest('.table-context-menu')) {
-        setTableContextMenu({
-          visible: false,
-          position: { x: 0, y: 0 },
-        });
-      }
-      // Close if clicked outside LinkContextMenu
-      if (!target.closest('.link-context-menu')) {
-        setLinkContextMenu({
-          visible: false,
-          position: { x: 0, y: 0 },
-          linkData: null,
-        });
-      }
-    };
-
-    if (tableContextMenu.visible || linkContextMenu.visible) {
-      document.addEventListener('click', handleGlobalClick);
-      return () => document.removeEventListener('click', handleGlobalClick);
-    }
-
-    return undefined;
-  }, [tableContextMenu.visible, linkContextMenu.visible]);
+  const {
+    linkContextMenu,
+    tableContextMenu,
+    handleLinkContextMenu,
+    handleTableContextMenu,
+    handleCloseLinkContextMenu,
+    handleCloseTableContextMenu,
+  } = useEditorContextMenus();
 
   const handleOpenLink = useCallback((href: string) => {
     const safeHref = normalizeUrlOrNull(href);
@@ -237,24 +156,13 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     handleTableContextMenu,
   });
 
-  const insertPlainText = useCallback(
-    (text: string) => {
-      if (!editor) {
-        return;
-      }
-
-      const lines = text.split('\n');
-      const content = lines.map((line) => ({
-        type: 'paragraph',
-        content: line.length > 0 ? [{ type: 'text', text: line }] : [],
-      }));
-      editor.commands.insertContent(content);
-    },
-    [editor],
-  );
-
   // Add TableToolbar hook
   const tableToolbar = useTableToolbar(editor);
+  const { handleInsertMarkdown } = useMarkdownInsertion({
+    editor: editor as ExtendedEditor | null,
+    publicImagePathPrefix,
+    setIsUpdating,
+  });
 
   // Self-contained Markdown conversion processing
   useEffect(() => {
@@ -441,288 +349,6 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     [editor, linkContextMenu.linkData, setIsUpdating],
   );
 
-  // Get selected text and Markdown insertion handler
-  const handleInsertMarkdown = async (markdown: string, cursorOffset?: number) => {
-    if (!editor) return;
-
-    logger.debug(`🎨 Inserting markdown: "${markdown}"`);
-
-    const { from, to } = editor.state.selection;
-    const selectedText = editor.state.doc.textBetween(from, to, ' ').trim();
-
-    // Simple formatting (bold / italic / strike / inline code) should use
-    // TipTap commands directly so that the visual style is applied immediately.
-    if (markdown === '****') {
-      editor.chain().toggleBold().focus(undefined, { scrollIntoView: false }).run();
-      return;
-    }
-
-    if (markdown === '**') {
-      editor.chain().toggleItalic().focus(undefined, { scrollIntoView: false }).run();
-      return;
-    }
-
-    if (markdown === '~~~~') {
-      editor.chain().toggleStrike().focus(undefined, { scrollIntoView: false }).run();
-      return;
-    }
-
-    if (markdown === '``') {
-      editor.chain().toggleCode().focus(undefined, { scrollIntoView: false }).run();
-      return;
-    }
-
-    // Handle headings with TipTap commands
-    if (markdown.match(/^#+\s$/)) {
-      const level = markdown.trim().length as 1 | 2 | 3 | 4 | 5 | 6;
-      logger.debug(`🎯 Heading: level=${level}, selectedText="${selectedText}"`);
-      if (selectedText) {
-        // Replace selected text with heading
-        const result = editor
-          .chain()
-          .deleteRange({ from, to })
-          .insertContent({
-            type: 'heading',
-            attrs: { level },
-            content: [{ type: 'text', text: selectedText }],
-          })
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-        logger.debug(`✅ Heading insertion result: ${result}`);
-      } else {
-        // Set current block as heading
-        const result = editor
-          .chain()
-          .setHeading({ level })
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-        logger.debug(`✅ Set heading result: ${result}`);
-      }
-      return;
-    }
-
-    // Handle bullet list
-    if (markdown === '- ') {
-      logger.debug(`🎯 Bullet list: selectedText="${selectedText}"`);
-      if (selectedText) {
-        const result = editor
-          .chain()
-          .deleteRange({ from, to })
-          .insertContent({
-            type: 'bulletList',
-            content: [
-              {
-                type: 'listItem',
-                content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }],
-              },
-            ],
-          })
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-        logger.debug(`✅ Bullet list insertion result: ${result}`);
-      } else {
-        const result = editor
-          .chain()
-          .toggleBulletList()
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-        logger.debug(`✅ Toggle bullet list result: ${result}`);
-      }
-      return;
-    }
-
-    // Handle ordered list
-    if (markdown.match(/^\d+\.\s$/)) {
-      if (selectedText) {
-        editor
-          .chain()
-          .deleteRange({ from, to })
-          .insertContent({
-            type: 'orderedList',
-            content: [
-              {
-                type: 'listItem',
-                content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }],
-              },
-            ],
-          })
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-      } else {
-        editor.chain().toggleOrderedList().focus(undefined, { scrollIntoView: false }).run();
-      }
-      return;
-    }
-
-    // Handle blockquote
-    if (markdown === '> ') {
-      if (selectedText) {
-        editor
-          .chain()
-          .deleteRange({ from, to })
-          .insertContent({
-            type: 'blockquote',
-            content: [{ type: 'paragraph', content: [{ type: 'text', text: selectedText }] }],
-          })
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-      } else {
-        editor.chain().toggleBlockquote().focus(undefined, { scrollIntoView: false }).run();
-      }
-      return;
-    }
-
-    // Handle code block
-    if (markdown === '```\n\n```') {
-      if (selectedText) {
-        editor
-          .chain()
-          .deleteRange({ from, to })
-          .insertContent({
-            type: 'codeBlock',
-            content: [{ type: 'text', text: selectedText }],
-          })
-          .focus(undefined, { scrollIntoView: false })
-          .run();
-      } else {
-        editor.chain().toggleCodeBlock().focus(undefined, { scrollIntoView: false }).run();
-      }
-      return;
-    }
-
-    let insertText = markdown;
-
-    // For other cases (code blocks, etc.)
-    if (selectedText && !markdown.match(/^(```|#|>|-|\d+\.)\s?/)) {
-      insertText = markdown;
-    }
-
-    logger.debug(`📝 Final insert text: "${insertText}"`);
-
-    try {
-      // Delete selection range
-      if (selectedText) {
-        editor.commands.deleteRange({ from, to });
-      }
-
-      // Convert Markdown to TipTap JSON and insert (same process as paste)
-      // Detect all Markdown formatting
-      logger.debug('🔍 Checking formatting for text:', insertText);
-
-      const formatChecks = {
-        bold: insertText.includes('**'),
-        italic: insertText.includes('*') && !insertText.includes('**'),
-        strikethrough: insertText.includes('~~'),
-        code: insertText.includes('`'),
-        blockquote: insertText.startsWith('> '),
-        bulletList: insertText.startsWith('- '),
-        orderedList: /^\d+\.\s/.test(insertText),
-        link: insertText.includes('[') && insertText.includes('](') && insertText.includes(')'),
-        table: insertText.includes('|') && insertText.includes('\n') && insertText.includes('---'),
-        heading: insertText.startsWith('#'),
-      };
-
-      logger.debug('🔍 Format checks:', formatChecks);
-
-      const hasFormatting =
-        formatChecks.bold ||
-        formatChecks.italic ||
-        formatChecks.strikethrough ||
-        formatChecks.code ||
-        formatChecks.blockquote ||
-        formatChecks.bulletList ||
-        formatChecks.orderedList ||
-        formatChecks.link ||
-        formatChecks.table ||
-        formatChecks.heading;
-
-      logger.debug('🔍 Has formatting:', hasFormatting);
-
-      if (hasFormatting) {
-        logger.debug(`🔄 Converting to JSON for formatting: "${insertText}"`);
-
-        setIsUpdating(true);
-
-        // Security check: Execute URL validation for links
-        if (insertText.includes('[') && insertText.includes('](') && insertText.includes(')')) {
-          const linkMatch = insertText.match(/\[([^\]]+)\]\(([^)]+)\)/);
-          if (linkMatch) {
-            const linkUrl = linkMatch[2];
-            if (linkUrl && !isValidUrl(linkUrl)) {
-              logger.warn('⚠️ Invalid URL detected, treating as plain text:', linkUrl);
-              insertPlainText(insertText);
-              return;
-            }
-            logger.debug('✅ Valid URL detected, proceeding with link creation');
-          }
-        }
-
-        // Set circular reference prevention flag
-        const originalPreventUpdate = (editor as ExtendedEditor).__preventUpdate;
-        (editor as ExtendedEditor).__preventUpdate = true;
-
-        const markdownJson = await MarkdownTipTapConverter.markdownToTipTapJson(insertText, {
-          publicImagePathPrefix,
-        });
-        logger.debug('📄 Converted JSON - nodes:', markdownJson?.content?.length || 0);
-
-        if (markdownJson.content && markdownJson.content.length > 0) {
-          logger.debug('📄 Inserting content - nodes:', markdownJson.content.length);
-
-          // Try direct TipTap JSON insertion - insert content array directly
-          const insertSuccess = editor.commands.insertContent(markdownJson.content);
-          logger.debug('📄 Direct JSON insert success:', insertSuccess);
-
-          // Check editor state after insertion
-          setTimeout(() => {
-            const currentContent = editor.getJSON();
-            logger.debug(
-              '📄 Editor content after insertion - nodes:',
-              currentContent?.content?.length || 0,
-            );
-          }, 100);
-
-          // If failed, try insertion as HTML string
-          if (!insertSuccess) {
-            // Insert as Markdown when JSON insertion fails
-            const markdown = MarkdownTipTapConverter.tipTapJsonToMarkdown(markdownJson);
-            insertPlainText(markdown);
-          }
-
-          // setLastMarkdown(insertText); // Removed: Not needed
-          logger.info('✅ Content inserted successfully');
-        } else {
-          // Fallback: Insert as plain text
-          logger.warn('⚠️ JSON conversion failed, inserting as plain text');
-          insertPlainText(insertText);
-        }
-
-        setTimeout(() => {
-          (editor as ExtendedEditor).__preventUpdate = originalPreventUpdate;
-          setIsUpdating(false);
-          logger.debug('✅ Markdown insert update locks released');
-        }, UPDATE_LOCK_RELEASE_MS);
-      } else {
-        // Insert plain Markdown (headings, lists, etc.) as is
-        insertPlainText(insertText);
-
-        // Adjust cursor position if cursorOffset is specified
-        if (cursorOffset !== undefined && cursorOffset > 0) {
-          const currentPos = editor.state.selection.from;
-          const newPos = currentPos - (insertText.length - cursorOffset);
-          editor.commands.setTextSelection(newPos);
-        }
-      }
-
-      editor.commands.focus();
-    } catch (error) {
-      logger.error('❌ Error inserting markdown:', error);
-      // Fallback on error
-      insertPlainText(insertText);
-      editor.commands.focus();
-    }
-  };
-
   // Download functionality handler
   const handleDownloadAsMarkdown = useCallback(() => {
     if (!editor) {
@@ -779,101 +405,52 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           </div>
         )}
 
-        {effectiveShowToolbar && (
+        <EditorChrome
+          editor={editor}
+          selectionInfo={selectionInfo}
+          editable={editable}
+          effectiveShowToolbar={effectiveShowToolbar}
+          effectiveShowSyntaxStatus={effectiveShowSyntaxStatus}
+          effectiveShowPasteDebug={effectiveShowPasteDebug}
+          showDownloadButton={showDownloadButton}
+          onDownloadAsMarkdown={handleDownloadAsMarkdown}
+          onInsertMarkdown={handleInsertMarkdown}
+          pasteEvents={pasteEvents}
+          onClearPasteEvents={clearPasteEvents}
+        >
           <div
-            className="border-b p-2 rounded-t-lg transition-colors duration-200"
-            style={{
-              backgroundColor: 'var(--mw-toolbar-bg)',
-              borderColor: 'var(--mw-toolbar-border)',
+            className={`relative ${enableVerticalScroll ? 'flex-1 overflow-hidden' : 'overflow-visible'} ${editable ? 'cursor-text' : 'cursor-default'}`}
+            ref={editorElementRef}
+            onMouseDown={(e) => {
+              // Make entire editor area clickable
+              if (editor && editable) {
+                const target = e.target as HTMLElement;
+                const proseMirrorElement = editorElementRef.current?.querySelector(
+                  '.ProseMirror',
+                ) as HTMLElement;
+
+                if (proseMirrorElement && !proseMirrorElement.contains(target)) {
+                  const { state } = editor;
+                  const lastPosition = state.doc.content.size;
+                  editor.chain().focus().setTextSelection(lastPosition).run();
+                } else if (!target.closest('.ProseMirror')) {
+                  editor.commands.focus();
+                }
+              }
             }}
           >
-            <MarkdownToolbar
-              onInsertMarkdown={handleInsertMarkdown}
-              selectedText={selectionInfo?.selectedText || ''}
-              disabled={!editable}
+            <EditorContent
               editor={editor}
-              showDownloadButton={showDownloadButton}
-              onDownloadAsMarkdown={handleDownloadAsMarkdown}
+              className={`markdown-editor-content ${
+                autoHeight
+                  ? 'markdown-editor-autoheight min-h-fit overflow-visible'
+                  : enableVerticalScroll
+                    ? 'h-full overflow-y-auto'
+                    : 'min-h-full'
+              }`}
             />
           </div>
-        )}
-        <div
-          className={`relative ${enableVerticalScroll ? 'flex-1 overflow-hidden' : 'overflow-visible'} ${editable ? 'cursor-text' : 'cursor-default'}`}
-          ref={editorElementRef}
-          onMouseDown={(e) => {
-            // Make entire editor area clickable
-            if (editor && editable) {
-              // If clicked location is not inside EditorContent, focus editor
-              const target = e.target as HTMLElement;
-              const proseMirrorElement = editorElementRef.current?.querySelector(
-                '.ProseMirror',
-              ) as HTMLElement;
-
-              if (proseMirrorElement && !proseMirrorElement.contains(target)) {
-                // Move cursor to end of editor
-                const { state } = editor;
-                const lastPosition = state.doc.content.size;
-                editor.chain().focus().setTextSelection(lastPosition).run();
-              } else if (!target.closest('.ProseMirror')) {
-                // Focus even if outside of ProseMirror element is clicked
-                editor.commands.focus();
-              }
-            }
-          }}
-        >
-          <EditorContent
-            editor={editor}
-            className={`markdown-editor-content ${
-              autoHeight
-                ? 'markdown-editor-autoheight min-h-fit overflow-visible'
-                : enableVerticalScroll
-                  ? 'h-full overflow-y-auto'
-                  : 'min-h-full'
-            }`}
-          />
-        </div>
-        {effectiveShowSyntaxStatus && (
-          <MarkdownSyntaxStatus selectionInfo={selectionInfo} className="rounded-b-md" />
-        )}
-
-        {effectiveShowPasteDebug && (
-          <div className="bg-muted border-t border-border p-3">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-semibold text-foreground">
-                {t(I18N_KEYS.pasteDebugPanel)}
-              </h3>
-              <button
-                type="button"
-                onClick={clearPasteEvents}
-                className="text-xs px-2 py-1 bg-destructive/10 text-destructive rounded hover:bg-destructive/20"
-              >
-                {t(I18N_KEYS.clear)}
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {pasteEvents.map((event) => (
-                <div
-                  key={`${event.timestamp}-${event.type}`}
-                  className="text-xs bg-background p-2 rounded border border-border"
-                >
-                  <div className="font-semibold">
-                    {new Date(event.timestamp).toLocaleTimeString()}
-                  </div>
-                  <div>
-                    {t(I18N_KEYS.type)}: {event.type}
-                  </div>
-                  <div className="truncate">
-                    {t(I18N_KEYS.content)}: {event.content}
-                  </div>
-                  <div className="truncate text-primary">
-                    {t(I18N_KEYS.result)}: {event.result}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </EditorChrome>
       </div>
 
       {/* Link context menu */}

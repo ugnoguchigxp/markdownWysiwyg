@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import type { Editor } from '@tiptap/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTableToolbar } from '../../src/hooks/useTableToolbar';
@@ -20,7 +20,6 @@ describe('useTableToolbar', () => {
   beforeEach(() => {
     mockTableElement = document.createElement('table');
     mockTableElement.className = 'tiptap-table-resizable';
-    // Mock getBoundingClientRect
     mockTableElement.getBoundingClientRect = vi.fn(() => new DOMRect(100, 200, 50, 50));
 
     mockEditor = {
@@ -39,16 +38,12 @@ describe('useTableToolbar', () => {
       },
     };
 
-    // Mock NodesBetween implementation to find a table if desired
     mockEditor.state.doc.nodesBetween.mockImplementation(
       (
-        from: number,
-        to: number,
-        callback: (node: { type: { name: string } }, pos: number) => boolean | undefined,
+        _from: number,
+        _to: number,
+        callback: (node: { type: { name: string } }, _pos: number) => boolean | undefined,
       ) => {
-        // Simulate finding a table
-        // callback(node, pos, parent, index)
-        // If we want to simulate a table found:
         const tableNode = { type: { name: 'table' } };
         const shouldContinue = callback(tableNode, 5);
         if (shouldContinue === false) return;
@@ -59,6 +54,9 @@ describe('useTableToolbar', () => {
   it('initializes with hidden toolbar', () => {
     const { result } = renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
     expect(result.current.visible).toBe(false);
+    expect(result.current.position.x).toBe(0);
+    expect(result.current.position.y).toBe(0);
+    expect(result.current.tableElement).toBe(null);
   });
 
   it('updates position when showToolbar is called', () => {
@@ -69,8 +67,9 @@ describe('useTableToolbar', () => {
     });
 
     expect(result.current.visible).toBe(true);
-    expect(result.current.position.x).toBe(100); // 100 + scrollLeft (0)
-    expect(result.current.position.y).toBe(200); // 200 + scrollTop (0)
+    expect(result.current.position.x).toBe(100);
+    expect(result.current.position.y).toBe(200);
+    expect(result.current.tableElement).toBe(mockTableElement);
   });
 
   it('hides toolbar when hideToolbar is called', () => {
@@ -85,14 +84,80 @@ describe('useTableToolbar', () => {
       result.current.hideToolbar();
     });
     expect(result.current.visible).toBe(false);
+    expect(result.current.tableElement).toBe(null);
   });
 
-  // Note: detailed testing of checkTableSelection involves complex mocking of doc/nodes.
-  // The basic mechanics are covered by show/hide/init tests.
-  // If we trigger 'selectionUpdate' manually it should call checkTableSelection.
-
   it('listens to selectionUpdate', () => {
-    const { result } = renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
+    renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
     expect(mockEditor.on).toHaveBeenCalledWith('selectionUpdate', expect.any(Function));
+  });
+
+  it('cleans up selectionUpdate listener on unmount', () => {
+    const { unmount } = renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
+    unmount();
+    expect(mockEditor.off).toHaveBeenCalledWith('selectionUpdate', expect.any(Function));
+  });
+
+  it('returns null when editor is null', () => {
+    const { result } = renderHook(() => useTableToolbar(null));
+    expect(result.current.visible).toBe(false);
+    expect(result.current.position.x).toBe(0);
+    expect(result.current.position.y).toBe(0);
+    expect(result.current.tableElement).toBe(null);
+  });
+
+  it('shows toolbar when table is in selection', () => {
+    const { result } = renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
+
+    act(() => {
+      result.current.checkTableSelection();
+    });
+
+    expect(result.current.visible).toBe(true);
+  });
+
+  it('hides toolbar when no table is in selection', () => {
+    mockEditor.state.doc.nodesBetween.mockImplementation(
+      (
+        _from: number,
+        _to: number,
+        _callback: (node: { type: { name: string } }, _pos: number) => boolean | undefined,
+      ) => {
+        return;
+      },
+    );
+
+    const { result } = renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
+
+    act(() => {
+      result.current.showToolbar(mockTableElement);
+      result.current.checkTableSelection();
+    });
+
+    expect(result.current.visible).toBe(false);
+  });
+
+  it('hides toolbar when clicking outside table', () => {
+    const { result } = renderHook(() => useTableToolbar(mockEditor as unknown as Editor));
+
+    act(() => {
+      result.current.showToolbar(mockTableElement);
+    });
+
+    const outsideElement = document.createElement('div');
+    document.body.appendChild(outsideElement);
+
+    const clickEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(clickEvent, 'target', { value: outsideElement });
+
+    vi.useFakeTimers();
+    act(() => {
+      document.dispatchEvent(clickEvent);
+      vi.runAllTimers();
+    });
+    vi.useRealTimers();
+
+    expect(result.current.visible).toBe(false);
+    document.body.removeChild(outsideElement);
   });
 });
