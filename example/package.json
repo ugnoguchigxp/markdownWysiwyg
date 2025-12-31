@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:embed": "tsc -b && vite build --base=/markdown-wysiwyg/",
+    "deploy:local": "tsc -b && vite build --base=/markdownWysiwyg/ && rm -rf ~/Code/wysiwyg-doc-com/public/markdownWysiwyg && mv dist ~/Code/wysiwyg-doc-com/public/markdownWysiwyg",
     "lint": "pnpm -C .. biome check ./example",
     "lint:fix": "pnpm -C .. biome check --write ./example",
     "format": "pnpm -C .. biome format --write ./example",

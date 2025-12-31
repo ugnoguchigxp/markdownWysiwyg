@@ -2,6 +2,8 @@
 
 Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 
+[Live Demo](https://wysiwyg-doc.com/markdown-wysiwyg/index.html)
+
 ![Screenshot](https://raw.githubusercontent.com/ugnoguchigxp/markdownWysiwyg/main/assets/example.png)
 
 ---
