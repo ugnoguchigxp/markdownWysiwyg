@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:embed": "tsc -b && vite build --base=/markdown-wysiwyg/",
-    "deploy:local": "tsc -b && vite build --base=/markdownWysiwyg/ && rm -rf ~/Code/wysiwyg-doc-com/public/markdownWysiwyg && mv dist ~/Code/wysiwyg-doc-com/public/markdownWysiwyg",
     "lint": "pnpm -C .. biome check ./example",
     "lint:fix": "pnpm -C .. biome check --write ./example",
     "format": "pnpm -C .. biome format --write ./example",
@@ -15,10 +13,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "markdown-wysiwyg-editor": "link:..",
+    "markdown-wysiwyg-editor": "file:..",
     "mermaid": "^11.12.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -26,11 +24,10 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.9.3",
-    "vite": "^7.2.4"
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.7"
   }
 }

@@ -20,7 +20,7 @@ import {
   Smile,
   Strikethrough,
   Table,
-} from 'lucide-react';
+} from './ui/icons';
 
 import { useI18n } from '../i18n/I18nContext';
 import { I18N_KEYS } from '../types/index';
@@ -331,7 +331,12 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
 
         return (
           <div key={`${item.group}:${item.title}`} className="relative group">
-            <ToolbarButton icon={Icon} title={item.title} onClick={item.onClick} disabled={disabled} />
+            <ToolbarButton
+              icon={Icon}
+              title={item.title}
+              onClick={item.onClick}
+              disabled={disabled}
+            />
 
             {item.icon === Smile && showEmojiPicker && (
               <div className="absolute top-full left-0 mt-1 z-20">

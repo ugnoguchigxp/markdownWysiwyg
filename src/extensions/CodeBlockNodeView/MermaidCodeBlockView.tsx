@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
-import { Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Trash2 } from '../../components/ui/icons';
 import { createLogger } from '../../utils/logger';
 import { sanitizeSvg } from '../../utils/security';
 import { IconButton } from './IconButton';
@@ -254,7 +254,7 @@ export const MermaidCodeBlockView = ({
   return (
     <NodeViewWrapper className={`mermaid-code-block ${selected ? 'selected' : ''}`}>
       <div
-        className={`relative rounded-md p-4 bg-muted border ${selected ? 'border-primary' : 'border-border'}`}
+        className={`relative rounded-md p-4 bg-white border ${selected ? 'border-primary' : 'border-border'} text-slate-900`}
       >
         {isEditable && (
           <div className="absolute top-0 right-0 flex gap-1 z-10">

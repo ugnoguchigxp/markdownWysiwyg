@@ -2,7 +2,7 @@ import type React from 'react';
 
 import type { Editor } from '@tiptap/react';
 import '@tiptap/extension-table';
-import { ArrowLeft, Columns3, LayoutGrid, Minus, Plus, Rows3, Trash2 } from 'lucide-react';
+import { ArrowLeft, Columns3, LayoutGrid, Minus, Plus, Rows3, Trash2 } from './ui/icons';
 
 import { useI18n } from '../i18n/I18nContext';
 import { I18N_KEYS } from '../types/index';

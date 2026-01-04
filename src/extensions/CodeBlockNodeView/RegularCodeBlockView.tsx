@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
-import { Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Trash2 } from '../../components/ui/icons';
 import { createLogger } from '../../utils/logger';
 import { IconButton } from './IconButton';
 import { SUPPORTED_LANGUAGES } from './constants';

@@ -56,16 +56,9 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   return (
     <dialog
       ref={pickerRef}
-      className="mw-image-picker"
+      className="mw-image-picker bg-popover text-popover-foreground border border-border shadow-xl rounded-xl"
       aria-label={t(I18N_KEYS.image.pickerTitle, 'Insert image')}
       open
-      style={{
-        backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
-        borderColor: 'var(--mw-toolbar-border, #e5e7eb)',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        color: 'var(--mw-toolbar-text, #111827)',
-      }}
     >
       <div className="mw-image-body">
         <div className="mw-image-form">

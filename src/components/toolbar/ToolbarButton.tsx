@@ -1,5 +1,5 @@
-import React from 'react';
-import type { LucideIcon } from 'lucide-react';
+import type React from 'react';
+import type { LucideIcon } from '../ui/icons';
 
 interface ToolbarButtonProps {
   icon: LucideIcon;
@@ -22,16 +22,8 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = ({
     className={`
       w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
       disabled:opacity-50 disabled:cursor-not-allowed
+      text-foreground hover:bg-accent
     `}
-    style={{
-      color: 'var(--mw-toolbar-text)',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.backgroundColor = 'transparent';
-    }}
   >
     <Icon className="w-4 h-4" />
   </button>

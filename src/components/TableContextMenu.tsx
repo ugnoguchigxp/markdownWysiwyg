@@ -37,7 +37,7 @@ export const TableContextMenu: React.FC<ITableContextMenuProps> = ({
 
   return (
     <div
-      className="table-context-menu fixed z-50 bg-background border border-border rounded-lg shadow-lg py-2 min-w-48 max-h-[400px] overflow-y-auto"
+      className="table-context-menu fixed z-50 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg py-2 min-w-48 max-h-[400px] overflow-y-auto"
       style={{
         left: position.x,
         top: position.y,

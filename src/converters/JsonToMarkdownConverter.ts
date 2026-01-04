@@ -10,7 +10,6 @@ const log = createLogger('JsonToMarkdownConverter');
 
 export class JsonToMarkdownConverter {
   // This prevents the class from being "static-only" for linting purposes while preserving the public API.
-  private readonly _instanceMarker = 0;
 
   private constructor() {
     // Intentionally empty.

@@ -1,5 +1,5 @@
-import React from 'react';
 import type { Editor } from '@tiptap/react';
+import type React from 'react';
 
 import { useI18n } from '../i18n/I18nContext';
 import { I18N_KEYS } from '../types/index';
@@ -47,13 +47,7 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
   return (
     <>
       {effectiveShowToolbar && (
-        <div
-          className="border-b p-2 rounded-t-lg transition-colors duration-200"
-          style={{
-            backgroundColor: 'var(--mw-toolbar-bg)',
-            borderColor: 'var(--mw-toolbar-border)',
-          }}
-        >
+        <div className="border-b p-2 rounded-t-lg transition-colors duration-200 bg-popover border-border">
           <MarkdownToolbar
             onInsertMarkdown={onInsertMarkdown}
             selectedText={selectionInfo?.selectedText || ''}

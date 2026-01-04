@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import type { Translator } from '../../i18n/I18nContext';
 import { I18N_KEYS } from '../../types/index';
 
@@ -41,30 +42,24 @@ export const LinkModal: React.FC<LinkModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-      <button type="button" aria-label={t(I18N_KEYS.close)} className="absolute inset-0" onClick={onClose} />
+      <button
+        type="button"
+        aria-label={t(I18N_KEYS.close)}
+        className="absolute inset-0"
+        onClick={onClose}
+      />
 
       <div
-        className="relative rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl"
-        style={{
-          backgroundColor: 'var(--mw-bg-canvas, #ffffff)',
-          color: 'var(--mw-text-primary, #111827)',
-          border: '1px solid var(--mw-toolbar-border, #d1d5db)',
-        }}
+        className="relative rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl bg-background text-foreground border border-border"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h3
-          className="text-lg font-semibold mb-4"
-          style={{ color: 'var(--mw-heading-color, var(--mw-text-primary, #111827))' }}
-        >
-          {t(I18N_KEYS.insertLink)}
-        </h3>
+        <h3 className="text-lg font-semibold mb-4 text-foreground">{t(I18N_KEYS.insertLink)}</h3>
 
         <div className="space-y-4">
           <div>
             <label
               htmlFor="mw-insert-link-text"
-              className="block text-sm font-medium mb-1"
-              style={{ color: 'var(--mw-text-secondary)' }}
+              className="block text-sm font-medium mb-1 text-muted-foreground"
             >
               {t(I18N_KEYS.link.linkText)}
             </label>
@@ -79,12 +74,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
                   handleSubmit();
                 }
               }}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={{
-                backgroundColor: 'var(--mw-bg-canvas, #ffffff)',
-                borderColor: 'var(--mw-toolbar-border, #d1d5db)',
-                color: 'var(--mw-text-primary, #111827)',
-              }}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background border-border text-foreground"
               placeholder={t(I18N_KEYS.link.enterLinkText)}
             />
           </div>
@@ -107,12 +97,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
                   handleSubmit();
                 }
               }}
-              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
-              style={{
-                backgroundColor: 'var(--mw-bg-canvas, #ffffff)',
-                borderColor: 'var(--mw-toolbar-border, #d1d5db)',
-                color: 'var(--mw-text-primary, #111827)',
-              }}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background border-border text-foreground"
               placeholder={t(I18N_KEYS.link.urlPlaceholder)}
             />
           </div>

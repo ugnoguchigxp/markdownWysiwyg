@@ -5,11 +5,11 @@ import type { JSONContent } from '@tiptap/react';
 
 import { createLogger } from '../utils/logger';
 
+import { useEditorContextMenus } from '../hooks/useEditorContextMenus';
 import { useEditorState } from '../hooks/useEditorState';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
 import { useMarkdownInsertion } from '../hooks/useMarkdownInsertion';
 import { useTableToolbar } from '../hooks/useTableToolbar';
-import { useEditorContextMenus } from '../hooks/useEditorContextMenus';
 import type { ExtendedEditor } from '../types/editor';
 import type { ISelectionInfo } from '../utils/selectionUtils';
 

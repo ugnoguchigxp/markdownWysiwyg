@@ -1,7 +1,7 @@
-import React from 'react';
-import { Heading1 } from 'lucide-react';
+import type React from 'react';
 import type { Translator } from '../../i18n/I18nContext';
 import { I18N_KEYS } from '../../types/index';
+import { Heading1 } from '../ui/icons';
 
 interface HeadingMenuProps {
   isOpen: boolean;
@@ -11,23 +11,6 @@ interface HeadingMenuProps {
   onInsertMarkdown: (markdown: string) => void;
   t: Translator;
 }
-
-const getHeadingPreviewStyle = (level: number): React.CSSProperties => {
-  switch (level) {
-    case 1:
-      return { fontSize: '22px', fontWeight: 700, lineHeight: '28px' };
-    case 2:
-      return { fontSize: '18px', fontWeight: 700, lineHeight: '24px' };
-    case 3:
-      return { fontSize: '16px', fontWeight: 600, lineHeight: '22px' };
-    case 4:
-      return { fontSize: '14px', fontWeight: 600, lineHeight: '20px' };
-    case 5:
-      return { fontSize: '13px', fontWeight: 600, lineHeight: '18px' };
-    default:
-      return { fontSize: '12px', fontWeight: 600, lineHeight: '18px' };
-  }
-};
 
 const headingLevels = [
   {
@@ -84,17 +67,8 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
       className={`
         w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
         disabled:opacity-50 disabled:cursor-not-allowed
-        relative
+        relative text-foreground hover:bg-accent
       `}
-      style={{
-        color: 'var(--mw-toolbar-text)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'transparent';
-      }}
     >
       <Heading1 className="w-4 h-4" />
       <svg
@@ -120,17 +94,9 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
           onClick={onClose}
         />
 
-        <div
-          className="absolute top-full left-0 mt-2 w-80 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200"
-          style={{
-            backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
-            borderColor: 'var(--mw-toolbar-border)',
-            borderWidth: '1px',
-            borderStyle: 'solid',
-          }}
-        >
+        <div className="absolute top-full left-0 mt-2 w-80 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 bg-popover text-popover-foreground border border-border">
           <div className="py-2 max-h-96 overflow-y-auto">
-            {headingLevels.map((heading, index) => (
+            {headingLevels.map((heading) => (
               <button
                 key={heading.level}
                 type="button"
@@ -140,51 +106,36 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
                 }}
                 className={`
                   w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent
+                  bg-popover text-popover-foreground hover:bg-accent border-b border-border last:border-b-0
                 `}
-                style={{
-                  backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
-                  borderBottom:
-                    index !== headingLevels.length - 1
-                      ? '1px solid var(--mw-toolbar-border)'
-                      : 'none',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-bg, #ffffff)';
-                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-3">
-                      <div
-                        className="flex-shrink-0 w-12 h-8 rounded-md border flex items-center justify-center font-bold shadow-sm"
-                        style={{
-                          backgroundColor: 'var(--mw-bg-canvas)',
-                          borderColor: 'var(--mw-toolbar-border)',
-                          color: 'var(--mw-toolbar-text)',
-                          fontSize:
-                            heading.level === 1
-                              ? '18px'
-                              : heading.level === 2
-                                ? '16px'
-                                : heading.level === 3
-                                  ? '14px'
-                                  : '12px',
-                        }}
-                      >
-                        {heading.preview}
+                      <div className="flex-shrink-0 w-12 h-8 rounded-md border flex items-center justify-center font-bold shadow-sm bg-background border-border text-foreground">
+                        <span
+                          className={`
+                          ${heading.level === 1 ? 'text-[18px]' : ''}
+                          ${heading.level === 2 ? 'text-[16px]' : ''}
+                          ${heading.level === 3 ? 'text-[14px]' : ''}
+                          ${heading.level >= 4 ? 'text-[12px]' : ''}
+                        `}
+                        >
+                          {heading.preview}
+                        </span>
                       </div>
                     </div>
                   </div>
                   <div className="flex-shrink-0 ml-3">
                     <div
-                      className="truncate max-w-[200px]"
-                      style={{
-                        color: 'var(--mw-toolbar-text)',
-                        ...getHeadingPreviewStyle(heading.level),
-                      }}
+                      className={`
+                        truncate max-w-[200px] text-popover-foreground
+                        ${heading.level === 1 ? 'text-[22px] font-bold leading-[28px]' : ''}
+                        ${heading.level === 2 ? 'text-[18px] font-bold leading-[24px]' : ''}
+                        ${heading.level === 3 ? 'text-[16px] font-semibold leading-[22px]' : ''}
+                        ${heading.level === 4 ? 'text-[14px] font-semibold leading-[20px]' : ''}
+                        ${heading.level === 5 ? 'text-[13px] font-semibold leading-[18px]' : ''}
+                      `}
                     >
                       {`${t(I18N_KEYS.heading)}${heading.level}`}
                     </div>

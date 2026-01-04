@@ -22,8 +22,6 @@ const log = createLogger('MarkdownTipTapConverter');
  * メイン変換クラス
  */
 export class MarkdownTipTapConverter {
-  private readonly _instanceMarker = 0;
-
   private constructor() {
     // Intentionally empty.
   }

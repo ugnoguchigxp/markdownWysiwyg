@@ -7,8 +7,6 @@ export interface MarkdownToTipTapOptions {
 }
 
 export class InlineParser {
-  private readonly _instanceMarker = 0;
-
   private constructor() {
     // Intentionally empty.
   }

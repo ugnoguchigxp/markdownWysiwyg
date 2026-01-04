@@ -88,16 +88,9 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   return (
     <dialog
       ref={pickerRef}
-      className="mw-emoji-picker"
+      className="mw-emoji-picker bg-popover text-popover-foreground border border-border shadow-xl rounded-xl"
       aria-label={t(I18N_KEYS.emoji.pickerTitle, 'Emoji picker')}
       open
-      style={{
-        backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
-        borderColor: 'var(--mw-toolbar-border, #e5e7eb)',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        color: 'var(--mw-toolbar-text, #111827)',
-      }}
     >
       <div className="mw-emoji-search">
         <input

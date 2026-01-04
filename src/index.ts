@@ -4,7 +4,6 @@
  */
 
 // Styles
-import './index.css';
 
 // Main components
 export { MarkdownEditor } from './components/MarkdownEditor';

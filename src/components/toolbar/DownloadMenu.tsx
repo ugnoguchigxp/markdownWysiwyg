@@ -1,7 +1,7 @@
-import React from 'react';
-import { Download } from 'lucide-react';
+import type React from 'react';
 import type { Translator } from '../../i18n/I18nContext';
 import { I18N_KEYS } from '../../types/index';
+import { Download } from '../ui/icons';
 
 interface DownloadMenuProps {
   isOpen: boolean;
@@ -29,17 +29,8 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       className={`
         w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
         disabled:opacity-50 disabled:cursor-not-allowed
-        relative
+        relative text-foreground hover:bg-accent
       `}
-      style={{
-        color: 'var(--mw-toolbar-text)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'transparent';
-      }}
     >
       <Download className="w-4 h-4" />
       <svg
@@ -65,27 +56,13 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
           onClick={onClose}
         />
 
-        <div
-          className="absolute top-full left-0 mt-2 w-64 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200"
-          style={{
-            backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
-            borderColor: 'var(--mw-toolbar-border)',
-            borderWidth: '1px',
-            borderStyle: 'solid',
-          }}
-        >
+        <div className="absolute top-full left-0 mt-2 w-64 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 bg-popover text-popover-foreground border border-border">
           <div className="py-2">
-            <div
-              className="px-4 py-2"
-              style={{
-                backgroundColor: 'var(--mw-toolbar-bg, #ffffff)',
-                borderBottom: '1px solid var(--mw-toolbar-border)',
-              }}
-            >
-              <h3 className="text-sm font-semibold" style={{ color: 'var(--mw-toolbar-text)' }}>
+            <div className="px-4 py-2 bg-popover border-b border-border">
+              <h3 className="text-sm font-semibold text-popover-foreground">
                 {t(I18N_KEYS.exportMenuTitle)}
               </h3>
-              <p className="text-xs mt-1" style={{ color: 'var(--mw-text-secondary)' }}>
+              <p className="text-xs mt-1 text-muted-foreground">
                 {t(I18N_KEYS.exportMenuDescription)}
               </p>
             </div>
@@ -96,26 +73,17 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
                 onDownloadAsMarkdown();
                 onClose();
               }}
-              className="w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-hover-bg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--mw-toolbar-bg)';
-              }}
+              className="w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent bg-popover text-popover-foreground hover:bg-accent"
             >
               <div className="flex items-center space-x-3">
-                <div
-                  className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center"
-                  style={{ backgroundColor: 'var(--mw-hover-bg, #f3f4f6)' }}
-                >
-                  <Download className="w-3 h-3" style={{ color: 'var(--mw-toolbar-text)' }} />
+                <div className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center bg-accent">
+                  <Download className="w-3 h-3 text-popover-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium" style={{ color: 'var(--mw-toolbar-text)' }}>
+                  <div className="text-sm font-medium text-popover-foreground">
                     {t(I18N_KEYS.markdownFile)}
                   </div>
-                  <div className="text-xs" style={{ color: 'var(--mw-text-secondary)' }}>
+                  <div className="text-xs text-muted-foreground">
                     {t(I18N_KEYS.saveAsMarkdownFile)}
                   </div>
                 </div>

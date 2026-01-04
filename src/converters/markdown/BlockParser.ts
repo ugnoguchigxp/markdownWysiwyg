@@ -2,8 +2,6 @@ import type { JSONContent } from '@tiptap/core';
 import { InlineParser, type MarkdownToTipTapOptions } from './InlineParser';
 
 export class BlockParser {
-  private readonly _instanceMarker = 0;
-
   private constructor() {
     // Intentionally empty.
   }

@@ -1,14 +1,14 @@
 import type { NodeViewProps } from '@tiptap/core';
 import { useEffect, useState } from 'react';
 import { createLogger } from '../utils/logger';
+import { MermaidCodeBlockView } from './CodeBlockNodeView/MermaidCodeBlockView';
+import { RegularCodeBlockView } from './CodeBlockNodeView/RegularCodeBlockView';
 import {
   getMermaidLib,
   getMermaidLibVersion,
   setMermaidLib,
   subscribeMermaidLib,
 } from './mermaidRegistry';
-import { MermaidCodeBlockView } from './CodeBlockNodeView/MermaidCodeBlockView';
-import { RegularCodeBlockView } from './CodeBlockNodeView/RegularCodeBlockView';
 
 const log = createLogger('CodeBlockNodeView');
 

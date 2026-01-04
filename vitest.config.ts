@@ -1,27 +1,30 @@
-/// <reference types="vitest" />
-
+import path from 'node:path';
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  plugins: [react()],
   test: {
-    globals: true,
     environment: 'jsdom',
-    setupFiles: [],
-    include: ['Test/**/*.test.{ts,tsx}'],
+    globals: true,
+    setupFiles: ['./src/setupTests.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
+        'node_modules/',
+        'dist/',
+        '**/*.d.ts',
+        '**/*.test.{ts,tsx}',
+        '**/types.ts',
         'example/**',
-        'docs/**',
-        '**/*.config.{js,ts,cjs}',
-        'dist/**',
-        'Test/**',
-        'src/**/*.test.{ts,tsx}',
-        'src/types/editor.ts',
-        'src/index.ts',
-        '.eslintrc.cjs',
       ],
+    },
+    include: ['src/**/*.test.{ts,tsx}'],
+  },
+  resolve: {
+    alias: {
+      'markdown-wysiwyg-editor': path.resolve(__dirname, './src/index.ts'),
     },
   },
 });

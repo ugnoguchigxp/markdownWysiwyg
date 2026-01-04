@@ -48,49 +48,27 @@ function App() {
       'function greet(name: string): string {\n' +
       '  return `Hello, ${name}!`;\n' +
       '}\n' +
-      '\n' +
-      'console.log(greet("Markdown"));\n' +
       '```\n' +
       '\n' +
-      '## 5. Table\n' +
+      '## 5. Tables\n' +
       '\n' +
-      '| Feature        | Supported |\n' +
-      '| -------------- | --------- |\n' +
-      '| Bold           | Yes       |\n' +
-      '| Italic         | Yes       |\n' +
-      '| Strikethrough  | Yes       |\n' +
-      '| Code Block     | Yes       |\n' +
-      '| Tables         | Yes       |\n' +
-      '| Mermaid        | Optional  |\n' +
+      '| Feature | Support | Efficiency |\n' +
+      '| :--- | :---: | ---: |\n' +
+      '| WYSIWYG | ✅ | High |\n' +
+      '| Markdown | ✅ | Excellent |\n' +
+      '| Mermaid | ✅ | High |\n' +
       '\n' +
-      '## 6. Mermaid Diagram\n' +
+      '## 6. Mermaid Diagrams\n' +
       '\n' +
       '```mermaid\n' +
-      'flowchart TD\n' +
-      '  %% More complex example to cover labels, subgraphs, and styles\n' +
-      '  A[Markdown Input] -->|Convert| B(TipTap JSON)\n' +
-      '  B --> C{Render Mode?}\n' +
-      '  C -->|WYSIWYG| D[ProseMirror View]\n' +
-      '  C -->|Raw| E[Markdown Output]\n' +
-      '  D --> F[User Edits]\n' +
-      '  F -->|Update| B\n' +
-      '\n' +
-      '  subgraph Extensions\n' +
-      '    X[CodeBlock NodeView]\n' +
-      '    Y[Mermaid Renderer]\n' +
-      '    Z[Image Whitelist]\n' +
-      '  end\n' +
-      '\n' +
-      '  X --> D\n' +
-      '  Y --> D\n' +
-      '  Z --> D\n' +
-      '\n' +
-      '  classDef core fill:#dbeafe,stroke:#2563eb,color:#111827;\n' +
-      '  classDef warn fill:#fee2e2,stroke:#dc2626,color:#111827;\n' +
-      '  class A,B,D,E,F core;\n' +
-      '  class C warn;\n' +
+      'graph TD\n' +
+      '  A[Start] --> B{Valid?}\n' +
+      '  B -- Yes --> C[Process]\n' +
+      '  B -- No --> D[Error]\n' +
+      '  C --> E[End]\n' +
       '```\n',
   );
+
   const [isEditable, setIsEditable] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
@@ -224,16 +202,16 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-4rem)]">
+        <div className="flex flex-col lg:flex-row gap-8 py-8">
           {/* Editor Column */}
           <div className="flex flex-col gap-2 h-full flex-1 min-w-0">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
                 Editor
               </h2>
-              <span className="text-xs text-slate-400">WYSIWYG Mode</span>
+              <span className="text-xs text-slate-400">Auto-height Mode</span>
             </div>
-            <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
+            <div className="min-h-[500px] bg-background rounded-xl shadow-sm border border-border flex flex-col overflow-hidden">
               <MarkdownEditor
                 value={content}
                 onChange={setContent}
@@ -242,8 +220,8 @@ function App() {
                 enableMermaid={true}
                 publicImagePathPrefix="/images"
                 className="h-full flex flex-col"
-                autoHeight={false}
-                enableVerticalScroll={true}
+                autoHeight={true}
+                enableVerticalScroll={false}
                 showDownloadButton={true}
               />
             </div>
@@ -257,17 +235,17 @@ function App() {
               </h2>
               <span className="text-xs text-slate-400">Markdown Source</span>
             </div>
-            <div className="flex-1 bg-slate-900 rounded-xl shadow-inner border border-slate-800 overflow-hidden relative group">
+            <div className="flex-1 bg-background rounded-xl shadow-inner border border-border overflow-hidden relative group">
               <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   type="button"
                   onClick={() => navigator.clipboard.writeText(content)}
-                  className="bg-white/10 hover:bg-white/20 text-white text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors"
+                  className="bg-primary/10 hover:bg-primary/20 text-foreground text-xs px-2 py-1 rounded backdrop-blur-sm transition-colors border border-border"
                 >
                   Copy
                 </button>
               </div>
-              <pre className="h-full p-4 overflow-auto text-sm font-mono text-slate-300 leading-relaxed scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+              <pre className="p-4 overflow-visible text-sm font-mono text-foreground leading-relaxed whitespace-pre-wrap">
                 {content}
               </pre>
             </div>

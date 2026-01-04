@@ -7,9 +7,9 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
 
-import { Edit3, ExternalLink, X } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { I18N_KEYS } from '../types/index';
+import { Edit3, ExternalLink, X } from './ui/icons';
 
 interface LinkContextMenuProps {
   visible: boolean;
@@ -112,7 +112,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
     <>
       {/* Context Menu */}
       <div
-        className="link-context-menu fixed bg-background border border-border rounded-lg shadow-lg py-2 min-w-48 z-50"
+        className="link-context-menu fixed bg-background border border-border rounded-lg shadow-lg py-2 min-w-48 z-50 bg-popover text-popover-foreground"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,

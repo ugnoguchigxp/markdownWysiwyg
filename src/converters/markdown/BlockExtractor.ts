@@ -9,8 +9,6 @@ export interface TableData {
 }
 
 export class BlockExtractor {
-  private readonly _instanceMarker = 0;
-
   private constructor() {
     // Intentionally empty.
   }

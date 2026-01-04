@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
-import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
 import { UPDATE_LOCK_RELEASE_MS } from '../constants/editor';
+import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
 import type { ExtendedEditor } from '../types/editor';
 import { createLogger } from '../utils/logger';
 import { isValidUrl } from '../utils/security';
@@ -199,7 +199,8 @@ export const useMarkdownInsertion = ({
           bulletList: insertText.startsWith('- '),
           orderedList: /^\d+\.\s/.test(insertText),
           link: insertText.includes('[') && insertText.includes('](') && insertText.includes(')'),
-          table: insertText.includes('|') && insertText.includes('\n') && insertText.includes('---'),
+          table:
+            insertText.includes('|') && insertText.includes('\n') && insertText.includes('---'),
           heading: insertText.startsWith('#'),
         };
 

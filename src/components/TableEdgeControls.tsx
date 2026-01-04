@@ -83,7 +83,7 @@ export const TableEdgeControls: React.FC<ITableEdgeControlsProps> = ({ editor })
 
   return createPortal(
     <div
-      className="table-edge-controls bg-background shadow-lg border border-border rounded-lg p-2 flex flex-col gap-1 fixed z-50 min-w-[140px]"
+      className="table-edge-controls bg-popover shadow-lg border border-border rounded-lg p-2 flex flex-col gap-1 fixed z-50 min-w-[140px]"
       style={{
         left: controlPosition.x,
         top: controlPosition.y,
