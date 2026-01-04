@@ -1,6 +1,17 @@
 @import "tailwindcss";
+
+@import "../../src/index.css";
+
+/* Scan package source for Tailwind classes */
 @source "./**/*.{ts,tsx}";
 @source "../../src/**/*.{ts,tsx}";
+
+/* 
+ * In a real project using npm, you would use:
+ *   @source "./node_modules/markdown-wysiwyg-editor/ * * / *.js";
+ *   @import "markdown-wysiwyg-editor/theme.css";
+ *   @import "markdown-wysiwyg-editor/style.css";
+ */
 
 @theme {
     --color-slate-50: #f8fafc;
@@ -38,6 +49,7 @@
     --variant-dark: .dark &;
 }
 
+/* Theme variables - In a real project, use @import "markdown-wysiwyg-editor/theme.css" instead */
 @layer base {
     :root {
         --background: 0 0% 100%;
