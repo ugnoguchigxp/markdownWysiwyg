@@ -87,16 +87,16 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
   };
 
   const buttonClass =
-    'p-1.5 border border-border rounded bg-background cursor-pointer flex items-center justify-center text-xs text-foreground transition-all duration-200 hover:bg-accent hover:border-border';
+    'p-btn-y border border-border rounded-ui bg-background cursor-pointer flex items-center justify-center text-xs text-foreground transition-all duration-200 hover:bg-accent hover:border-border';
   const deleteButtonClass =
-    'p-1.5 border border-border rounded bg-background cursor-pointer flex items-center justify-center text-xs text-foreground transition-all duration-200 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive';
+    'p-btn-y border border-border rounded-ui bg-background cursor-pointer flex items-center justify-center text-xs text-foreground transition-all duration-200 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive';
   const actionButtonClass =
-    'p-1.5 border border-border rounded bg-background cursor-pointer flex items-center justify-center text-xs text-foreground transition-all duration-200 hover:bg-primary/10 hover:border-primary/30';
+    'p-btn-y border border-border rounded-ui bg-background cursor-pointer flex items-center justify-center text-xs text-foreground transition-all duration-200 hover:bg-primary/10 hover:border-primary/30';
   const separatorClass = 'w-px h-6 bg-border mx-1';
 
   return (
     <div
-      className="table-toolbar absolute z-[1000] bg-background border border-border rounded-lg p-2 shadow-lg flex gap-1 items-center min-w-[400px]"
+      className="table-toolbar absolute z-[1000] bg-background border border-border rounded-ui p-ui-y shadow-lg flex gap-1 items-center min-w-[400px]"
       style={{
         left: position.x,
         top: position.y - 60,
@@ -109,8 +109,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={insertRowAbove}
         title={t(I18N_KEYS.tableToolbar.insertRowAbove)}
       >
-        <Rows3 className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />↑
+        <Rows3 className="mr-1 w-icon-sm h-icon-sm" />
+        <Plus className="w-icon-xs h-icon-xs" />↑
       </button>
 
       <button
@@ -119,8 +119,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={insertRowBelow}
         title={t(I18N_KEYS.tableToolbar.insertRowBelow)}
       >
-        <Rows3 className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />↓
+        <Rows3 className="mr-1 w-icon-sm h-icon-sm" />
+        <Plus className="w-icon-xs h-icon-xs" />↓
       </button>
 
       <button
@@ -129,8 +129,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={deleteRow}
         title={t(I18N_KEYS.tableToolbar.deleteRow)}
       >
-        <Rows3 className="mr-1 w-3 h-3" />
-        <Minus className="w-2 h-2" />
+        <Rows3 className="mr-1 w-icon-sm h-icon-sm" />
+        <Minus className="w-icon-xs h-icon-xs" />
       </button>
 
       <div className={separatorClass} />
@@ -142,9 +142,9 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={insertColumnLeft}
         title={t(I18N_KEYS.tableToolbar.insertColumnLeft)}
       >
-        <ArrowLeft className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />
-        <Columns3 className="ml-1 w-3 h-3" />
+        <ArrowLeft className="mr-1 w-icon-sm h-icon-sm" />
+        <Plus className="w-icon-xs h-icon-xs" />
+        <Columns3 className="ml-1 w-icon-sm h-icon-sm" />
       </button>
 
       <button
@@ -153,8 +153,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={insertColumnRight}
         title={t(I18N_KEYS.tableToolbar.insertColumnRight)}
       >
-        <Columns3 className="mr-1 w-3 h-3" />
-        <Plus className="w-2 h-2" />→
+        <Columns3 className="mr-1 w-icon-sm h-icon-sm" />
+        <Plus className="w-icon-xs h-icon-xs" />→
       </button>
 
       <button
@@ -163,8 +163,8 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={deleteColumn}
         title={t(I18N_KEYS.tableToolbar.deleteColumn)}
       >
-        <Columns3 className="mr-1 w-3 h-3" />
-        <Minus className="w-2 h-2" />
+        <Columns3 className="mr-1 w-icon-sm h-icon-sm" />
+        <Minus className="w-icon-xs h-icon-xs" />
       </button>
 
       <div className={separatorClass} />
@@ -176,7 +176,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={mergeCells}
         title={t(I18N_KEYS.tableToolbar.mergeCells)}
       >
-        <LayoutGrid className="w-3 h-3" />
+        <LayoutGrid className="w-icon-sm h-icon-sm" />
       </button>
 
       <button
@@ -185,7 +185,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={splitCell}
         title={t(I18N_KEYS.tableToolbar.splitCell)}
       >
-        <LayoutGrid className="w-3 h-3" />
+        <LayoutGrid className="w-icon-sm h-icon-sm" />
       </button>
 
       <div className={separatorClass} />
@@ -218,7 +218,7 @@ export const TableToolbar: React.FC<ITableToolbarProps> = ({ editor, visible, po
         onClick={deleteTable}
         title={t(I18N_KEYS.tableToolbar.deleteTable)}
       >
-        <Trash2 className="w-3 h-3" />
+        <Trash2 className="w-icon-sm h-icon-sm" />
       </button>
     </div>
   );

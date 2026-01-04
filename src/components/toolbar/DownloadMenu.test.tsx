@@ -16,8 +16,9 @@ describe('DownloadMenu', () => {
   it('renders download button', () => {
     render(<DownloadMenu {...defaultProps} />);
 
-    const button = screen.getByRole('button', { name: I18N_KEYS.openDownloadMenu });
+    const button = screen.getByRole('button');
     expect(button).toBeTruthy();
+    expect(button.getAttribute('data-tooltip')).toBe(I18N_KEYS.download);
   });
 
   it('calls onToggle when button is clicked', () => {

@@ -65,14 +65,14 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
       disabled={disabled}
       data-tooltip={t(I18N_KEYS.heading)}
       className={`
-        w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
+        w-8 h-8 flex items-center justify-center rounded-[var(--radius)] transition-colors duration-150
         disabled:opacity-50 disabled:cursor-not-allowed
         relative text-foreground hover:bg-accent
       `}
     >
-      <Heading1 className="w-4 h-4" />
+      <Heading1 className="w-icon-md h-icon-md" />
       <svg
-        className="w-2 h-2 absolute -bottom-0.5 -right-0.5"
+        className="w-icon-xs h-icon-xs absolute -bottom-0.5 -right-0.5"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -94,8 +94,14 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
           onClick={onClose}
         />
 
-        <div className="absolute top-full left-0 mt-2 w-80 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 bg-popover text-popover-foreground border border-border">
-          <div className="py-2 max-h-96 overflow-y-auto">
+        <div
+          className={`
+            absolute left-0 mt-ui-y w-80 bg-popover rounded-[calc(var(--radius)+4px)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden border border-border
+            transform transition-all duration-200 origin-top-left
+            ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+          `}
+        >
+          <div className="py-ui-y">
             {headingLevels.map((heading) => (
               <button
                 key={heading.level}
@@ -104,15 +110,16 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
                   onInsertMarkdown(heading.markdown);
                   onClose();
                 }}
-                className={`
-                  w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent
-                  bg-popover text-popover-foreground hover:bg-accent border-b border-border last:border-b-0
-                `}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
+                <div className="flex items-center w-full">
+                  <div
+                    className={`
+                        flex-1 px-ui-x py-ui-y rounded-md transition-colors duration-150
+                        hover:bg-accent hover:text-accent-foreground
+                      `}
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 w-12 h-8 rounded-md border flex items-center justify-center font-bold shadow-sm bg-background border-border text-foreground">
+                      <div className="flex-shrink-0 w-12 h-8 rounded-ui border flex items-center justify-center font-bold shadow-sm bg-background border-border text-foreground">
                         <span
                           className={`
                           ${heading.level === 1 ? 'text-[18px]' : ''}

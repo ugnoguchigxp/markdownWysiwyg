@@ -16,8 +16,9 @@ describe('HeadingMenu', () => {
   it('renders heading button', () => {
     render(<HeadingMenu {...defaultProps} />);
 
-    const button = screen.getByRole('button', { name: I18N_KEYS.heading });
+    const button = screen.getByRole('button');
     expect(button).toBeTruthy();
+    expect(button.getAttribute('data-tooltip')).toBe(I18N_KEYS.heading);
   });
 
   it('calls onToggle when button is clicked', () => {

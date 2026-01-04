@@ -112,7 +112,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
     <>
       {/* Context Menu */}
       <div
-        className="link-context-menu fixed bg-background border border-border rounded-lg shadow-lg py-2 min-w-48 z-50 bg-popover text-popover-foreground"
+        className="link-context-menu fixed bg-background border border-border rounded-ui shadow-lg py-ui-y min-w-48 z-50 bg-popover text-popover-foreground"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -120,32 +120,32 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
       >
         <button
           type="button"
-          className="w-full px-4 py-2 text-left hover:bg-accent flex items-center space-x-2 text-sm text-foreground"
+          className="w-full px-ui-x py-ui-y text-left hover:bg-accent flex items-center space-x-2 text-sm text-foreground"
           onClick={handleOpenLink}
         >
-          <ExternalLink className="w-3 h-3 text-primary" />
+          <ExternalLink className="w-icon-sm h-icon-sm text-primary" />
           <span>{t(I18N_KEYS.link.open)}</span>
         </button>
 
         <button
           type="button"
-          className="w-full px-4 py-2 text-left hover:bg-accent flex items-center space-x-2 text-sm text-foreground"
+          className="w-full px-ui-x py-ui-y text-left hover:bg-accent flex items-center space-x-2 text-sm text-foreground"
           onClick={handleEditClick}
         >
-          <Edit3 className="w-3 h-3 text-muted-foreground" />
+          <Edit3 className="w-icon-sm h-icon-sm text-muted-foreground" />
           <span>{t(I18N_KEYS.link.edit)}</span>
         </button>
 
         <div className="border-t border-border my-1" />
 
-        <div className="px-4 py-1 text-xs text-muted-foreground truncate">{linkData.href}</div>
+        <div className="px-ui-x py-1 text-xs text-muted-foreground truncate">{linkData.href}</div>
       </div>
 
       {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div
-            className="link-edit-modal bg-background rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl"
+            className="link-edit-modal bg-background rounded-ui p-ui-modal w-96 max-w-[90vw] mx-4 shadow-xl"
             onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -180,7 +180,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                       handleEditSubmit();
                     }
                   }}
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
+                  className="w-full px-ui-x py-ui-y border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
                   placeholder={t(I18N_KEYS.link.enterLinkText)}
                 />
               </div>
@@ -204,18 +204,18 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                       handleEditSubmit();
                     }
                   }}
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
+                  className="w-full px-ui-x py-ui-y border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary bg-background text-foreground"
                   placeholder={t(I18N_KEYS.link.urlPlaceholder)}
                 />
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="flex justify-end space-x-3 mt-[calc(var(--spacing-ui-y)*2)]">
               <button
                 type="button"
                 onClick={handleEditCancel}
-                className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                className="px-btn-x py-btn-y text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t(I18N_KEYS.cancelButton)}
               </button>
@@ -223,7 +223,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({
                 type="button"
                 onClick={handleEditSubmit}
                 disabled={!editUrl.trim()}
-                className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed rounded-md transition-colors"
+                className="px-btn-x py-btn-y bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed rounded-ui transition-colors"
               >
                 {t(I18N_KEYS.update)}
               </button>

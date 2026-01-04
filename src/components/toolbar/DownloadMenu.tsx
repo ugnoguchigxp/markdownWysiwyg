@@ -27,14 +27,14 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
       disabled={disabled}
       data-tooltip={t(I18N_KEYS.download)}
       className={`
-        w-8 h-8 flex items-center justify-center rounded transition-colors duration-150
+        w-8 h-8 flex items-center justify-center rounded-[var(--radius)] transition-colors duration-150
         disabled:opacity-50 disabled:cursor-not-allowed
         relative text-foreground hover:bg-accent
       `}
     >
-      <Download className="w-4 h-4" />
+      <Download className="w-icon-md h-icon-md" />
       <svg
-        className="w-2 h-2 absolute -bottom-0.5 -right-0.5"
+        className="w-icon-xs h-icon-xs absolute -bottom-0.5 -right-0.5"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -56,9 +56,15 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
           onClick={onClose}
         />
 
-        <div className="absolute top-full left-0 mt-2 w-64 rounded-xl shadow-xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200 bg-popover text-popover-foreground border border-border">
-          <div className="py-2">
-            <div className="px-4 py-2 bg-popover border-b border-border">
+        <div
+          className={`
+          absolute right-0 mt-ui-y w-64 bg-popover rounded-[calc(var(--radius)+4px)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden border border-border
+          transform transition-all duration-200 origin-top-right
+          ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+        `}
+        >
+          <div className="py-ui-y">
+            <div className="px-ui-x py-ui-y border-b border-border">
               <h3 className="text-sm font-semibold text-popover-foreground">
                 {t(I18N_KEYS.exportMenuTitle)}
               </h3>
@@ -73,11 +79,11 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
                 onDownloadAsMarkdown();
                 onClose();
               }}
-              className="w-full text-left px-4 py-3 transition-all duration-150 border-l-4 border-transparent bg-popover text-popover-foreground hover:bg-accent"
+              className="w-full text-left px-ui-x py-ui-y transition-all duration-150 border-l-4 border-transparent bg-popover text-popover-foreground hover:bg-accent"
             >
               <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center bg-accent">
-                  <Download className="w-3 h-3 text-popover-foreground" />
+                <div className="flex-shrink-0 w-8 h-8 rounded-ui flex items-center justify-center bg-accent">
+                  <Download className="w-icon-sm h-icon-sm text-popover-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-popover-foreground">

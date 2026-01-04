@@ -1,6 +1,6 @@
 {
   "name": "markdown-wysiwyg-editor",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Lightweight Markdown WYSIWYG editor with TipTap, Mermaid support",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,15 +11,23 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./style.css": "./dist/index.css"
+    "./style.css": "./dist/index.css",
+    "./theme.css": "./dist/theme.css"
   },
-  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
-  "workspaces": ["example"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "workspaces": [
+    "example"
+  ],
   "scripts": {
     "dev": "bun build --watch ./src/index.ts --outdir ./dist --external react --external react-dom --external mermaid",
     "build": "bun run build:js && bun run build:css && bun run build:types",
     "build:js": "NODE_ENV=production bun build ./src/index.ts --outdir ./dist --external react --external react-dom --external mermaid --sourcemap=linked --define 'process.env.NODE_ENV=\"production\"'",
-    "build:css": "bunx tailwindcss -i ./src/index.css -o ./dist/index.css --minify",
+    "build:css": "cp ./src/index.css ./dist/index.css && cp ./src/theme.css ./dist/theme.css",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -30,7 +38,15 @@
     "format:check": "biome format .",
     "prepublishOnly": "npm run build && npm run test"
   },
-  "keywords": ["markdown", "wysiwyg", "editor", "tiptap", "mermaid", "react", "typescript"],
+  "keywords": [
+    "markdown",
+    "wysiwyg",
+    "editor",
+    "tiptap",
+    "mermaid",
+    "react",
+    "typescript"
+  ],
   "author": "Yuji Noguchi (https://github.com/ugnoguchigxp)",
   "repository": {
     "type": "git",

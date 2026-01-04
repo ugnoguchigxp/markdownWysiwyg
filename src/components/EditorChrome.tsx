@@ -47,7 +47,7 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
   return (
     <>
       {effectiveShowToolbar && (
-        <div className="border-b p-2 rounded-t-lg transition-colors duration-200 bg-popover border-border">
+        <div className="border-b p-ui-y rounded-t-ui transition-colors duration-200 bg-popover border-border">
           <MarkdownToolbar
             onInsertMarkdown={onInsertMarkdown}
             selectedText={selectionInfo?.selectedText || ''}
@@ -62,19 +62,19 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
       {children}
 
       {effectiveShowSyntaxStatus && (
-        <MarkdownSyntaxStatus selectionInfo={selectionInfo} className="rounded-b-md" />
+        <MarkdownSyntaxStatus selectionInfo={selectionInfo} className="rounded-b-ui" />
       )}
 
       {effectiveShowPasteDebug && (
-        <div className="bg-muted border-t border-border p-3">
-          <div className="flex justify-between items-center mb-2">
+        <div className="bg-muted border-t border-border p-ui-x">
+          <div className="flex justify-between items-center mb-ui-y">
             <h3 className="text-sm font-semibold text-foreground">
               {t(I18N_KEYS.pasteDebugPanel)}
             </h3>
             <button
               type="button"
               onClick={onClearPasteEvents}
-              className="text-xs px-2 py-1 bg-destructive/10 text-destructive rounded hover:bg-destructive/20"
+              className="text-xs px-ui-x py-[calc(var(--spacing-ui-y)*0.5)] bg-destructive/10 text-destructive rounded-ui hover:bg-destructive/20"
             >
               {t(I18N_KEYS.clear)}
             </button>
@@ -84,7 +84,7 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
             {pasteEvents.map((event) => (
               <div
                 key={`${event.timestamp}-${event.type}`}
-                className="text-xs bg-background p-2 rounded border border-border"
+                className="text-xs bg-background p-ui-y rounded-ui border border-border"
               >
                 <div className="font-semibold">
                   {new Date(event.timestamp).toLocaleTimeString()}

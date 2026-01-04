@@ -5,11 +5,7 @@ export type IconProps = ComponentProps<'svg'> & {
   size?: number | string;
 };
 
-const createIcon = (
-  path: React.ReactNode,
-  displayName: string,
-  ariaLabel: string,
-): FunctionComponent<IconProps> => {
+const createIcon = (path: React.ReactNode, displayName: string): FunctionComponent<IconProps> => {
   const Icon: FunctionComponent<IconProps> = ({ size = 24, className, ...props }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -22,10 +18,9 @@ const createIcon = (
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      aria-label={ariaLabel}
-      role="img"
       {...props}
     >
+      <title>{displayName}</title>
       {path}
     </svg>
   );

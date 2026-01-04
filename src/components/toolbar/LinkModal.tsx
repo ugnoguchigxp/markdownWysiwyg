@@ -50,12 +50,12 @@ export const LinkModal: React.FC<LinkModalProps> = ({
       />
 
       <div
-        className="relative rounded-lg p-6 w-96 max-w-[90vw] mx-4 shadow-xl bg-background text-foreground border border-border"
+        className="relative rounded-ui p-ui-modal w-96 max-w-[90vw] mx-4 shadow-xl bg-background text-foreground border border-border"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-semibold mb-4 text-foreground">{t(I18N_KEYS.insertLink)}</h3>
+        <h3 className="text-lg font-semibold mb-ui-y text-foreground">{t(I18N_KEYS.insertLink)}</h3>
 
-        <div className="space-y-4">
+        <div className="space-y-ui-y">
           <div>
             <label
               htmlFor="mw-insert-link-text"
@@ -74,7 +74,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
                   handleSubmit();
                 }
               }}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background border-border text-foreground"
+              className="w-full px-ui-x py-ui-y border rounded-ui focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background border-border text-foreground"
               placeholder={t(I18N_KEYS.link.enterLinkText)}
             />
           </div>
@@ -97,17 +97,17 @@ export const LinkModal: React.FC<LinkModalProps> = ({
                   handleSubmit();
                 }
               }}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background border-border text-foreground"
+              className="w-full px-ui-x py-ui-y border rounded-ui focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background border-border text-foreground"
               placeholder={t(I18N_KEYS.link.urlPlaceholder)}
             />
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 mt-6">
+        <div className="flex justify-end space-x-3 mt-[calc(var(--ui-component-padding-y)*2)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+            className="px-btn-x py-btn-y text-muted-foreground hover:text-foreground hover:bg-accent rounded-ui transition-colors"
           >
             {t(I18N_KEYS.cancelButton)}
           </button>
@@ -115,7 +115,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={!linkUrl.trim()}
-            className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed rounded-md transition-colors"
+            className="px-btn-x py-btn-y bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed rounded-ui transition-colors"
           >
             {t(I18N_KEYS.insert)}
           </button>

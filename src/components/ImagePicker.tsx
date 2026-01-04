@@ -56,7 +56,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   return (
     <dialog
       ref={pickerRef}
-      className="mw-image-picker bg-popover text-popover-foreground border border-border shadow-xl rounded-xl"
+      className="mw-image-picker bg-popover text-popover-foreground border border-border shadow-xl rounded-ui"
       aria-label={t(I18N_KEYS.image.pickerTitle, 'Insert image')}
       open
     >

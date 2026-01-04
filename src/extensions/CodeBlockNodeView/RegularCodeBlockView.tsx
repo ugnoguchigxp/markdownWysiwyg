@@ -41,14 +41,14 @@ export const RegularCodeBlockView = ({
   return (
     <NodeViewWrapper className={`code-block ${selected ? 'ring-2 ring-blue-500' : ''}`}>
       <div
-        className={`relative bg-slate-800 rounded-md p-4 border ${selected ? 'border-blue-500' : 'border-slate-700'}`}
+        className={`relative bg-slate-800 rounded-ui p-ui-x border ${selected ? 'border-blue-500' : 'border-slate-700'}`}
       >
         {isEditable && (
           <div className="absolute top-0 right-0 flex gap-1 items-center z-10">
             <select
               value={selectedLanguage}
               onChange={(e) => handleLanguageChange(e.target.value)}
-              className="px-2 py-1.5 border border-slate-600 rounded text-xs bg-slate-700 text-slate-200 cursor-pointer focus:outline-none focus:border-blue-500"
+              className="px-ui-x py-ui-y border border-slate-600 rounded-ui text-xs bg-slate-700 text-slate-200 cursor-pointer focus:outline-none focus:border-blue-500"
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -60,7 +60,7 @@ export const RegularCodeBlockView = ({
               &#x25B6;
             </IconButton>
             <IconButton onClick={deleteNode} title="削除">
-              <Trash2 size={16} />
+              <Trash2 size="var(--spacing-icon-md)" />
             </IconButton>
           </div>
         )}
