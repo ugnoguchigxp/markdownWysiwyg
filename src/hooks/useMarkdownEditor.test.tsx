@@ -8,6 +8,11 @@ type MockEditorInstance = {
   getJSON: ReturnType<typeof vi.fn>;
   chain: ReturnType<typeof vi.fn>;
   isDestroyed: boolean;
+  state: {
+    doc: {
+      eq: ReturnType<typeof vi.fn>;
+    };
+  };
 };
 
 type CapturedEditorOptions = {
@@ -27,6 +32,11 @@ const mockEditorInstance: MockEditorInstance = {
     run: vi.fn(),
   }),
   isDestroyed: false,
+  state: {
+    doc: {
+      eq: vi.fn().mockReturnValue(false), // Default: doc changed
+    },
+  },
 };
 
 vi.mock('@tiptap/react', () => ({

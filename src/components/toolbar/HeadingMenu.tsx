@@ -101,51 +101,41 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
             ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
           `}
         >
-          <div className="py-ui-y">
+          <div className="flex flex-col py-1">
             {headingLevels.map((heading) => (
               <button
                 key={heading.level}
                 type="button"
+                className="w-full flex items-center px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors text-left group"
                 onClick={() => {
                   onInsertMarkdown(heading.markdown);
                   onClose();
                 }}
               >
-                <div className="flex items-center w-full">
+                <div className="flex-shrink-0 w-12 h-8 rounded border flex items-center justify-center font-bold shadow-sm bg-background border-border text-foreground group-hover:border-accent-foreground/30 transition-colors">
+                  <span
+                    className={`
+                      ${heading.level === 1 ? 'text-[18px]' : ''}
+                      ${heading.level === 2 ? 'text-[16px]' : ''}
+                      ${heading.level === 3 ? 'text-[14px]' : ''}
+                      ${heading.level >= 4 ? 'text-[12px]' : ''}
+                    `}
+                  >
+                    {heading.preview}
+                  </span>
+                </div>
+                <div className="ml-3 flex-1">
                   <div
                     className={`
-                        flex-1 px-ui-x py-ui-y rounded-md transition-colors duration-150
-                        hover:bg-accent hover:text-accent-foreground
-                      `}
+                      truncate max-w-[180px]
+                      ${heading.level === 1 ? 'text-[20px] font-bold' : ''}
+                      ${heading.level === 2 ? 'text-[18px] font-bold' : ''}
+                      ${heading.level === 3 ? 'text-[16px] font-semibold' : ''}
+                      ${heading.level === 4 ? 'text-[14px] font-semibold' : ''}
+                      ${heading.level === 5 ? 'text-[13px] font-medium' : ''}
+                    `}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 w-12 h-8 rounded-ui border flex items-center justify-center font-bold shadow-sm bg-background border-border text-foreground">
-                        <span
-                          className={`
-                          ${heading.level === 1 ? 'text-[18px]' : ''}
-                          ${heading.level === 2 ? 'text-[16px]' : ''}
-                          ${heading.level === 3 ? 'text-[14px]' : ''}
-                          ${heading.level >= 4 ? 'text-[12px]' : ''}
-                        `}
-                        >
-                          {heading.preview}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0 ml-3">
-                    <div
-                      className={`
-                        truncate max-w-[200px] text-popover-foreground
-                        ${heading.level === 1 ? 'text-[22px] font-bold leading-[28px]' : ''}
-                        ${heading.level === 2 ? 'text-[18px] font-bold leading-[24px]' : ''}
-                        ${heading.level === 3 ? 'text-[16px] font-semibold leading-[22px]' : ''}
-                        ${heading.level === 4 ? 'text-[14px] font-semibold leading-[20px]' : ''}
-                        ${heading.level === 5 ? 'text-[13px] font-semibold leading-[18px]' : ''}
-                      `}
-                    >
-                      {`${t(I18N_KEYS.heading)}${heading.level}`}
-                    </div>
+                    {`${t(I18N_KEYS.heading)}${heading.level}`}
                   </div>
                 </div>
               </button>

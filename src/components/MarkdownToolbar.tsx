@@ -339,7 +339,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             />
 
             {item.icon === Smile && showEmojiPicker && (
-              <div className="absolute top-full left-0 mt-1 z-20">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-ui-y z-20">
                 <EmojiPicker
                   onSelect={handleEmojiSelect}
                   onClose={() => setShowEmojiPicker(false)}
@@ -350,7 +350,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             )}
 
             {item.icon === ImageIcon && showImagePicker && (
-              <div className="absolute top-full left-0 mt-1 z-20">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-ui-y z-20">
                 <ImagePicker
                   onInsertMarkdown={handleInsertImageMarkdown}
                   onClose={() => setShowImagePicker(false)}

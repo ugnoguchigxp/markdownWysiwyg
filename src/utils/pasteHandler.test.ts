@@ -98,6 +98,15 @@ describe('pasteHandler', () => {
 
     it('should process markdown if text is within threshold', async () => {
       const plainText = '# Heading';
+
+      // Simulate selection moving forward after insert
+      const initialFrom = 100;
+      mockEditor.state.selection.from = initialFrom;
+
+      mockEditor.commands.insertContent.mockImplementation(() => {
+        mockEditor.state.selection.from = initialFrom + plainText.length;
+      });
+
       await handleMarkdownPaste({
         editor: mockEditor as unknown as ExtendedEditor,
         plainText,
@@ -108,14 +117,53 @@ describe('pasteHandler', () => {
       });
 
       expect(setIsProcessing).toHaveBeenCalledWith(true);
-      expect(mockEditor.commands.deleteRange).toHaveBeenCalled();
+      // Verify safe range deleting extracted start/end
+      expect(mockEditor.commands.deleteRange).toHaveBeenCalledWith({
+        from: initialFrom,
+        to: initialFrom + plainText.length,
+      });
       expect(MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender).toHaveBeenCalled();
+      expect(setIsProcessing).toHaveBeenCalledWith(false);
+    });
+
+    it('should NOT process if nothing was inserted (invalid range)', async () => {
+      const plainText = '# Heading';
+
+      // Simulate NO selection movement (insert failed or empty)
+      const initialFrom = 100;
+      mockEditor.state.selection.from = initialFrom;
+
+      mockEditor.commands.insertContent.mockImplementation(() => {
+        // selection.from stays 100
+      });
+
+      await handleMarkdownPaste({
+        editor: mockEditor as unknown as ExtendedEditor,
+        plainText,
+        logger: mockLogger as unknown as ILogger,
+        setIsProcessing,
+        setProcessingProgress,
+        largeTextThreshold: 1000,
+      });
+
+      expect(setIsProcessing).toHaveBeenCalledWith(true);
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Nothing inserted'));
+      expect(mockEditor.commands.deleteRange).not.toHaveBeenCalled();
+      expect(MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender).not.toHaveBeenCalled(); // Should assume processing completes safely but loops skipped?
+      // Actually code calls setIsProcessing(false) in finally
       expect(setIsProcessing).toHaveBeenCalledWith(false);
     });
 
     it('should handle errors during processing', async () => {
       const plainText = '# Heading';
       const error = new Error('Processing failed');
+
+      // Simulate valid insert
+      const initialFrom = 100;
+      mockEditor.state.selection.from = initialFrom;
+      mockEditor.commands.insertContent.mockImplementation(() => {
+        mockEditor.state.selection.from = initialFrom + plainText.length;
+      });
 
       vi.mocked(
         MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender,
@@ -134,7 +182,8 @@ describe('pasteHandler', () => {
         expect.stringContaining('Sequential rendering failed'),
         error,
       );
-      // Should restore plain text
+      // Should restore plain text at ORIGINAL startPos
+      expect(mockEditor.commands.setTextSelection).toHaveBeenCalledWith(initialFrom);
       expect(mockEditor.commands.insertContent).toHaveBeenCalledTimes(2); // Initial + Restore
     });
   });

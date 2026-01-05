@@ -34,7 +34,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 }) => {
   const [activeGroup, setActiveGroup] = useState<EmojiCategoryGroupId>('smileys_people');
   const [query, setQuery] = useState('');
-  const pickerRef = useRef<HTMLDialogElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside to close
   useEffect(() => {
@@ -86,11 +86,10 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   }, [activeGroup]);
 
   return (
-    <dialog
+    <div
       ref={pickerRef}
-      className="mw-emoji-picker bg-popover text-popover-foreground border border-border shadow-xl rounded-xl"
+      className="mw-emoji-picker bg-popover text-popover-foreground border border-border shadow-lg ring-1 ring-black ring-opacity-5 rounded-[calc(var(--radius)+4px)]"
       aria-label={t(I18N_KEYS.emoji.pickerTitle, 'Emoji picker')}
-      open
     >
       <div className="mw-emoji-search">
         <input
@@ -192,6 +191,6 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
           </div>
         )}
       </div>
-    </dialog>
+    </div>
   );
 };

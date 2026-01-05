@@ -9,6 +9,8 @@ import Typography from '@tiptap/extension-typography';
 import { type Editor, type JSONContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { common, createLowlight } from 'lowlight';
+import { useRef } from 'react';
+
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { CustomCodeBlock } from '../extensions/CustomCodeBlock';
 import { createLinkClickExtension } from '../extensions/LinkClickExtension';
@@ -41,7 +43,7 @@ interface UseMarkdownEditorProps {
   setContent: (content: JSONContent) => void;
   handleLinkContextMenu: (
     event: React.MouseEvent,
-    linkData: { href: string; text: string },
+    linkData: { href: string; text: string; from: number; to: number },
   ) => void;
   handleTableContextMenu: (event: React.MouseEvent) => void;
 }
@@ -70,6 +72,8 @@ export const useMarkdownEditor = ({
   handleTableContextMenu,
 }: UseMarkdownEditorProps) => {
   const lowlight = createLowlight(common);
+  // biome-ignore lint/suspicious/noExplicitAny: ProseMirror Node type definition is elusive
+  const lastEmittedDocRef = useRef<any>(null);
 
   const editor = useEditor({
     enableContentCheck: false,
@@ -153,6 +157,8 @@ export const useMarkdownEditor = ({
         return;
       }
 
+      const { doc } = editor.state;
+
       const json = editor.getJSON();
       setContent(json);
 
@@ -160,35 +166,35 @@ export const useMarkdownEditor = ({
         onContentChange(json);
       }
 
-      if (onChange) {
+      // Only convert if listeners exist
+      if (onChange || onMarkdownChange) {
         try {
           const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-          onChange(markdown);
-        } catch (error) {
-          logger.warn('⚠️ Markdown conversion failed in onUpdate:', error);
-        }
-      }
+          if (onChange) onChange(markdown);
+          if (onMarkdownChange) onMarkdownChange(markdown);
 
-      if (onMarkdownChange) {
-        try {
-          const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-          onMarkdownChange(markdown);
+          // Update reference
+          lastEmittedDocRef.current = doc;
         } catch (error) {
           logger.warn('⚠️ Markdown conversion failed in onUpdate:', error);
         }
       }
     },
     onBlur: ({ editor }) => {
-      if (onMarkdownChange) {
+      // Optimization: Skip conversion if document hasn't changed since last update
+      if (lastEmittedDocRef.current && editor.state.doc.eq(lastEmittedDocRef.current)) {
+        return;
+      }
+
+      const hasListeners = onChange || onMarkdownChange;
+      if (hasListeners) {
         try {
           const json = editor.getJSON();
           const markdown = JsonToMarkdownConverter.convertToMarkdown(json);
-          if (onChange) {
-            onChange(markdown);
-          }
-          if (onMarkdownChange) {
-            onMarkdownChange(markdown);
-          }
+          if (onChange) onChange(markdown);
+          if (onMarkdownChange) onMarkdownChange(markdown);
+
+          lastEmittedDocRef.current = editor.state.doc;
         } catch (error) {
           logger.warn('⚠️ Markdown conversion failed in onBlur:', error);
         }

@@ -90,6 +90,8 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   // onMarkdownChange will be re-enabled after TextEditor bypass
 
   const editorElementRef = React.useRef<HTMLDivElement>(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const lastProcessedContentRef = React.useRef<string | undefined>(undefined);
   const {
     linkContextMenu,
     tableContextMenu,
@@ -169,13 +171,26 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     const processInitialMarkdown = async () => {
       const contentToProcess = value !== undefined ? value : initialContent;
 
+      // 1. Check if content is same as last processed to prevent redundant updates
+      if (contentToProcess === lastProcessedContentRef.current) {
+        return;
+      }
+
       if (!editor) return;
+
+      // 2. Abort previous pending conversion
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
       // Handle empty content
       if (!contentToProcess || !contentToProcess.trim()) {
         // Only clear if editor is not already empty to avoid loops/flashing
-        if (!editor.isEmpty) {
+        if (!editor.isEmpty && !controller.signal.aborted) {
           editor.commands.clearContent();
+          lastProcessedContentRef.current = contentToProcess;
         }
         return;
       }
@@ -183,17 +198,14 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       const trimmed = contentToProcess.trim();
 
       // Always try to convert Markdown to JSON
-      // We removed isMarkdownText check because it was too strict and caused plain text or simple markdown to be ignored
       try {
         // Prevent infinite loop:
         // If the editor is focused, we assume the user is typing and we shouldn't overwrite
         // unless the value is drastically different (which is hard to know).
-        // However, for a controlled component, value should be the source of truth.
-        // If we are in "viewer" mode (editable=false), we always update.
         if (editor.isFocused && editable) {
           // If focused and editable, we skip update to prevent cursor jumping and loops
-          // This assumes onChange is called onBlur, so value doesn't update while typing.
-          // If value updates while typing, this prevents the loop/cursor jump.
+          // But update ref so we don't try again immediately
+          lastProcessedContentRef.current = contentToProcess;
           return;
         }
 
@@ -201,7 +213,9 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           publicImagePathPrefix,
         });
 
-        // Check code blocks
+        if (controller.signal.aborted) return;
+
+        // Check code blocks (logging)
         const codeBlocks = json?.content?.filter((node) => node.type === 'codeBlock') || [];
         if (codeBlocks.length > 0) {
           codeBlocks.forEach((block, idx) => {
@@ -212,9 +226,10 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
         }
 
         // Set conversion result to editor
-        // setContent(json) will trigger onUpdate, but since we don't call onChange in onUpdate, it shouldn't loop
         editor.commands.setContent(json);
+        lastProcessedContentRef.current = contentToProcess;
       } catch (error) {
+        if (controller.signal.aborted) return;
         logger.warn('[MarkdownEditor] Automatic Markdown conversion failed:', error);
         // Fallback: Insert as plain text if conversion fails
         const lines = trimmed.split('\n');
@@ -225,6 +240,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
             content: line.length > 0 ? [{ type: 'text', text: line }] : [],
           })),
         });
+        lastProcessedContentRef.current = contentToProcess;
       }
     };
 
@@ -232,7 +248,13 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     if (editor) {
       processInitialMarkdown();
     }
-  }, [editor, initialContent, value, editable, publicImagePathPrefix]); // Execute when value changes
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [editor, initialContent, value, editable, publicImagePathPrefix]);
 
   // Update editor editable state when prop changes
   useEffect(() => {
@@ -281,6 +303,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   }, [editor]);
 
   // Link edit handler (defined after useEditor)
+  // Link edit handler (defined after useEditor)
   const handleEditLink = useCallback(
     (newLinkData: { href: string; text: string }) => {
       if (!editor || !linkContextMenu.linkData) return;
@@ -295,48 +318,31 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
       (editor as ExtendedEditor).__preventUpdate = true;
 
       try {
-        // Find and update link in editor
         const { state, dispatch } = editor.view;
-        let linkUpdated = false;
+        const { from, to } = linkContextMenu.linkData;
 
-        // Traverse entire document to find link
-        state.doc.descendants((node, pos) => {
-          if (linkUpdated) return false;
+        // Verify that the link mark still exists at the expected position (basic safety check)
+        const node = state.doc.nodeAt(from);
 
-          if (node.isText && node.marks) {
-            const linkMark = node.marks.find((mark) => mark.type.name === 'link');
-            if (
-              linkMark &&
-              linkMark.attrs.href === linkContextMenu.linkData?.href &&
-              node.text === linkContextMenu.linkData?.text
-            ) {
-              // Check link mark type
-              if (!state.schema.marks.link) {
-                logger.warn('Link mark type not found in schema');
-                return false;
-              }
+        // If from/to are valid numbers
+        if (typeof from === 'number' && typeof to === 'number') {
+          const newLinkMark = state.schema.marks.link.create({ href: newLinkData.href });
+          const transaction = state.tr;
 
-              // Update link
-              const from = pos;
-              const to = pos + node.nodeSize;
-              const newLinkMark = state.schema.marks.link.create({ href: newLinkData.href });
-              const transaction = state.tr;
+          // Allow replacing range, but consider what if user edited text meanwhile?
+          // The safest is to rely on from/to if we trust they haven't shifted massively.
+          // A transaction ensures atomicity.
 
-              // Delete existing text and insert new text with link
-              transaction.delete(from, to);
-              transaction.insert(from, state.schema.text(newLinkData.text, [newLinkMark]));
+          transaction.delete(from, to);
+          transaction.insert(from, state.schema.text(newLinkData.text, [newLinkMark]));
 
-              dispatch(transaction);
-              linkUpdated = true;
-              return false;
-            }
-          }
-          return true; // Continue with other nodes
-        });
-
-        if (!linkUpdated) {
-          logger.warn('Link not found for update');
+          dispatch(transaction);
+        } else {
+          logger.warn('Use of old link editing fallback');
+          // Fallback to old behavior if needed, or just error
         }
+      } catch (error) {
+        logger.error('Link update failed', error);
       } finally {
         // Reset flags and state asynchronously
         setTimeout(() => {

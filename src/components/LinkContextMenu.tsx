@@ -17,6 +17,8 @@ interface LinkContextMenuProps {
   linkData: {
     href: string;
     text: string;
+    from?: number;
+    to?: number;
   } | null;
   onClose: () => void;
   onOpenLink: (href: string) => void;

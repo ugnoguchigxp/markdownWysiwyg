@@ -9,9 +9,20 @@ vi.mock('../../src/utils/logger', () => ({
   }),
 }));
 
+// Mock @tiptap/core partly
+vi.mock('@tiptap/core', async (importOriginal) => {
+  // biome-ignore lint/suspicious/noExplicitAny: Mock type
+  const actual = await importOriginal<any>();
+  return {
+    ...actual,
+    getMarkRange: vi.fn().mockReturnValue({ from: 10, to: 20 }),
+  };
+});
+
 import { createLinkClickExtension } from '../../src/extensions/LinkClickExtension';
 
-type DomEventHandler = (view: unknown, event: MouseEvent) => boolean;
+// biome-ignore lint/suspicious/noExplicitAny: Mock type
+type DomEventHandler = (view: any, event: MouseEvent) => boolean;
 
 type PluginLike = {
   spec: {
@@ -30,6 +41,20 @@ type ExtensionWithPlugins = {
   };
 };
 
+const mockView = {
+  posAtDOM: vi.fn().mockReturnValue(10),
+  state: {
+    doc: {
+      resolve: vi.fn().mockReturnValue({}),
+    },
+    schema: {
+      marks: {
+        link: {},
+      },
+    },
+  },
+};
+
 describe('LinkClickExtension', () => {
   it('invokes handler on contextmenu for links with href', () => {
     const handleContextMenu = vi.fn();
@@ -43,11 +68,14 @@ describe('LinkClickExtension', () => {
     const event = new MouseEvent('contextmenu', { bubbles: true });
     Object.defineProperty(event, 'target', { value: a });
 
-    const ret = plugin.spec.props.handleDOMEvents.contextmenu(null, event);
+    const ret = plugin.spec.props.handleDOMEvents.contextmenu(mockView, event);
     expect(ret).toBe(true);
+    // getMarkRange mock returns { from: 10, to: 20 }
     expect(handleContextMenu).toHaveBeenCalledWith(event, {
       href: 'https://example.com',
       text: 'Example',
+      from: 10,
+      to: 20,
     });
   });
 
@@ -70,11 +98,19 @@ describe('LinkClickExtension', () => {
     const preventDefault = vi.spyOn(event, 'preventDefault');
     const stopPropagation = vi.spyOn(event, 'stopPropagation');
 
-    const ret = plugin.spec.props.handleDOMEvents.click(null, event);
+    // Reset mockView calls if needed
+    mockView.posAtDOM.mockClear();
+
+    const ret = plugin.spec.props.handleDOMEvents.click(mockView, event);
     expect(ret).toBe(true);
     expect(preventDefault).toHaveBeenCalled();
     expect(stopPropagation).toHaveBeenCalled();
-    expect(handleContextMenu).toHaveBeenCalledWith(event, { href: '/local', text: 'Local' });
+    expect(handleContextMenu).toHaveBeenCalledWith(event, {
+      href: '/local',
+      text: 'Local',
+      from: 10,
+      to: 20,
+    });
   });
 
   it('returns false when clicked element is not a link', () => {
@@ -86,8 +122,8 @@ describe('LinkClickExtension', () => {
     const event = new MouseEvent('click', { bubbles: true });
     Object.defineProperty(event, 'target', { value: div });
 
-    expect(plugin.spec.props.handleDOMEvents.click(null, event)).toBe(false);
-    expect(plugin.spec.props.handleDOMEvents.contextmenu(null, event)).toBe(false);
+    expect(plugin.spec.props.handleDOMEvents.click(mockView, event)).toBe(false);
+    expect(plugin.spec.props.handleDOMEvents.contextmenu(mockView, event)).toBe(false);
   });
 
   it('returns false for contextmenu when link has no href', () => {
@@ -101,7 +137,7 @@ describe('LinkClickExtension', () => {
     const event = new MouseEvent('contextmenu', { bubbles: true });
     Object.defineProperty(event, 'target', { value: a });
 
-    expect(plugin.spec.props.handleDOMEvents.contextmenu(null, event)).toBe(false);
+    expect(plugin.spec.props.handleDOMEvents.contextmenu(mockView, event)).toBe(false);
     expect(handleContextMenu).not.toHaveBeenCalled();
   });
 
@@ -119,7 +155,7 @@ describe('LinkClickExtension', () => {
     const preventDefault = vi.spyOn(event, 'preventDefault');
     const stopPropagation = vi.spyOn(event, 'stopPropagation');
 
-    expect(plugin.spec.props.handleDOMEvents.click(null, event)).toBe(false);
+    expect(plugin.spec.props.handleDOMEvents.click(mockView, event)).toBe(false);
     expect(preventDefault).not.toHaveBeenCalled();
     expect(stopPropagation).not.toHaveBeenCalled();
     expect(handleContextMenu).not.toHaveBeenCalled();
@@ -137,7 +173,7 @@ describe('LinkClickExtension', () => {
     const event = new MouseEvent('click', { bubbles: true });
     Object.defineProperty(event, 'target', { value: a });
 
-    expect(plugin.spec.props.handleDOMEvents.click(null, event)).toBe(false);
+    expect(plugin.spec.props.handleDOMEvents.click(mockView, event)).toBe(false);
     expect(handleContextMenu).not.toHaveBeenCalled();
   });
 
@@ -160,12 +196,14 @@ describe('LinkClickExtension', () => {
     const preventDefault = vi.spyOn(event, 'preventDefault');
     const stopPropagation = vi.spyOn(event, 'stopPropagation');
 
-    expect(plugin.spec.props.handleDOMEvents.click(null, event)).toBe(true);
+    expect(plugin.spec.props.handleDOMEvents.click(mockView, event)).toBe(true);
     expect(preventDefault).toHaveBeenCalled();
     expect(stopPropagation).toHaveBeenCalled();
     expect(handleContextMenu).toHaveBeenCalledWith(event, {
       href: 'https://example.com',
       text: 'Link',
+      from: 10,
+      to: 20,
     });
   });
 
@@ -188,9 +226,15 @@ describe('LinkClickExtension', () => {
     const preventDefault = vi.spyOn(event, 'preventDefault');
     const stopPropagation = vi.spyOn(event, 'stopPropagation');
 
-    expect(plugin.spec.props.handleDOMEvents.click(null, event)).toBe(true);
+    expect(plugin.spec.props.handleDOMEvents.click(mockView, event)).toBe(true);
     expect(preventDefault).toHaveBeenCalled();
     expect(stopPropagation).toHaveBeenCalled();
+    expect(handleContextMenu).toHaveBeenCalledWith(event, {
+      href: 'https://example.com',
+      text: 'Link',
+      from: 10,
+      to: 20,
+    });
   });
 
   it('handles contextmenu with different href values', () => {
@@ -208,8 +252,13 @@ describe('LinkClickExtension', () => {
       const event = new MouseEvent('contextmenu', { bubbles: true });
       Object.defineProperty(event, 'target', { value: a });
 
-      expect(plugin.spec.props.handleDOMEvents.contextmenu(null, event)).toBe(true);
-      expect(handleContextMenu).toHaveBeenCalledWith(event, { href, text: 'Test' });
+      expect(plugin.spec.props.handleDOMEvents.contextmenu(mockView, event)).toBe(true);
+      expect(handleContextMenu).toHaveBeenCalledWith(event, {
+        href,
+        text: 'Test',
+        from: 10,
+        to: 20,
+      });
       handleContextMenu.mockClear();
     }
   });
@@ -226,10 +275,12 @@ describe('LinkClickExtension', () => {
     const event = new MouseEvent('contextmenu', { bubbles: true });
     Object.defineProperty(event, 'target', { value: a });
 
-    expect(plugin.spec.props.handleDOMEvents.contextmenu(null, event)).toBe(true);
+    expect(plugin.spec.props.handleDOMEvents.contextmenu(mockView, event)).toBe(true);
     expect(handleContextMenu).toHaveBeenCalledWith(event, {
       href: 'https://example.com',
       text: '',
+      from: 10,
+      to: 20,
     });
   });
 
@@ -245,10 +296,12 @@ describe('LinkClickExtension', () => {
     const event = new MouseEvent('contextmenu', { bubbles: true });
     Object.defineProperty(event, 'target', { value: a });
 
-    expect(plugin.spec.props.handleDOMEvents.contextmenu(null, event)).toBe(true);
+    expect(plugin.spec.props.handleDOMEvents.contextmenu(mockView, event)).toBe(true);
     expect(handleContextMenu).toHaveBeenCalledWith(event, {
       href: 'https://example.com/test?param=value',
       text: 'Test &lt;Link&gt;',
+      from: 10,
+      to: 20,
     });
   });
 });

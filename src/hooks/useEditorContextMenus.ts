@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 export interface LinkContextMenuState {
   visible: boolean;
   position: { x: number; y: number };
-  linkData: { href: string; text: string } | null;
+  linkData: { href: string; text: string; from: number; to: number } | null;
 }
 
 export interface TableContextMenuState {
@@ -24,7 +24,10 @@ export const useEditorContextMenus = () => {
   });
 
   const handleLinkContextMenu = useCallback(
-    (event: React.MouseEvent, linkData: { href: string; text: string }) => {
+    (
+      event: React.MouseEvent,
+      linkData: { href: string; text: string; from: number; to: number },
+    ) => {
       event.preventDefault();
       event.stopPropagation();
 

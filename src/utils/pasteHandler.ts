@@ -38,9 +38,12 @@ export const handleMarkdownPaste = async ({
 }: HandleMarkdownPasteParams): Promise<void> => {
   // STEP 1: Immediately insert plain text (for better user experience)
   editor.commands.deleteSelection();
-  insertPlainText(editor, plainText);
+  const startPos = editor.state.selection.from;
 
-  // STEP 2: True sequential rendering process
+  insertPlainText(editor, plainText);
+  const endPos = editor.state.selection.from;
+
+  // STEP 2: Large text check
   if (plainText.length >= largeTextThreshold) {
     logger.info('📋 Large text detected - keeping as plain text to prevent performance issues');
     return;
@@ -50,28 +53,32 @@ export const handleMarkdownPaste = async ({
   setIsProcessing(true);
   setProcessingProgress({ processed: 0, total: plainText.split('\n').length });
 
-  // Save current cursor position before any modifications
-  const currentPos = editor.state.selection.from;
-  const insertionStart = currentPos - plainText.length;
-
   try {
-    // Delete last inserted plain text
-    editor.commands.deleteRange({ from: insertionStart, to: currentPos });
-    editor.commands.setTextSelection(insertionStart);
+    // Delete last inserted plain text (safe range)
+    // Ensure we don't try to delete if nothing was inserted or unexpected state
+    // We use startPos and endPos derived from actual insertion
+    if (endPos > startPos) {
+      editor.commands.deleteRange({ from: startPos, to: endPos });
+      editor.commands.setTextSelection(startPos);
 
-    // Execute true sequential rendering process
-    await MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender(
-      plainText,
-      editor,
-      (processed, total) => {
-        setProcessingProgress({ processed, total });
-      },
-      markdownToTipTapOptions,
-    );
+      // Execute true sequential rendering process
+      await MarkdownTipTapConverter.processMarkdownInSmallChunksWithRender(
+        plainText,
+        editor,
+        (processed, total) => {
+          setProcessingProgress({ processed, total });
+        },
+        markdownToTipTapOptions,
+      );
+    } else {
+      logger.warn('⚠️ Nothing inserted or invalid range detected');
+    }
   } catch (error) {
     logger.warn('⚠️ Sequential rendering failed, keeping plain text:', error);
     // Restore plain text at the original insertion position
-    editor.commands.setTextSelection(insertionStart);
+    // We assume startPos is still valid as we just deleted from it?
+    // If deleteRange succeeded, cursor is at startPos.
+    editor.commands.setTextSelection(startPos);
     insertPlainText(editor, plainText);
   } finally {
     editor.__isProcessing = false;

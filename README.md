@@ -1,5 +1,8 @@
 # markdown-wysiwyg-editor
 
+[![npm version](https://badge.fury.io/js/markdown-wysiwyg-editor.svg)](https://badge.fury.io/js/markdown-wysiwyg-editor)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 
 [Live Demo](https://wysiwyg-doc.com/markdown-wysiwyg/index.html)
