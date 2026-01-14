@@ -42,6 +42,8 @@ interface MarkdownToolbarProps {
   editor?: Editor | null; // TipTap editor instance (for table operations)
   showDownloadButton?: boolean; // Show download button flag
   onDownloadAsMarkdown?: () => void; // Markdown download handler
+  isFloating?: boolean; // Whether this is a floating toolbar
+  hasTextSelection?: boolean; // Whether text is currently selected
 }
 
 export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
@@ -51,6 +53,8 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   editor,
   showDownloadButton = false,
   onDownloadAsMarkdown,
+  isFloating = false,
+  hasTextSelection = false,
 }) => {
   const { t } = useI18n();
   const [showHeadingMenu, setShowHeadingMenu] = React.useState(false);
@@ -220,7 +224,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
 
   const handleToggleCodeBlock = () => {
     if (!editor) return;
-    onInsertMarkdown('```\n', 4);
+    onInsertMarkdown('```\n\n```');
   };
 
   const handleEmojiSelect = (emoji: string) => {
@@ -240,54 +244,63 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
       title: t(I18N_KEYS.bold),
       onClick: handleToggleBold,
       group: 'text',
+      requiresSelection: true, // Only show when text is selected
     },
     {
       icon: Italic,
       title: t(I18N_KEYS.italic),
       onClick: handleToggleItalic,
       group: 'text',
+      requiresSelection: true,
     },
     {
       icon: Strikethrough,
       title: t(I18N_KEYS.strikethrough),
       onClick: handleToggleStrike,
       group: 'text',
+      requiresSelection: true,
     },
     {
       icon: Code,
       title: t(I18N_KEYS.code),
       onClick: handleToggleInlineCode,
       group: 'code',
-    },
-    {
-      icon: Quote,
-      title: t(I18N_KEYS.blockquote),
-      onClick: handleToggleBlockquote,
-      group: 'block',
-    },
-    {
-      icon: FileCode,
-      title: t(I18N_KEYS.insertCodeBlock),
-      onClick: handleToggleCodeBlock,
-      group: 'code',
-    },
-    {
-      icon: List,
-      title: t(I18N_KEYS.bulletList),
-      onClick: handleToggleBulletList,
-      group: 'list',
-    },
-    {
-      icon: ListOrdered,
-      title: t(I18N_KEYS.orderedList),
-      onClick: handleToggleOrderedList,
-      group: 'list',
+      requiresSelection: true,
     },
     {
       icon: Link2,
       title: t(I18N_KEYS.insertLink),
       onClick: handleLinkClick,
       group: 'media',
+      requiresSelection: false, // Can be used with or without selection
+    },
+    {
+      icon: Quote,
+      title: t(I18N_KEYS.blockquote),
+      onClick: handleToggleBlockquote,
+      group: 'block',
+      showAlways: true, // Show in both selection and non-selection modes
+    },
+    {
+      icon: FileCode,
+      title: t(I18N_KEYS.insertCodeBlock),
+      onClick: handleToggleCodeBlock,
+      group: 'code',
+      showAlways: true, // Show in both selection and non-selection modes
+    },
+    {
+      icon: List,
+      title: t(I18N_KEYS.bulletList),
+      onClick: handleToggleBulletList,
+      group: 'list',
+      requiresSelection: false,
+    },
+    {
+      icon: ListOrdered,
+      title: t(I18N_KEYS.orderedList),
+      onClick: handleToggleOrderedList,
+      group: 'list',
+      requiresSelection: false,
     },
     {
       icon: ImageIcon,
@@ -299,23 +312,45 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         setShowDownloadMenu(false);
       },
       group: 'media',
+      requiresSelection: false,
     },
     {
       icon: Table,
       title: t(I18N_KEYS.insertTable),
       onClick: handleTableInsert,
       group: 'block',
+      requiresSelection: false,
     },
     {
       icon: Smile,
       title: t(I18N_KEYS.emoji.button),
       onClick: () => setShowEmojiPicker(!showEmojiPicker),
       group: 'insert',
+      requiresSelection: false,
     },
   ];
 
+  // Filter toolbar items based on floating mode and selection state
+  const filteredItems = isFloating
+    ? toolbarItems.filter((item) => {
+        // Always show items marked with showAlways
+        if ('showAlways' in item && item.showAlways) {
+          return true;
+        }
+        // In floating mode, show items based on selection state
+        if (hasTextSelection) {
+          // When text is selected, show formatting buttons
+          return item.requiresSelection;
+        } else {
+          // When no text is selected, show insertion buttons
+          return !item.requiresSelection;
+        }
+      })
+    : toolbarItems; // In fixed mode, show all items
+
   return (
     <div className="mw-toolbar-root flex items-center space-x-1">
+      {/* HeadingMenu - always show (works with or without selection) */}
       <HeadingMenu
         isOpen={showHeadingMenu}
         disabled={disabled}
@@ -326,7 +361,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
       />
 
       {/* Other toolbar items */}
-      {toolbarItems.map((item) => {
+      {filteredItems.map((item) => {
         const Icon = item.icon;
 
         return (

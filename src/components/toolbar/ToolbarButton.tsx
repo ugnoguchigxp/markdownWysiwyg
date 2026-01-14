@@ -17,6 +17,10 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = ({
   <button
     type="button"
     onClick={onClick}
+    onMouseDown={(e) => {
+      // Prevent default to keep editor focus, but allow click event to propagate
+      e.preventDefault();
+    }}
     disabled={disabled}
     data-tooltip={title}
     className={`

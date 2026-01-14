@@ -7,6 +7,7 @@ import { createLogger } from '../utils/logger';
 
 import { useEditorContextMenus } from '../hooks/useEditorContextMenus';
 import { useEditorState } from '../hooks/useEditorState';
+import { useFloatingToolbar } from '../hooks/useFloatingToolbar';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
 import { useMarkdownInsertion } from '../hooks/useMarkdownInsertion';
 import { useTableToolbar } from '../hooks/useTableToolbar';
@@ -14,6 +15,7 @@ import type { ExtendedEditor } from '../types/editor';
 import type { ISelectionInfo } from '../utils/selectionUtils';
 
 import { EditorChrome } from './EditorChrome';
+import { FloatingToolbar } from './FloatingToolbar';
 import { LinkContextMenu } from './LinkContextMenu';
 import { TableContextMenu } from './TableContextMenu';
 import { TableEdgeControls } from './TableEdgeControls';
@@ -24,7 +26,7 @@ import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { MarkdownTipTapConverter } from '../converters/MarkdownTipTapConverter';
 import { setMermaidLib } from '../extensions/mermaidRegistry';
 import { useI18n } from '../i18n/I18nContext';
-import { I18N_KEYS, type IMarkdownEditorProps } from '../types/index';
+import { I18N_KEYS, type IMarkdownEditorProps, type ToolbarMode } from '../types/index';
 import { normalizeUrlOrNull } from '../utils/security';
 
 const logger = createLogger('MarkdownEditor');
@@ -54,6 +56,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
   showSyntaxStatus,
   showPasteDebug = false,
   showToolbar,
+  toolbarMode,
   enableVerticalScroll = true,
   autoHeight = false,
   className = '',
@@ -69,9 +72,14 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
 
   const placeholder = t(I18N_KEYS.placeholder);
 
-  // Determine visibility based on props and editable state
-  // If showToolbar is not explicitly provided, it defaults to the value of editable
-  const effectiveShowToolbar = showToolbar ?? editable;
+  // Determine toolbar mode with backward compatibility
+  // Priority: toolbarMode > showToolbar > editable
+  const effectiveToolbarMode: ToolbarMode = (() => {
+    if (toolbarMode) return toolbarMode;
+    if (showToolbar === false) return 'hidden';
+    if (showToolbar === true || editable) return 'fixed';
+    return 'hidden';
+  })();
   // If showSyntaxStatus is not explicitly provided, it defaults to debug mode
   const effectiveShowSyntaxStatus = showSyntaxStatus ?? debug;
   // If showPasteDebug is not explicitly provided, it defaults to debug mode
@@ -165,6 +173,13 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
     publicImagePathPrefix,
     setIsUpdating,
   });
+
+  // Add FloatingToolbar hook
+  const floatingToolbar = useFloatingToolbar(
+    editor,
+    editorElementRef,
+    effectiveToolbarMode === 'floating',
+  );
 
   // Self-contained Markdown conversion processing
   useEffect(() => {
@@ -415,7 +430,7 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
           editor={editor}
           selectionInfo={selectionInfo}
           editable={editable}
-          effectiveShowToolbar={effectiveShowToolbar}
+          toolbarMode={effectiveToolbarMode}
           effectiveShowSyntaxStatus={effectiveShowSyntaxStatus}
           effectiveShowPasteDebug={effectiveShowPasteDebug}
           showDownloadButton={showDownloadButton}
@@ -445,15 +460,27 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
               }
             }}
           >
+            {/* Floating toolbar */}
+            {effectiveToolbarMode === 'floating' && (
+              <FloatingToolbar
+                editor={editor}
+                visible={floatingToolbar.visible}
+                position={floatingToolbar.position}
+                onInsertMarkdown={handleInsertMarkdown}
+                selectedText={selectionInfo?.selectedText || ''}
+                editable={editable}
+                showDownloadButton={showDownloadButton}
+                onDownloadAsMarkdown={handleDownloadAsMarkdown}
+              />
+            )}
             <EditorContent
               editor={editor}
-              className={`markdown-editor-content ${
-                autoHeight
-                  ? 'markdown-editor-autoheight min-h-fit overflow-visible'
-                  : enableVerticalScroll
-                    ? 'h-full overflow-y-auto'
-                    : 'min-h-full'
-              }`}
+              className={`markdown-editor-content ${autoHeight
+                ? 'markdown-editor-autoheight min-h-fit overflow-visible'
+                : enableVerticalScroll
+                  ? 'h-full overflow-y-auto'
+                  : 'min-h-full'
+                }`}
             />
           </div>
         </EditorChrome>

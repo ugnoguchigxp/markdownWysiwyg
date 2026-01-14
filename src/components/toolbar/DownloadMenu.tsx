@@ -24,6 +24,10 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
     <button
       type="button"
       onClick={onToggle}
+      onMouseDown={(e) => {
+        // Prevent default to keep editor focus
+        e.preventDefault();
+      }}
       disabled={disabled}
       data-tooltip={t(I18N_KEYS.download)}
       className={`
@@ -75,6 +79,10 @@ export const DownloadMenu: React.FC<DownloadMenuProps> = ({
 
             <button
               type="button"
+              onMouseDown={(e) => {
+                // Prevent default to keep editor focus
+                e.preventDefault();
+              }}
               onClick={() => {
                 onDownloadAsMarkdown();
                 onClose();

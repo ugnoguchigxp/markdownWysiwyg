@@ -21,6 +21,14 @@ export interface ISelectionInfo {
 }
 
 /**
+ * Toolbar display mode
+ * - 'fixed': Fixed toolbar at the top of the editor (default)
+ * - 'hidden': No toolbar displayed
+ * - 'floating': Floating toolbar appears near cursor/selection
+ */
+export type ToolbarMode = 'fixed' | 'hidden' | 'floating';
+
+/**
  * Main editor props
  */
 export interface IMarkdownEditorProps {
@@ -62,7 +70,15 @@ export interface IMarkdownEditorProps {
   extensions?: unknown[]; // Custom TipTap extensions
   supportedLanguages?: ILanguageOption[]; // Code block languages
   showSyntaxStatus?: boolean; // Show syntax status bar (default: follows debug/editable)
+  /** @deprecated Use toolbarMode instead */
   showToolbar?: boolean; // Show toolbar (default: true)
+  /**
+   * Toolbar display mode (default: 'fixed')
+   * - 'fixed': Fixed toolbar at the top
+   * - 'hidden': No toolbar
+   * - 'floating': Floating toolbar near selection
+   */
+  toolbarMode?: ToolbarMode;
   enableVerticalScroll?: boolean; // Enable vertical scrolling (default: true)
   autoHeight?: boolean; // Auto-adjust height (default: false)
   showDownloadButton?: boolean; // Show download button (default: false)
@@ -200,8 +216,8 @@ export const I18N_KEYS = {
 type NestedValues<T> = T extends string
   ? T
   : T extends Record<string, unknown>
-    ? { [K in keyof T]: NestedValues<T[K]> }[keyof T]
-    : never;
+  ? { [K in keyof T]: NestedValues<T[K]> }[keyof T]
+  : never;
 
 export type I18nKey = NestedValues<typeof I18N_KEYS>;
 

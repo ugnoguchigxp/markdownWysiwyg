@@ -118,6 +118,10 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
             role="tab"
             aria-selected={activeGroup === group.id}
             aria-controls={`emoji-panel-${group.id}`}
+            onMouseDown={(e) => {
+              // Prevent default to keep editor focus
+              e.preventDefault();
+            }}
             onClick={() => setActiveGroup(group.id)}
             title={group.id}
             disabled={disabled}
@@ -146,6 +150,10 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                 className="mw-emoji-item"
                 aria-label={emoji.name}
                 title={emoji.name}
+                onMouseDown={(e) => {
+                  // Prevent default to keep editor focus
+                  e.preventDefault();
+                }}
                 onClick={() => handleEmojiClick(emoji)}
                 disabled={disabled}
               >
@@ -178,6 +186,10 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                         className="mw-emoji-item"
                         aria-label={emoji.name}
                         title={emoji.name}
+                        onMouseDown={(e) => {
+                          // Prevent default to keep editor focus
+                          e.preventDefault();
+                        }}
                         onClick={() => handleEmojiClick(emoji)}
                         disabled={disabled}
                       >

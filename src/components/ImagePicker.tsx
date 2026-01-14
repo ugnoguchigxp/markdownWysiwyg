@@ -98,6 +98,10 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
             <button
               type="button"
               className="mw-image-insert"
+              onMouseDown={(e) => {
+                // Prevent default to keep editor focus
+                e.preventDefault();
+              }}
               onClick={handleInsert}
               disabled={disabled || !url.trim()}
             >

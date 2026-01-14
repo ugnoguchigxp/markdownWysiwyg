@@ -2,7 +2,7 @@ import type { Editor } from '@tiptap/react';
 import type React from 'react';
 
 import { useI18n } from '../i18n/I18nContext';
-import { I18N_KEYS } from '../types/index';
+import { I18N_KEYS, type ToolbarMode } from '../types/index';
 import type { ISelectionInfo } from '../utils/selectionUtils';
 
 import { MarkdownSyntaxStatus } from './MarkdownSyntaxStatus';
@@ -12,7 +12,7 @@ interface EditorChromeProps {
   editor: Editor;
   selectionInfo: ISelectionInfo | null;
   editable: boolean;
-  effectiveShowToolbar: boolean;
+  toolbarMode: ToolbarMode;
   effectiveShowSyntaxStatus: boolean;
   effectiveShowPasteDebug: boolean;
   showDownloadButton: boolean;
@@ -32,7 +32,7 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
   editor,
   selectionInfo,
   editable,
-  effectiveShowToolbar,
+  toolbarMode,
   effectiveShowSyntaxStatus,
   effectiveShowPasteDebug,
   showDownloadButton,
@@ -46,7 +46,7 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
 
   return (
     <>
-      {effectiveShowToolbar && (
+      {toolbarMode === 'fixed' && (
         <div className="border-b p-ui-y rounded-t-ui transition-colors duration-200 bg-popover border-border">
           <MarkdownToolbar
             onInsertMarkdown={onInsertMarkdown}

@@ -1,7 +1,7 @@
 import type React from 'react';
 import type { Translator } from '../../i18n/I18nContext';
 import { I18N_KEYS } from '../../types/index';
-import { Heading1 } from '../ui/icons';
+import { Heading } from '../ui/icons';
 
 interface HeadingMenuProps {
   isOpen: boolean;
@@ -62,6 +62,10 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
     <button
       type="button"
       onClick={onToggle}
+      onMouseDown={(e) => {
+        // Prevent default to keep editor focus
+        e.preventDefault();
+      }}
       disabled={disabled}
       data-tooltip={t(I18N_KEYS.heading)}
       className={`
@@ -70,7 +74,7 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
         relative text-foreground hover:bg-accent
       `}
     >
-      <Heading1 className="w-icon-md h-icon-md" />
+      <Heading className="w-icon-md h-icon-md" />
       <svg
         className="w-icon-xs h-icon-xs absolute -bottom-0.5 -right-0.5"
         fill="currentColor"
@@ -107,6 +111,10 @@ export const HeadingMenu: React.FC<HeadingMenuProps> = ({
                 key={heading.level}
                 type="button"
                 className="w-full flex items-center px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors text-left group"
+                onMouseDown={(e) => {
+                  // Prevent default to keep editor focus
+                  e.preventDefault();
+                }}
                 onClick={() => {
                   onInsertMarkdown(heading.markdown);
                   onClose();

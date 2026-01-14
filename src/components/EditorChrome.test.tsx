@@ -29,7 +29,7 @@ describe('EditorChrome', () => {
           { selectedText: 'text' } as Parameters<typeof EditorChrome>[0]['selectionInfo']
         }
         editable={true}
-        effectiveShowToolbar={true}
+        toolbarMode="fixed"
         effectiveShowSyntaxStatus={false}
         effectiveShowPasteDebug={false}
         showDownloadButton={true}
@@ -55,7 +55,7 @@ describe('EditorChrome', () => {
           { selectedText: 'text' } as Parameters<typeof EditorChrome>[0]['selectionInfo']
         }
         editable={true}
-        effectiveShowToolbar={false}
+        toolbarMode="hidden"
         effectiveShowSyntaxStatus={true}
         effectiveShowPasteDebug={false}
         showDownloadButton={false}
@@ -79,7 +79,7 @@ describe('EditorChrome', () => {
         editor={{} as Parameters<typeof EditorChrome>[0]['editor']}
         selectionInfo={null}
         editable={true}
-        effectiveShowToolbar={false}
+        toolbarMode="hidden"
         effectiveShowSyntaxStatus={false}
         effectiveShowPasteDebug={true}
         showDownloadButton={false}

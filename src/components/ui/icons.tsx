@@ -48,6 +48,15 @@ export const Download = createIcon(
   'Download',
 );
 
+export const Heading = createIcon(
+  <>
+    <path d="M6 12h12" />
+    <path d="M6 18V6" />
+    <path d="M18 18V6" />
+  </>,
+  'Heading',
+);
+
 export const Heading1 = createIcon(
   <>
     <path d="M4 12h8" />
