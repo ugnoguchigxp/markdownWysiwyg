@@ -216,8 +216,8 @@ export const I18N_KEYS = {
 type NestedValues<T> = T extends string
   ? T
   : T extends Record<string, unknown>
-  ? { [K in keyof T]: NestedValues<T[K]> }[keyof T]
-  : never;
+    ? { [K in keyof T]: NestedValues<T[K]> }[keyof T]
+    : never;
 
 export type I18nKey = NestedValues<typeof I18N_KEYS>;
 

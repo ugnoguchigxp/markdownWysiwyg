@@ -1,0 +1,253 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { FloatingToolbar } from './FloatingToolbar';
+
+vi.mock('@tiptap/extension-table', () => ({}));
+
+vi.mock('./MarkdownToolbar', () => ({
+  MarkdownToolbar: ({
+    onInsertMarkdown,
+    selectedText,
+    disabled,
+    showDownloadButton,
+    onDownloadAsMarkdown,
+    isFloating,
+    hasTextSelection,
+  }: {
+    onInsertMarkdown: (markdown: string) => void;
+    selectedText: string;
+    disabled: boolean;
+    showDownloadButton: boolean;
+    onDownloadAsMarkdown?: () => void;
+    isFloating: boolean;
+    hasTextSelection: boolean;
+  }) => (
+    <div
+      data-testid="markdown-toolbar"
+      data-selected-text={selectedText}
+      data-has-text-selection={hasTextSelection ? 'true' : 'false'}
+      data-disabled={disabled ? 'true' : 'false'}
+      data-show-download-button={showDownloadButton ? 'true' : 'false'}
+      data-is-floating={isFloating ? 'true' : 'false'}
+    >
+      <button type="button" onClick={() => onInsertMarkdown('**bold**')}>
+        Bold
+      </button>
+      {showDownloadButton && (
+        <button type="button" onClick={onDownloadAsMarkdown}>
+          Download
+        </button>
+      )}
+    </div>
+  ),
+}));
+
+describe('FloatingToolbar', () => {
+  const mockEditor = {
+    chain: () => ({
+      toggleBold: vi.fn(() => ({ run: vi.fn() })),
+      toggleItalic: vi.fn(() => ({ run: vi.fn() })),
+      toggleStrike: vi.fn(() => ({ run: vi.fn() })),
+      toggleCode: vi.fn(() => ({ run: vi.fn() })),
+      insertContent: vi.fn(() => ({ run: vi.fn() })),
+      focus: vi.fn(() => ({ run: vi.fn() })),
+    }),
+    commands: {
+      insertTable: vi.fn(() => true),
+      insertContent: vi.fn(() => true),
+    },
+    extensionManager: { extensions: [{ name: 'table' }] },
+  } as unknown as Parameters<typeof FloatingToolbar>[0]['editor'];
+
+  const defaultProps = {
+    editor: mockEditor,
+    visible: true,
+    position: { top: 100, left: 200 },
+    onInsertMarkdown: vi.fn(),
+    selectedText: '',
+    editable: true,
+    showDownloadButton: false,
+  };
+
+  describe('Rendering conditions', () => {
+    it('renders toolbar when visible and editable', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar');
+      expect(toolbar).not.toBeNull();
+    });
+
+    it('does not render toolbar when visible is false', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} visible={false} />);
+      const toolbar = container.querySelector('.floating-toolbar');
+      expect(toolbar).toBeNull();
+    });
+
+    it('does not render toolbar when editable is false', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} editable={false} />);
+      const toolbar = container.querySelector('.floating-toolbar');
+      expect(toolbar).toBeNull();
+    });
+  });
+
+  describe('Positioning properties', () => {
+    it('applies position props to toolbar style', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+      expect(toolbar.style.top).toBe('100px');
+      expect(toolbar.style.left).toBe('200px');
+    });
+
+    it('applies correct opacity when visible', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+      expect(toolbar.style.opacity).toBe('1');
+    });
+
+    it('applies pointer-events based on visible state', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+      expect(toolbar.style.pointerEvents).toBe('auto');
+    });
+
+    it('centers toolbar horizontally with -translate-x-1/2 class', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+      expect(toolbar.className).toContain('transform');
+      expect(toolbar.className).toContain('-translate-x-1/2');
+    });
+  });
+
+  describe('Props forwarding to MarkdownToolbar', () => {
+    it('passes editor prop to MarkdownToolbar', () => {
+      render(<FloatingToolbar {...defaultProps} />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar).not.toBeNull();
+    });
+
+    it('passes selectedText prop to MarkdownToolbar', () => {
+      render(<FloatingToolbar {...defaultProps} selectedText="selected text" />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-selected-text')).toBe('selected text');
+    });
+
+    it('calculates and passes hasTextSelection correctly when text has content', () => {
+      render(<FloatingToolbar {...defaultProps} selectedText="some text" />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-has-text-selection')).toBe('true');
+    });
+
+    it('calculates and passes hasTextSelection correctly when text is empty', () => {
+      render(<FloatingToolbar {...defaultProps} selectedText="" />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-has-text-selection')).toBe('false');
+    });
+
+    it('calculates and passes hasTextSelection correctly when text is whitespace only', () => {
+      render(<FloatingToolbar {...defaultProps} selectedText="   " />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-has-text-selection')).toBe('false');
+    });
+
+    it('passes disabled state based on editable prop', () => {
+      render(<FloatingToolbar {...defaultProps} />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-disabled')).toBe('false');
+    });
+
+    it('passes showDownloadButton prop to MarkdownToolbar', () => {
+      render(<FloatingToolbar {...defaultProps} showDownloadButton={true} />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-show-download-button')).toBe('true');
+    });
+
+    it('passes isFloating as true to MarkdownToolbar', () => {
+      render(<FloatingToolbar {...defaultProps} />);
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+      expect(markdownToolbar.getAttribute('data-is-floating')).toBe('true');
+    });
+  });
+
+  describe('Callback handling', () => {
+    it('calls onInsertMarkdown when MarkdownToolbar triggers it', () => {
+      const onInsertMarkdown = vi.fn();
+      render(<FloatingToolbar {...defaultProps} onInsertMarkdown={onInsertMarkdown} />);
+
+      const boldButton = screen.getByText('Bold');
+      boldButton.click();
+
+      expect(onInsertMarkdown).toHaveBeenCalledWith('**bold**');
+    });
+
+    it('calls onDownloadAsMarkdown when download button is clicked', () => {
+      const onDownloadAsMarkdown = vi.fn();
+      render(
+        <FloatingToolbar
+          {...defaultProps}
+          showDownloadButton={true}
+          onDownloadAsMarkdown={onDownloadAsMarkdown}
+        />,
+      );
+
+      const downloadButton = screen.getByText('Download');
+      downloadButton.click();
+
+      expect(onDownloadAsMarkdown).toHaveBeenCalled();
+    });
+  });
+
+  describe('Event handling', () => {
+    it('stops event propagation on mousedown to prevent editor blur', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+
+      const stopPropagation = vi.fn();
+      const preventDefault = vi.fn();
+      const mockEvent = {
+        stopPropagation,
+        preventDefault,
+      } as unknown as MouseEvent;
+
+      if (toolbar.onmousedown) {
+        toolbar.onmousedown(mockEvent);
+        expect(stopPropagation).toHaveBeenCalled();
+      }
+    });
+
+    it('does not prevent default on mousedown to allow clicks', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+
+      const stopPropagation = vi.fn();
+      const preventDefault = vi.fn();
+      const mockEvent = {
+        stopPropagation,
+        preventDefault,
+      } as unknown as MouseEvent;
+
+      if (toolbar.onmousedown) {
+        toolbar.onmousedown(mockEvent);
+        expect(preventDefault).not.toHaveBeenCalled();
+      }
+    });
+  });
+
+  describe('Component composition', () => {
+    it('renders MarkdownToolbar within toolbar container', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar');
+      const markdownToolbar = screen.getByTestId('markdown-toolbar');
+
+      expect(toolbar).not.toBeNull();
+      expect(markdownToolbar).not.toBeNull();
+    });
+
+    it('applies correct CSS classes to wrapper', () => {
+      const { container } = render(<FloatingToolbar {...defaultProps} />);
+      const toolbar = container.querySelector('.floating-toolbar') as HTMLElement;
+
+      expect(toolbar.className).toContain('absolute');
+      expect(toolbar.className).toContain('z-50');
+      expect(toolbar.className).toContain('transition-opacity');
+    });
+  });
+});

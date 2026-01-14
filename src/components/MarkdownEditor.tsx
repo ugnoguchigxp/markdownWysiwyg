@@ -475,12 +475,13 @@ export const MarkdownEditor: React.FC<IMarkdownEditorProps> = ({
             )}
             <EditorContent
               editor={editor}
-              className={`markdown-editor-content ${autoHeight
-                ? 'markdown-editor-autoheight min-h-fit overflow-visible'
-                : enableVerticalScroll
-                  ? 'h-full overflow-y-auto'
-                  : 'min-h-full'
-                }`}
+              className={`markdown-editor-content ${
+                autoHeight
+                  ? 'markdown-editor-autoheight min-h-fit overflow-visible'
+                  : enableVerticalScroll
+                    ? 'h-full overflow-y-auto'
+                    : 'min-h-full'
+              }`}
             />
           </div>
         </EditorChrome>

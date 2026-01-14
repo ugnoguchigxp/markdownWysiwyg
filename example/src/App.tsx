@@ -7,66 +7,66 @@ import mermaid from 'mermaid';
 function App() {
   const [content, setContent] = useState<string>(
     '# Markdown WYSIWYG Editor Demo\n' +
-    '\n' +
-    'このサンプルでは、エディタでサポートしている主な要素を一通り確認できます。\n' +
-    '\n' +
-    '## 1. Basic Text\n' +
-    '\n' +
-    '- **Bold text**\n' +
-    '- *Italic text*\n' +
-    '- ~~Strikethrough~~\n' +
-    '- `Inline code`\n' +
-    '\n' +
-    '### Blockquote\n' +
-    '\n' +
-    '> Markdown is a lightweight markup language for creating formatted text.\n' +
-    '\n' +
-    '## 2. Lists\n' +
-    '\n' +
-    '- Bullet item 1\n' +
-    '- Bullet item 2\n' +
-    '  - Nested bullet item (level 2)\n' +
-    '    - Nested bullet item (level 3)\n' +
-    '      - Nested bullet item (level 4)\n' +
-    '\n' +
-    '1. Numbered item 1\n' +
-    '2. Numbered item 2\n' +
-    '   1. Nested numbered item (level 2)\n' +
-    '   2. Nested numbered item (level 2)\n' +
-    '      - Mixed nested bullet under numbered\n' +
-    '\n' +
-    '## 3. Links & Images\n' +
-    '\n' +
-    '- Link: [GitHub](https://github.com)\n' +
-    '- Image (Markdown syntax, 実際の表示はホスト環境に依存します):\n' +
-    '\n' +
-    '  ![Sample Image](/images/markdown-sample.png)\n' +
-    '\n' +
-    '## 4. Code Blocks\n' +
-    '\n' +
-    '```ts\n' +
-    'function greet(name: string): string {\n' +
-    '  return `Hello, ${name}!`;\n' +
-    '}\n' +
-    '```\n' +
-    '\n' +
-    '## 5. Tables\n' +
-    '\n' +
-    '| Feature | Support | Efficiency |\n' +
-    '| :--- | :---: | ---: |\n' +
-    '| WYSIWYG | ✅ | High |\n' +
-    '| Markdown | ✅ | Excellent |\n' +
-    '| Mermaid | ✅ | High |\n' +
-    '\n' +
-    '## 6. Mermaid Diagrams\n' +
-    '\n' +
-    '```mermaid\n' +
-    'graph TD\n' +
-    '  A[Start] --> B{Valid?}\n' +
-    '  B -- Yes --> C[Process]\n' +
-    '  B -- No --> D[Error]\n' +
-    '  C --> E[End]\n' +
-    '```\n',
+      '\n' +
+      'このサンプルでは、エディタでサポートしている主な要素を一通り確認できます。\n' +
+      '\n' +
+      '## 1. Basic Text\n' +
+      '\n' +
+      '- **Bold text**\n' +
+      '- *Italic text*\n' +
+      '- ~~Strikethrough~~\n' +
+      '- `Inline code`\n' +
+      '\n' +
+      '### Blockquote\n' +
+      '\n' +
+      '> Markdown is a lightweight markup language for creating formatted text.\n' +
+      '\n' +
+      '## 2. Lists\n' +
+      '\n' +
+      '- Bullet item 1\n' +
+      '- Bullet item 2\n' +
+      '  - Nested bullet item (level 2)\n' +
+      '    - Nested bullet item (level 3)\n' +
+      '      - Nested bullet item (level 4)\n' +
+      '\n' +
+      '1. Numbered item 1\n' +
+      '2. Numbered item 2\n' +
+      '   1. Nested numbered item (level 2)\n' +
+      '   2. Nested numbered item (level 2)\n' +
+      '      - Mixed nested bullet under numbered\n' +
+      '\n' +
+      '## 3. Links & Images\n' +
+      '\n' +
+      '- Link: [GitHub](https://github.com)\n' +
+      '- Image (Markdown syntax, 実際の表示はホスト環境に依存します):\n' +
+      '\n' +
+      '  ![Sample Image](/images/markdown-sample.png)\n' +
+      '\n' +
+      '## 4. Code Blocks\n' +
+      '\n' +
+      '```ts\n' +
+      'function greet(name: string): string {\n' +
+      '  return `Hello, ${name}!`;\n' +
+      '}\n' +
+      '```\n' +
+      '\n' +
+      '## 5. Tables\n' +
+      '\n' +
+      '| Feature | Support | Efficiency |\n' +
+      '| :--- | :---: | ---: |\n' +
+      '| WYSIWYG | ✅ | High |\n' +
+      '| Markdown | ✅ | Excellent |\n' +
+      '| Mermaid | ✅ | High |\n' +
+      '\n' +
+      '## 6. Mermaid Diagrams\n' +
+      '\n' +
+      '```mermaid\n' +
+      'graph TD\n' +
+      '  A[Start] --> B{Valid?}\n' +
+      '  B -- Yes --> C[Process]\n' +
+      '  B -- No --> D[Error]\n' +
+      '  C --> E[End]\n' +
+      '```\n',
   );
 
   const [isEditable, setIsEditable] = useState(true);

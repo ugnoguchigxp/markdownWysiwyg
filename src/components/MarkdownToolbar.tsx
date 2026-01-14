@@ -341,10 +341,9 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         if (hasTextSelection) {
           // When text is selected, show formatting buttons
           return item.requiresSelection;
-        } else {
-          // When no text is selected, show insertion buttons
-          return !item.requiresSelection;
         }
+        // When no text is selected, show insertion buttons
+        return !item.requiresSelection;
       })
     : toolbarItems; // In fixed mode, show all items
 
