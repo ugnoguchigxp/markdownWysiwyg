@@ -27,6 +27,8 @@ export interface FloatingToolbarProps {
   showDownloadButton?: boolean;
   /** Handler for download action */
   onDownloadAsMarkdown?: () => void;
+  /** Handler for image source selection */
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
 }
 
 /**
@@ -43,6 +45,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   editable,
   showDownloadButton = false,
   onDownloadAsMarkdown,
+  onImageSourceSelect,
 }) => {
   if (!visible || !editable) {
     return null;
@@ -74,6 +77,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           editor={editor}
           showDownloadButton={showDownloadButton}
           onDownloadAsMarkdown={onDownloadAsMarkdown}
+          onImageSourceSelect={onImageSourceSelect}
           isFloating={true}
           hasTextSelection={hasTextSelection}
         />

@@ -168,14 +168,14 @@ describe('MarkdownEditor behavior', () => {
   });
 
   it('renders loading state when editor is unavailable', () => {
-    mockUseMarkdownEditor.mockReturnValue(null);
+    mockUseMarkdownEditor.mockReturnValue({ editor: null });
     render(<MarkdownEditor value="" onChange={() => {}} />);
     expect(screen.getByText('markdown_editor.loading_editor')).toBeDefined();
   });
 
   it('clears content when value is empty and editor is not empty', async () => {
     const editor = buildEditor({ isEmpty: false });
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
 
     render(<MarkdownEditor value="" onChange={() => {}} />);
 
@@ -188,7 +188,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('skips conversion when editor is focused and editable', async () => {
     const editor = buildEditor({ isFocused: true });
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
     mockMarkdownToTipTapJson.mockResolvedValueOnce({ type: 'doc', content: [] });
 
     render(<MarkdownEditor value="text" onChange={() => {}} editable={true} />);
@@ -203,7 +203,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('converts markdown and sets content when conversion succeeds', async () => {
     const editor = buildEditor({ isFocused: false });
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
     mockMarkdownToTipTapJson.mockResolvedValueOnce({ type: 'doc', content: [] });
 
     render(<MarkdownEditor value="text" onChange={() => {}} />);
@@ -218,7 +218,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('blocks invalid links in open handler', async () => {
     const editor = buildEditor();
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
     mockNormalizeUrlOrNull.mockReturnValueOnce(null);
 
     render(<MarkdownEditor value="" onChange={() => {}} />);
@@ -232,7 +232,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('opens valid links in new window', async () => {
     const editor = buildEditor();
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
     mockNormalizeUrlOrNull.mockReturnValueOnce('https://example.com');
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
@@ -248,7 +248,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('disables Mermaid when enableMermaid is false', async () => {
     const editor = buildEditor();
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
 
     render(<MarkdownEditor value="" onChange={() => {}} enableMermaid={false} />);
 
@@ -261,7 +261,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('rejects invalid mermaidLib when enableMermaid is true', async () => {
     const editor = buildEditor();
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
 
     render(<MarkdownEditor value="" onChange={() => {}} enableMermaid={true} mermaidLib={{}} />);
 
@@ -275,7 +275,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('sets mermaidLib when valid', async () => {
     const editor = buildEditor();
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
     const mermaidLib = { render: () => null };
 
     render(
@@ -291,7 +291,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('updates editor editable state on prop change', () => {
     const editor = buildEditor({ isEditable: true });
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
 
     const { rerender } = render(<MarkdownEditor value="" onChange={() => {}} editable={true} />);
     rerender(<MarkdownEditor value="" onChange={() => {}} editable={false} />);
@@ -302,7 +302,7 @@ describe('MarkdownEditor behavior', () => {
 
   it('downloads markdown via handler', () => {
     const editor = buildEditor();
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
 
     render(<MarkdownEditor value="" onChange={() => {}} showDownloadButton={true} />);
 
@@ -319,7 +319,7 @@ describe('MarkdownEditor behavior', () => {
       run: vi.fn(),
     };
     editor.chain = vi.fn().mockReturnValue(chain);
-    mockUseMarkdownEditor.mockReturnValue(editor);
+    mockUseMarkdownEditor.mockReturnValue({ editor });
 
     const { getByTestId } = render(<MarkdownEditor value="" onChange={() => {}} />);
     const editorContent = getByTestId('editor-content');

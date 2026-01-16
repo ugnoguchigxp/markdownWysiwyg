@@ -48,6 +48,7 @@ export type {
   EmojiCategory,
   IEmojiCategoryMeta,
   ToolbarMode,
+  IMarkdownEditorRef,
 } from './types/index';
 
 export { I18N_KEYS } from './types/index';

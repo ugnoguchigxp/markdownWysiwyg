@@ -65,6 +65,11 @@ export interface IMarkdownEditorProps {
   onContentChange?: (content: JSONContent) => void;
   onSelectionChange?: (selectionInfo: ISelectionInfo | null) => void;
   onEditorReady?: (editor: Editor) => void;
+  /**
+   * Callback to handle image file selection or drop/paste.
+   * Returns a URL (persistent or blob:) to be used in the markdown image node.
+   */
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
 
   // Advanced settings
   extensions?: unknown[]; // Custom TipTap extensions
@@ -85,6 +90,27 @@ export interface IMarkdownEditorProps {
   downloadFilename?: string; // Download filename (default: 'document.md')
   showPasteDebug?: boolean; // Show paste debug panel (default: false)
   debug?: boolean; // Debug mode - shows syntax status and paste debug (default: false)
+}
+
+/**
+ * Interface for exposing internal editor functionality to the host application
+ */
+export interface IMarkdownEditorRef {
+  /**
+   * Returns the current markdown content of the editor.
+   */
+  getMarkdown: () => string;
+
+  /**
+   * Returns a map of blob: URLs and their associated File objects that have not been uploaded yet.
+   */
+  getPendingFiles: () => Map<string, File>;
+
+  /**
+   * Uploads all pending images using the provided function and replaces blob: URLs with the returned URLs.
+   * Returns the updated markdown content.
+   */
+  finalizeImages: (uploadFn: (file: File) => Promise<string>) => Promise<string>;
 }
 
 /**
@@ -210,6 +236,7 @@ export const I18N_KEYS = {
     altLabel: 'markdown_editor.image.alt_label',
     altPlaceholder: 'markdown_editor.image.alt_placeholder',
     insert: 'markdown_editor.image.insert',
+    chooseFile: 'markdown_editor.image.choose_file',
   },
 } as const;
 

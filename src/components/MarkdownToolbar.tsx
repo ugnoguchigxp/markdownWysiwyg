@@ -37,6 +37,7 @@ const log = createLogger('MarkdownToolbar');
 interface MarkdownToolbarProps {
   onInsertMarkdown: (markdown: string, cursorOffset?: number) => void;
   onImageUploadComplete?: (markdownImageUrl: string) => void;
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
   disabled?: boolean;
   selectedText?: string;
   editor?: Editor | null; // TipTap editor instance (for table operations)
@@ -48,6 +49,7 @@ interface MarkdownToolbarProps {
 
 export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   onInsertMarkdown,
+  onImageSourceSelect,
   disabled = false,
   selectedText = '',
   editor,
@@ -347,8 +349,34 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
       })
     : toolbarItems; // In fixed mode, show all items
 
+  // Popover alignment ref: 'left' means extends right, 'right' means extends left
+  const popoverAlignRef = React.useRef<'left' | 'right'>('left');
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
+
+  // Simple positioning: if button is in right half of viewport, extend left
+  const handleButtonClick = (e: React.MouseEvent, originalOnClick: () => void) => {
+    const buttonRect = e.currentTarget.getBoundingClientRect();
+    const buttonCenter = buttonRect.left + buttonRect.width / 2;
+    const viewportWidth = window.innerWidth;
+
+    // Simple rule: if button center is in the right half, extend to the left
+    popoverAlignRef.current = buttonCenter > viewportWidth / 2 ? 'right' : 'left';
+
+    originalOnClick();
+    forceUpdate();
+  };
+
+  // Helper to get placement classes
+  const getPopoverClasses = () => {
+    if (popoverAlignRef.current === 'right') {
+      return 'absolute top-full right-0 mt-ui-y z-20';
+    }
+    return 'absolute top-full left-0 mt-ui-y z-20';
+  };
+
   return (
-    <div className="mw-toolbar-root flex items-center space-x-1">
+    <div ref={rootRef} className="mw-toolbar-root flex items-center space-x-1">
       {/* HeadingMenu - always show (works with or without selection) */}
       <HeadingMenu
         isOpen={showHeadingMenu}
@@ -368,12 +396,12 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             <ToolbarButton
               icon={Icon}
               title={item.title}
-              onClick={item.onClick}
+              onClick={(e) => handleButtonClick(e, item.onClick)}
               disabled={disabled}
             />
 
             {item.icon === Smile && showEmojiPicker && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-ui-y z-20">
+              <div className={getPopoverClasses()}>
                 <EmojiPicker
                   onSelect={handleEmojiSelect}
                   onClose={() => setShowEmojiPicker(false)}
@@ -384,10 +412,11 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
             )}
 
             {item.icon === ImageIcon && showImagePicker && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-ui-y z-20">
+              <div className={getPopoverClasses()}>
                 <ImagePicker
                   onInsertMarkdown={handleInsertImageMarkdown}
                   onClose={() => setShowImagePicker(false)}
+                  onImageSourceSelect={onImageSourceSelect}
                   disabled={disabled}
                   t={t}
                 />

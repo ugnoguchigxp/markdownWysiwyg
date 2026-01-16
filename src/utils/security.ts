@@ -1,7 +1,7 @@
 export const isValidUrl = (url: string): boolean => {
   try {
     const urlObj = new URL(url);
-    return ['http:', 'https:', 'mailto:'].includes(urlObj.protocol);
+    return ['http:', 'https:', 'mailto:', 'blob:'].includes(urlObj.protocol);
   } catch {
     return false;
   }
@@ -66,6 +66,9 @@ export const normalizeImageSrcOrNull = (
     const scheme = schemeMatch[1]?.toLowerCase();
     if (scheme === 'http' || scheme === 'https') {
       return normalizeUrlOrNull(unwrapped);
+    }
+    if (scheme === 'blob') {
+      return unwrapped;
     }
     return null;
   }

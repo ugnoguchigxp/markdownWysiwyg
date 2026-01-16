@@ -4,7 +4,7 @@ import type { LucideIcon } from '../ui/icons';
 interface ToolbarButtonProps {
   icon: LucideIcon;
   title: string;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
 }
 
@@ -16,7 +16,7 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = ({
 }) => (
   <button
     type="button"
-    onClick={onClick}
+    onClick={(e) => onClick(e)}
     onMouseDown={(e) => {
       // Prevent default to keep editor focus, but allow click event to propagate
       e.preventDefault();

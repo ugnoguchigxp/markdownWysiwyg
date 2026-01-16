@@ -125,7 +125,7 @@ describe('MarkdownEditor Integration', () => {
       getJSON: vi.fn(),
       setEditable: vi.fn(),
     };
-    mockUseMarkdownEditor.mockReturnValue(mockEditor);
+    mockUseMarkdownEditor.mockReturnValue({ editor: mockEditor });
   });
 
   describe('Link Editing Integration', () => {

@@ -110,4 +110,32 @@ describe('ImagePicker', () => {
     expect(onInsertMarkdown).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it('calls onImageSourceSelect and inserts immediately when a file is chosen', async () => {
+    const onInsertMarkdown = vi.fn();
+    const onClose = vi.fn();
+    const onImageSourceSelect = vi.fn().mockResolvedValue('blob:http://localhost/123');
+    const t = (key: string) => key;
+
+    render(
+      <ImagePicker
+        onInsertMarkdown={onInsertMarkdown}
+        onClose={onClose}
+        onImageSourceSelect={onImageSourceSelect}
+        t={t}
+      />,
+    );
+
+    const file = new File(['hello'], 'hello.png', { type: 'image/png' });
+
+    // Find the hidden file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await vi.waitFor(() => {
+      expect(onImageSourceSelect).toHaveBeenCalledWith(file);
+      expect(onInsertMarkdown).toHaveBeenCalledWith('![](blob:http://localhost/123)');
+      expect(onClose).toHaveBeenCalled();
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { MarkdownEditor, type ToolbarMode } from 'markdown-wysiwyg-editor';
 import 'markdown-wysiwyg-editor/style.css';
@@ -72,6 +72,7 @@ function App() {
   const [isEditable, setIsEditable] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [toolbarMode, setToolbarMode] = useState<ToolbarMode>('fixed');
+  const editorRef = useRef<IMarkdownEditorRef>(null);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -223,14 +224,20 @@ function App() {
               </h2>
               <span className="text-xs text-slate-400">Auto-height Mode</span>
             </div>
-            <div className="min-h-[500px] bg-background rounded-xl shadow-sm border border-border flex flex-col overflow-hidden">
+            <div className="min-h-[500px] bg-background rounded-xl shadow-sm border border-border flex flex-col overflow-visible">
               <MarkdownEditor
+                ref={editorRef}
                 value={content}
                 onChange={setContent}
                 editable={isEditable}
                 toolbarMode={toolbarMode}
                 mermaidLib={mermaid}
                 enableMermaid={true}
+                onImageSourceSelect={async (file) => {
+                  console.log('Immediate Preview with blob URL:', file.name);
+                  // Return blob URL to enable immediate rendering and deferred upload
+                  return URL.createObjectURL(file);
+                }}
                 publicImagePathPrefix="/images"
                 className="h-full flex flex-col"
                 autoHeight={true}

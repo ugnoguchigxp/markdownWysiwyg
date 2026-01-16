@@ -10,6 +10,7 @@ const logger = createLogger('useMarkdownInsertion');
 
 interface UseMarkdownInsertionOptions {
   editor: ExtendedEditor | null;
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
   publicImagePathPrefix?: string;
   setIsUpdating: (value: boolean) => void;
 }
@@ -199,6 +200,7 @@ export const useMarkdownInsertion = ({
           bulletList: insertText.startsWith('- '),
           orderedList: /^\d+\.\s/.test(insertText),
           link: insertText.includes('[') && insertText.includes('](') && insertText.includes(')'),
+          image: insertText.includes('![') && insertText.includes('](') && insertText.includes(')'),
           table:
             insertText.includes('|') && insertText.includes('\n') && insertText.includes('---'),
           heading: insertText.startsWith('#'),
@@ -215,6 +217,7 @@ export const useMarkdownInsertion = ({
           formatChecks.bulletList ||
           formatChecks.orderedList ||
           formatChecks.link ||
+          formatChecks.image ||
           formatChecks.table ||
           formatChecks.heading;
 

@@ -18,6 +18,7 @@ interface EditorChromeProps {
   showDownloadButton: boolean;
   onDownloadAsMarkdown: () => void;
   onInsertMarkdown: (markdown: string, cursorOffset?: number) => void;
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
   pasteEvents: Array<{
     timestamp: number;
     type: string;
@@ -38,6 +39,7 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
   showDownloadButton,
   onDownloadAsMarkdown,
   onInsertMarkdown,
+  onImageSourceSelect,
   pasteEvents,
   onClearPasteEvents,
   children,
@@ -47,14 +49,17 @@ export const EditorChrome: React.FC<EditorChromeProps> = ({
   return (
     <>
       {toolbarMode === 'fixed' && (
-        <div className="border-b p-ui-y rounded-t-ui transition-colors duration-200 bg-popover border-border">
+        <div className="border-b p-ui-y rounded-t-ui transition-colors duration-200 bg-popover border-border overflow-visible">
           <MarkdownToolbar
             onInsertMarkdown={onInsertMarkdown}
+            onImageSourceSelect={onImageSourceSelect}
             selectedText={selectionInfo?.selectedText || ''}
             disabled={!editable}
             editor={editor}
             showDownloadButton={showDownloadButton}
             onDownloadAsMarkdown={onDownloadAsMarkdown}
+            isFloating={false}
+            hasTextSelection={(selectionInfo?.selectedText?.trim().length ?? 0) > 0}
           />
         </div>
       )}

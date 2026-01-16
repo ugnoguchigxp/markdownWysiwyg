@@ -35,6 +35,7 @@ interface UseMarkdownEditorProps {
   onMarkdownChange?: (markdown: string) => void;
   onSelectionChange?: (selection: ISelectionInfo) => void;
   onEditorReady?: (editor: Editor) => void;
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
   isUpdating: boolean;
   isProcessing: boolean;
   setIsProcessing: (isProcessing: boolean) => void;
@@ -46,6 +47,7 @@ interface UseMarkdownEditorProps {
     linkData: { href: string; text: string; from: number; to: number },
   ) => void;
   handleTableContextMenu: (event: React.MouseEvent) => void;
+  pendingImagesRef: React.MutableRefObject<Map<string, File>>;
 }
 
 const EDITOR_CLASS_NAMES =
@@ -62,6 +64,7 @@ export const useMarkdownEditor = ({
   onMarkdownChange,
   onSelectionChange,
   onEditorReady,
+  onImageSourceSelect,
   isUpdating,
   isProcessing,
   setIsProcessing,
@@ -70,6 +73,7 @@ export const useMarkdownEditor = ({
   setContent,
   handleLinkContextMenu,
   handleTableContextMenu,
+  pendingImagesRef,
 }: UseMarkdownEditorProps) => {
   const lowlight = createLowlight(common);
   // biome-ignore lint/suspicious/noExplicitAny: ProseMirror Node type definition is elusive
@@ -151,6 +155,91 @@ export const useMarkdownEditor = ({
         class: EDITOR_CLASS_NAMES,
         'data-placeholder': placeholder,
       },
+      handleDrop: (view, event) => {
+        if (!editable) return false;
+
+        const files = Array.from(event.dataTransfer?.files || []);
+        const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+
+        if (imageFiles.length > 0) {
+          event.preventDefault();
+
+          for (const file of imageFiles) {
+            const handleUrl = (url: string) => {
+              if (url) {
+                if (url.startsWith('blob:')) {
+                  pendingImagesRef.current.set(url, file);
+                }
+                const { state } = view;
+                const { selection } = state;
+                const transaction = state.tr.replaceWith(
+                  selection.from,
+                  selection.to,
+                  state.schema.nodes.image.create({ src: url }),
+                );
+                view.dispatch(transaction);
+              }
+            };
+
+            if (onImageSourceSelect) {
+              Promise.resolve(onImageSourceSelect(file))
+                .then(handleUrl)
+                .catch((error) => {
+                  logger.error('Failed to handle dropped image:', error);
+                });
+            } else {
+              const blobUrl = URL.createObjectURL(file);
+              handleUrl(blobUrl);
+            }
+          }
+          return true;
+        }
+        return false;
+      },
+      handlePaste: (view, event) => {
+        if (!editable) return false;
+
+        const items = Array.from(event.clipboardData?.items || []);
+        const imageItems = items.filter((item) => item.type.startsWith('image/'));
+
+        if (imageItems.length > 0) {
+          event.preventDefault();
+
+          for (const item of imageItems) {
+            const file = item.getAsFile();
+            if (file) {
+              const handleUrl = (url: string) => {
+                if (url) {
+                  if (url.startsWith('blob:')) {
+                    pendingImagesRef.current.set(url, file);
+                  }
+                  const { state } = view;
+                  const { selection } = state;
+                  const transaction = state.tr.replaceWith(
+                    selection.from,
+                    selection.to,
+                    state.schema.nodes.image.create({ src: url }),
+                  );
+                  view.dispatch(transaction);
+                }
+              };
+
+              if (onImageSourceSelect) {
+                Promise.resolve(onImageSourceSelect(file))
+                  .then(handleUrl)
+                  .catch((error) => {
+                    logger.error('Failed to handle pasted image:', error);
+                  });
+              } else {
+                const blobUrl = URL.createObjectURL(file);
+                handleUrl(blobUrl);
+              }
+            }
+          }
+          return true;
+        }
+        return false;
+      },
     },
     onUpdate: ({ editor }) => {
       if (isUpdating || (editor as ExtendedEditor).__preventUpdate || isProcessing) {
@@ -224,5 +313,7 @@ export const useMarkdownEditor = ({
     },
   });
 
-  return editor;
+  return {
+    editor,
+  };
 };

@@ -6,6 +6,7 @@ import { I18N_KEYS } from '../types';
 interface ImagePickerProps {
   onInsertMarkdown: (markdown: string) => void;
   onClose: () => void;
+  onImageSourceSelect?: (file: File) => string | Promise<string>;
   disabled?: boolean;
   t: (key: string, fallback?: string) => string;
 }
@@ -13,12 +14,15 @@ interface ImagePickerProps {
 export const ImagePicker: React.FC<ImagePickerProps> = ({
   onInsertMarkdown,
   onClose,
+  onImageSourceSelect,
   disabled = false,
   t,
 }) => {
   const [url, setUrl] = useState('');
   const [alt, setAlt] = useState('');
-  const pickerRef = useRef<HTMLDialogElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,7 +47,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   }, [onClose]);
 
   const handleInsert = () => {
-    if (disabled) return;
+    if (disabled || isUploading) return;
 
     const trimmedUrl = url.trim();
     if (!trimmedUrl) return;
@@ -53,15 +57,52 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
     onClose();
   };
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !onImageSourceSelect) return;
+
+    setIsUploading(true);
+    try {
+      const result = await onImageSourceSelect(file);
+      const markdown = `![${alt}](${result})`;
+      onInsertMarkdown(markdown);
+      onClose();
+    } catch (error) {
+      console.error('Failed to select image source:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
-    <dialog
+    <div
       ref={pickerRef}
-      className="mw-image-picker bg-popover text-popover-foreground border border-border shadow-xl rounded-ui"
+      className="mw-image-picker bg-popover text-popover-foreground border border-border shadow-lg ring-1 ring-black ring-opacity-5 rounded-ui"
       aria-label={t(I18N_KEYS.image.pickerTitle, 'Insert image')}
-      open
     >
       <div className="mw-image-body">
         <div className="mw-image-form">
+          <div className="mw-image-file-section">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              style={{ display: 'none' }}
+              disabled={disabled || isUploading}
+            />
+            {onImageSourceSelect && (
+              <button
+                type="button"
+                className="mw-image-file-button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={disabled || isUploading}
+              >
+                {isUploading ? '...' : t(I18N_KEYS.image.chooseFile, 'Choose File')}
+              </button>
+            )}
+          </div>
+
           <label className="mw-image-label" htmlFor="mw-image-url">
             {t(I18N_KEYS.image.urlLabel, 'URL')}
           </label>
@@ -72,7 +113,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder={t(I18N_KEYS.image.urlPlaceholder, 'https://example.com/image.png')}
-            disabled={disabled}
+            disabled={disabled || isUploading}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -91,7 +132,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
             value={alt}
             onChange={(e) => setAlt(e.target.value)}
             placeholder={t(I18N_KEYS.image.altPlaceholder, 'Alternative text')}
-            disabled={disabled}
+            disabled={disabled || isUploading}
           />
 
           <div className="mw-image-actions">
@@ -103,13 +144,13 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                 e.preventDefault();
               }}
               onClick={handleInsert}
-              disabled={disabled || !url.trim()}
+              disabled={disabled || isUploading || !url.trim()}
             >
               {t(I18N_KEYS.image.insert, 'Insert')}
             </button>
           </div>
         </div>
       </div>
-    </dialog>
+    </div>
   );
 };
