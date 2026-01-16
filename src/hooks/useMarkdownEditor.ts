@@ -161,38 +161,11 @@ export const useMarkdownEditor = ({
         const files = Array.from(event.dataTransfer?.files || []);
         const imageFiles = files.filter((file) => file.type.startsWith('image/'));
 
+        // If dropping images, let the parent component handle it
+        // This prevents double insertion (once by TipTap, once by parent onDrop)
+        // and allows parent to handle cursor positioning logic using refs
         if (imageFiles.length > 0) {
-          event.preventDefault();
-
-          for (const file of imageFiles) {
-            const handleUrl = (url: string) => {
-              if (url) {
-                if (url.startsWith('blob:')) {
-                  pendingImagesRef.current.set(url, file);
-                }
-                const { state } = view;
-                const { selection } = state;
-                const transaction = state.tr.replaceWith(
-                  selection.from,
-                  selection.to,
-                  state.schema.nodes.image.create({ src: url }),
-                );
-                view.dispatch(transaction);
-              }
-            };
-
-            if (onImageSourceSelect) {
-              Promise.resolve(onImageSourceSelect(file))
-                .then(handleUrl)
-                .catch((error) => {
-                  logger.error('Failed to handle dropped image:', error);
-                });
-            } else {
-              const blobUrl = URL.createObjectURL(file);
-              handleUrl(blobUrl);
-            }
-          }
-          return true;
+          return false;
         }
         return false;
       },

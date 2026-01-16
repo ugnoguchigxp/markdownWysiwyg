@@ -113,6 +113,9 @@ export const MarkdownEditor = forwardRef<IMarkdownEditorRef, IMarkdownEditorProp
     const editorElementRef = React.useRef<HTMLDivElement>(null);
     const abortControllerRef = React.useRef<AbortController | null>(null);
     const lastProcessedContentRef = React.useRef<string | undefined>(undefined);
+    // Track the last cursor position for drag and drop
+    const lastCursorPosRef = React.useRef<number | null>(null);
+
     const {
       linkContextMenu,
       tableContextMenu,
@@ -194,6 +197,20 @@ export const MarkdownEditor = forwardRef<IMarkdownEditorRef, IMarkdownEditorProp
       handleTableContextMenu,
       pendingImagesRef,
     });
+
+    // Track cursor position
+    useEffect(() => {
+      if (!editor || !editor.on) return;
+      const handleSelectionUpdate = () => {
+        if (editor.isFocused) {
+          lastCursorPosRef.current = editor.state.selection.to;
+        }
+      };
+      editor.on('selectionUpdate', handleSelectionUpdate);
+      return () => {
+        editor.off('selectionUpdate', handleSelectionUpdate);
+      };
+    }, [editor]);
 
     /**
      * Implementation of IMarkdownEditorRef
@@ -583,19 +600,18 @@ export const MarkdownEditor = forwardRef<IMarkdownEditorRef, IMarkdownEditorProp
 
                 if (imageFiles.length > 0 && editor) {
                   // Determine insert position (cursor or end)
-                  // For simplicity on container drop, we can insert at current selection or end.
-                  // Ideally, we'd find the position from coordinates, but that's complex without ProseMirror tools.
-                  // Let's use current selection or default to end.
+                  // Use the last known cursor position if available, otherwise fallback to current selection
+                  // This ensures images are inserted where the user was typing, even if focus was lost during drag
+                  const insertPos = lastCursorPosRef.current ?? editor.state.selection.to;
 
                   for (const file of imageFiles) {
                     try {
                       const url = await wrappedOnImageSourceSelect(file);
                       if (url) {
                         const { state } = editor;
-                        const { selection } = state; // Insert at current cursor
-
+                        // Insert at determined position
                         const transaction = state.tr.insert(
-                          selection.to,
+                          insertPos,
                           state.schema.nodes.image.create({ src: url }),
                         );
                         editor.view.dispatch(transaction);

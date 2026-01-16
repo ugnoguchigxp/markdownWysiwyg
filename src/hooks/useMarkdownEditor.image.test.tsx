@@ -108,16 +108,14 @@ describe('useMarkdownEditor image handling', () => {
 
       // biome-ignore lint/suspicious/noExplicitAny:
       const result = handleDrop(mockView as any, mockEvent as any);
-      expect(result).toBe(true);
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(result).toBe(false);
+      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
 
-      await vi.waitFor(() => {
-        expect(onImageSourceSelect).toHaveBeenCalledWith(mockFile);
-      });
+      // Should NOT call onImageSourceSelect because hook delegates to parent
+      expect(onImageSourceSelect).not.toHaveBeenCalled();
 
-      await vi.waitFor(() => {
-        expect(mockView.dispatch).toHaveBeenCalled();
-      });
+      // View dispatch should not be called
+      expect(mockView.dispatch).not.toHaveBeenCalled();
     }
   });
 
