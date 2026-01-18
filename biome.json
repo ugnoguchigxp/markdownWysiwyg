@@ -11,7 +11,10 @@
       "eslint.config.js",
       "example/eslint.config.js",
       "example/src/index.css",
-      "src/index.css"
+      "example/src/index.css",
+      "src/index.css",
+      "src/theme.css",
+      "src/bundle.css"
     ]
   },
   "formatter": {

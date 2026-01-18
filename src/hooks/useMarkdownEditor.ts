@@ -155,7 +155,7 @@ export const useMarkdownEditor = ({
         class: EDITOR_CLASS_NAMES,
         'data-placeholder': placeholder,
       },
-      handleDrop: (view, event) => {
+      handleDrop: (_view, event) => {
         if (!editable) return false;
 
         const files = Array.from(event.dataTransfer?.files || []);

@@ -18,6 +18,7 @@ export default defineConfig({
       react: path.resolve(__dirname, './node_modules/react'),
       'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
       'markdown-wysiwyg-editor/style.css': path.resolve(__dirname, '../src/index.css'),
+      'markdown-wysiwyg-editor/theme.css': path.resolve(__dirname, '../src/theme.css'),
       'markdown-wysiwyg-editor': path.resolve(__dirname, '../src/index.ts'),
     },
   },

@@ -25,24 +25,36 @@ Lightweight Markdown WYSIWYG editor for React, powered by TipTap.
 
 ## Installation
 
-This editor is a React component targeting **React 18+ / ReactDOM 18+**.
+> [!WARNING]
+> This package requires **Tailwind CSS v4** or later.
+> It uses v4's CSS-first configuration. If you are using Tailwind v3, you must upgrade.
+
+This editor is a React component targeting **React 19+ / ReactDOM 19+**.
 
 This package is **Tailwind CSS v4 + shadcn/ui token compatible**. It uses Tailwind utility classes (e.g. `bg-background`, `text-foreground`, `bg-popover`) that are compiled by your host app's Tailwind.
 
 ```bash
-pnpm add markdown-wysiwyg-editor
+pnpm add markdown-wysiwyg-editor tailwindcss@^4.0.0
 # or
-npm install markdown-wysiwyg-editor
+npm install markdown-wysiwyg-editor tailwindcss@^4.0.0
 # or
-yarn add markdown-wysiwyg-editor
+yarn add markdown-wysiwyg-editor tailwindcss@^4.0.0
 ```
 
 ## Quick Start
 
 **⚠️ IMPORTANT**
 
-- **Your app MUST use Tailwind CSS v4** for the editor's utility classes to work.
-- **You MUST configure Tailwind to scan this package** (see setup below).
+- **Tailwind CSS v4** is required.
+- **React 19** or later is required.
+
+1. **Import the CSS bundle** in your app's entry point (e.g., `main.tsx`, `App.tsx`, or `index.css`):
+
+```css
+@import "markdown-wysiwyg-editor/dist/bundle.css";
+```
+
+2. **Use the component**:
 
 ```tsx
 import { useState } from 'react';
@@ -55,51 +67,58 @@ function App() {
 }
 ```
 
-## Essential Setup Steps
+## CSS Integration Guide
 
-### 1. Tailwind v4 Configuration (Required)
+Since version 0.3.0, the CSS integration strategy has changed to support Tailwind CSS v4.
 
-Add the following to your project's main CSS file (e.g., `index.css`):
+### ✅ Recommended: Zero-Config (Pre-built Bundle)
+
+Builds are simplified by using the pre-compiled bundle. This file includes:
+- All required Tailwind utilities
+- The default shadcn/ui-compatible theme
+- Core editor styles
+- Dark mode support
+
+Just import it once:
+
+```css
+@import "markdown-wysiwyg-editor/dist/bundle.css";
+```
+
+### 🛠️ Advanced: Custom Tailwind Integration
+
+Only use this method if you want to:
+- Share your application's `theme` configuration with the editor.
+- Minimize bundle size by compiling only utilized classes (though the bundle is already optimized).
+
+**Requirements:**
+- Tailwind CSS v4 installed in your project.
+- `@tailwindcss/vite` or `@tailwindcss/postcss` configured.
+
+In your CSS entry point:
 
 ```css
 @import "tailwindcss";
 
-/* Scan package source for Tailwind classes */
+/* 1. Scan package source for Tailwind classes */
 @source "./node_modules/markdown-wysiwyg-editor/dist/*.js";
 
-/* Import package theme (optional - provides default light/dark mode) */
+/* 2. Import package theme (Optional: If you have your own theme, skip this) */
 @import "markdown-wysiwyg-editor/theme.css";
 
-/* Import editor content styles */
+/* 3. Import core editor styles */
 @import "markdown-wysiwyg-editor/style.css";
 
-/* Map CSS variables to Tailwind v4 theme */
+/* 4. Ensure your theme defines the required shadcn variables (see below) */
 @theme {
     --color-background: hsl(var(--background));
     --color-foreground: hsl(var(--foreground));
-    --color-card: hsl(var(--card));
-    --color-card-foreground: hsl(var(--card-foreground));
-    --color-popover: hsl(var(--popover));
-    --color-popover-foreground: hsl(var(--popover-foreground));
-    --color-primary: hsl(var(--primary));
-    --color-primary-foreground: hsl(var(--primary-foreground));
-    --color-secondary: hsl(var(--secondary));
-    --color-secondary-foreground: hsl(var(--secondary-foreground));
-    --color-muted: hsl(var(--muted));
-    --color-muted-foreground: hsl(var(--muted-foreground));
-    --color-accent: hsl(var(--accent));
-    --color-accent-foreground: hsl(var(--accent-foreground));
-    --color-destructive: hsl(var(--destructive));
-    --color-destructive-foreground: hsl(var(--destructive-foreground));
-    --color-border: hsl(var(--border));
-    --color-input: hsl(var(--input));
-    --color-ring: hsl(var(--ring));
-
+    /* ... map other variables as needed ... */
     --variant-dark: .dark &;
 }
 ```
 
-### 2. Theming Options
+### Theming Options
 
 #### Option A: Use Package Default Theme
 
@@ -161,7 +180,7 @@ The editor expects these shadcn-style CSS variables (HSL triplets without `hsl()
 | `--ring` | `222.2 84% 4.9%` | Focus ring |
 | `--radius` | `0.5rem` | Border radius |
 
-### 3. Dark Mode
+### Dark Mode
 
 Dark mode works automatically when you add the `.dark` class to `<html>` or `<body>`:
 
@@ -171,9 +190,8 @@ document.documentElement.classList.toggle('dark');
 ```
 
 If you imported `theme.css`, dark mode colors are already defined. Otherwise, define them under `.dark` selector in your CSS.
-```
 
-### 3. Height and Scroll Configuration
+### Height and Scroll Configuration
 
 The editor needs proper height configuration to enable scrolling. Choose one approach:
 
@@ -213,7 +231,7 @@ The editor needs proper height configuration to enable scrolling. Choose one app
 />
 ```
 
-### 4. Common Issues and Solutions
+### Common Issues and Solutions
 
 #### Issue: Lists not displaying correctly
 
@@ -461,13 +479,16 @@ import TextAlign from '@tiptap/extension-text-align';
 
 ### Styles not loading
 
-```tsx
-import 'markdown-wysiwyg-editor/style.css';
+```css
+/* Recommended */
+@import "markdown-wysiwyg-editor/dist/bundle.css";
 ```
 
 Ensure the CSS is imported in your app entry.
 
-If the editor content is styled but the toolbar/buttons are not, Tailwind is not generating the required utility classes. Re-check the Tailwind `content` paths and shadcn-compatible theme tokens.
+If using Custom Integration (Advanced) and the toolbar is unstyled:
+- Verify `@source` is pointing correctly to `node_modules/markdown-wysiwyg-editor/dist/*.js`.
+- Check that your `theme.css` imports or `@theme` configuration are correct.
 
 ### "ReferenceError: global is not defined"
 

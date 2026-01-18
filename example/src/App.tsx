@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { MarkdownEditor, type ToolbarMode } from 'markdown-wysiwyg-editor';
+import { type IMarkdownEditorRef, MarkdownEditor, type ToolbarMode } from 'markdown-wysiwyg-editor';
 import 'markdown-wysiwyg-editor/style.css';
 import mermaid from 'mermaid';
 

@@ -530,7 +530,7 @@ export const MarkdownEditor = forwardRef<IMarkdownEditorRef, IMarkdownEditorProp
     return (
       <div className={`${className}`}>
         <div
-          className={`border border-border bg-background rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative overflow-visible`}
+          className={`border border-border bg-background rounded-md shadow-sm ${enableVerticalScroll ? 'h-full' : 'min-h-fit'} flex flex-col relative overflow-hidden`}
         >
           {/* Processing indicator (top right) */}
           {isProcessing && (

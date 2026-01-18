@@ -1,6 +1,6 @@
 {
   "name": "markdown-wysiwyg-editor",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "description": "Lightweight Markdown WYSIWYG editor with TipTap, Mermaid support",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,9 +18,10 @@
   "workspaces": ["example"],
   "scripts": {
     "dev": "bun build --watch ./src/index.ts --outdir ./dist --external react --external react-dom --external mermaid",
-    "build": "bun run build:js && bun run build:css && bun run typecheck",
+    "build": "bun run build:js && bun run build:css && bun run build:bundle && bun run typecheck",
     "build:js": "vite build",
     "build:css": "cp ./src/index.css ./dist/index.css && cp ./src/theme.css ./dist/theme.css",
+    "build:bundle": "bunx @tailwindcss/cli -i ./src/bundle.css -o ./dist/bundle.css",
     "typecheck": "tsc --emitDeclarationOnly --declaration --outDir dist",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
