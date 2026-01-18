@@ -8,6 +8,7 @@ import { createLogger } from '../utils/logger';
 import { useEditorContextMenus } from '../hooks/useEditorContextMenus';
 import { useEditorState } from '../hooks/useEditorState';
 import { useFloatingToolbar } from '../hooks/useFloatingToolbar';
+import { useImageToolbar } from '../hooks/useImageToolbar';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
 import { useMarkdownInsertion } from '../hooks/useMarkdownInsertion';
 import { useTableToolbar } from '../hooks/useTableToolbar';
@@ -16,6 +17,7 @@ import type { ISelectionInfo } from '../utils/selectionUtils';
 
 import { EditorChrome } from './EditorChrome';
 import { FloatingToolbar } from './FloatingToolbar';
+import { ImageToolbar } from './ImageToolbar';
 import { LinkContextMenu } from './LinkContextMenu';
 import { TableContextMenu } from './TableContextMenu';
 import { TableEdgeControls } from './TableEdgeControls';
@@ -296,6 +298,7 @@ export const MarkdownEditor = forwardRef<IMarkdownEditorRef, IMarkdownEditorProp
 
     // Add TableToolbar hook
     const tableToolbar = useTableToolbar(editor);
+    const imageToolbar = useImageToolbar(editor);
     const { handleInsertMarkdown } = useMarkdownInsertion({
       editor: editor as ExtendedEditor | null,
       onImageSourceSelect: wrappedOnImageSourceSelect,
@@ -702,6 +705,16 @@ export const MarkdownEditor = forwardRef<IMarkdownEditorRef, IMarkdownEditorProp
             position={tableToolbar.position}
           />
         )}
+
+        {/* Image toolbar */}
+        {editor && (
+          <ImageToolbar
+            editor={editor}
+            visible={imageToolbar.visible}
+            position={imageToolbar.position}
+          />
+        )}
+
         {/* Table edge controls */}
         <TableEdgeControls editor={editor} />
       </div>

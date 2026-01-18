@@ -228,6 +228,17 @@ export const I18N_KEYS = {
       flags: 'markdown_editor.emoji.categories.flags',
     },
   },
+  imageToolbar: {
+    alignLeft: 'markdown_editor.image_toolbar.align_left',
+    alignCenter: 'markdown_editor.image_toolbar.align_center',
+    alignRight: 'markdown_editor.image_toolbar.align_right',
+    floatLeft: 'markdown_editor.image_toolbar.float_left',
+    floatRight: 'markdown_editor.image_toolbar.float_right',
+    sizeSmall: 'markdown_editor.image_toolbar.size_small',
+    sizeMedium: 'markdown_editor.image_toolbar.size_medium',
+    sizeLarge: 'markdown_editor.image_toolbar.size_large',
+    delete: 'markdown_editor.image_toolbar.delete',
+  },
   image: {
     button: 'markdown_editor.image.button',
     pickerTitle: 'markdown_editor.image.picker_title',

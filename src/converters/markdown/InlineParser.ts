@@ -60,6 +60,47 @@ export class InlineParser {
       return placeholder;
     });
 
+    // Parse HTML img tags for rich attributes
+    result = result.replace(/<img\s+([^>]+?)\/?>/gi, (_match, attributes) => {
+      const id = uuidv4();
+      const placeholder = `§IMAGE_HTML§${id}§`;
+
+      // Simple attribute parser
+      const getAttr = (name: string) => {
+        const match = attributes.match(new RegExp(`${name}=["']([^"']*)["']`, 'i'));
+        return match ? match[1] : '';
+      };
+
+      const src = getAttr('src');
+      const alt = getAttr('alt');
+      const style = getAttr('style');
+      const widthHTML = getAttr('width');
+
+      let align = 'center';
+      let float = 'none';
+      let width = widthHTML || 'auto';
+
+      // Parse style
+      if (style) {
+        if (style.includes('float: left')) float = 'left';
+        else if (style.includes('float: right')) float = 'right';
+
+        if (style.includes('margin-right: auto') && !style.includes('margin-left: auto'))
+          align = 'left';
+        else if (style.includes('margin-left: auto') && !style.includes('margin-right: auto'))
+          align = 'right';
+
+        const widthMatch = style.match(/width:\s*([^;]+)/);
+        if (widthMatch) width = widthMatch[1].trim();
+      }
+
+      elements.set(placeholder, {
+        type: 'image',
+        data: { alt, src, align, float, width },
+      });
+      return placeholder;
+    });
+
     return InlineParser.convertToNodes(result, elements, options);
   }
 
@@ -125,7 +166,13 @@ export class InlineParser {
                 }
 
                 case 'image': {
-                  const imageData = element.data as { alt: string; src: string };
+                  const imageData = element.data as {
+                    alt: string;
+                    src: string;
+                    align?: string;
+                    float?: string;
+                    width?: string;
+                  };
                   const safeSrc = normalizeImageSrcOrNull(imageData.src, {
                     publicPathPrefix: options?.publicImagePathPrefix,
                   });
@@ -137,9 +184,16 @@ export class InlineParser {
                     });
                     break;
                   }
+
                   nodes.push({
                     type: 'image',
-                    attrs: { src: safeSrc, alt: imageData.alt },
+                    attrs: {
+                      src: safeSrc,
+                      alt: imageData.alt,
+                      align: imageData.align || 'center',
+                      float: imageData.float || 'none',
+                      width: imageData.width || 'auto',
+                    },
                   });
                   break;
                 }

@@ -253,3 +253,79 @@ export const Smile = createIcon(
 );
 
 export type LucideIcon = FunctionComponent<IconProps>;
+
+export const AlignLeft = createIcon(
+  <>
+    <line x1="17" y1="10" x2="3" y2="10" />
+    <line x1="21" y1="6" x2="3" y2="6" />
+    <line x1="21" y1="14" x2="3" y2="14" />
+    <line x1="17" y1="18" x2="3" y2="18" />
+  </>,
+  'AlignLeft',
+);
+
+export const AlignCenter = createIcon(
+  <>
+    <line x1="21" y1="6" x2="3" y2="6" />
+    <line x1="17" y1="12" x2="7" y2="12" />
+    <line x1="19" y1="18" x2="5" y2="18" />
+  </>,
+  'AlignCenter',
+);
+
+export const AlignRight = createIcon(
+  <>
+    <line x1="21" y1="10" x2="7" y2="10" />
+    <line x1="21" y1="6" x2="3" y2="6" />
+    <line x1="21" y1="14" x2="3" y2="14" />
+    <line x1="21" y1="18" x2="7" y2="18" />
+  </>,
+  'AlignRight',
+);
+
+/* Icons for text wrapping (Float) */
+export const WrapText = createIcon(
+  <>
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <path d="M3 12h15a3 3 0 1 1 0 6h-4" />
+    <polyline points="16 16 14 18 16 20" />
+  </>,
+  'WrapText',
+);
+
+/* Using specific icons for Float Left/Right visualization */
+export const AlignHorizontalDistributeStart = createIcon(
+  <>
+    <rect width="6" height="14" x="4" y="5" rx="2" />
+    <path d="M14 10h7" />
+    <path d="M14 14h7" />
+    <path d="M14 6h7" />
+  </>,
+  'AlignHorizontalDistributeStart', // Float Left
+);
+
+export const AlignHorizontalDistributeEnd = createIcon(
+  <>
+    <rect width="6" height="14" x="14" y="5" rx="2" />
+    <path d="M10 10H3" />
+    <path d="M10 14H3" />
+    <path d="M10 6H3" />
+  </>,
+  'AlignHorizontalDistributeEnd', // Float Right
+);
+
+/* Size icons (Simple squares) */
+export const SizeSmall = createIcon(
+  <rect x="10" y="10" width="4" height="4" rx="0.5" />,
+  'SizeSmall',
+);
+
+export const SizeMedium = createIcon(
+  <rect x="7" y="7" width="10" height="10" rx="1" />,
+  'SizeMedium',
+);
+
+export const SizeLarge = createIcon(
+  <rect x="3" y="3" width="18" height="18" rx="2" />,
+  'SizeLarge',
+);

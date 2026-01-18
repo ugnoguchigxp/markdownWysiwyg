@@ -224,6 +224,48 @@ export class MarkdownTipTapConverter {
         if (node.type === 'image') {
           const src = node.attrs?.src || '';
           const alt = node.attrs?.alt || '';
+          const align = node.attrs?.align;
+          const width = node.attrs?.width;
+          const float = node.attrs?.float;
+
+          // Check if any non-default attributes are present
+          const hasCustomAttributes =
+            (align && align !== 'center') ||
+            (width && width !== 'auto') ||
+            (float && float !== 'none');
+
+          if (hasCustomAttributes) {
+            // Export as HTML <img> tag
+            let style = '';
+
+            // Priority: Float > Align
+            if (float === 'left') {
+              style += 'float: left; margin-right: 1.5rem; margin-bottom: 0.5rem; ';
+            } else if (float === 'right') {
+              style += 'float: right; margin-left: 1.5rem; margin-bottom: 0.5rem; ';
+            } else {
+              style += 'display: block; ';
+              if (align === 'left') {
+                style += 'margin-right: auto; ';
+              } else if (align === 'right') {
+                style += 'margin-left: auto; ';
+              } else {
+                style += 'margin-left: auto; margin-right: auto; ';
+              }
+            }
+
+            // Apply width
+            if (width === '150px') {
+              style += 'max-width: 150px; max-height: 150px; width: auto; height: auto; ';
+            } else if (width) {
+              style += `width: ${width}; `;
+            } else {
+              style += 'width: auto; ';
+            }
+
+            return `<img src="${src}" alt="${alt}" style="${style.trim()}" />`;
+          }
+
           return `![${alt}](${src})`;
         }
 

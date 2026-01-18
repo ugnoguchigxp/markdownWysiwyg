@@ -43,7 +43,13 @@ describe('InlineParser', () => {
     mockNormalizeImageSrcOrNull.mockReturnValueOnce('/safe.png');
     const nodes = InlineParser.parseInline('![alt](img.png)');
     const imageNode = nodes.find((node) => node.type === 'image');
-    expect(imageNode?.attrs).toEqual({ src: '/safe.png', alt: 'alt' });
+    expect(imageNode?.attrs).toEqual({
+      src: '/safe.png',
+      alt: 'alt',
+      align: 'center',
+      float: 'none',
+      width: 'auto',
+    });
   });
 
   it('falls back when image src is invalid', () => {

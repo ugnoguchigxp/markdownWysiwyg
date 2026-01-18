@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ImagePicker } from '../../src/components/ImagePicker';
@@ -132,7 +132,7 @@ describe('ImagePicker', () => {
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     fireEvent.change(fileInput, { target: { files: [file] } });
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(onImageSourceSelect).toHaveBeenCalledWith(file);
       expect(onInsertMarkdown).toHaveBeenCalledWith('![](blob:http://localhost/123)');
       expect(onClose).toHaveBeenCalled();

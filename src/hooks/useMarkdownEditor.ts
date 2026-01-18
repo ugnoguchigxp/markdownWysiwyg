@@ -1,5 +1,5 @@
 import CharacterCount from '@tiptap/extension-character-count';
-import Image from '@tiptap/extension-image';
+// Image import replaced by ImageExtension
 import Link from '@tiptap/extension-link';
 import { Table } from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
@@ -13,6 +13,7 @@ import { useRef } from 'react';
 
 import JsonToMarkdownConverter from '../converters/JsonToMarkdownConverter';
 import { CustomCodeBlock } from '../extensions/CustomCodeBlock';
+import { ImageExtension } from '../extensions/ImageExtension';
 import { createLinkClickExtension } from '../extensions/LinkClickExtension';
 import { createMarkdownPasteExtension } from '../extensions/MarkdownPasteExtension';
 import { createMarkdownShortcutsExtension } from '../extensions/MarkdownShortcutsExtension';
@@ -117,7 +118,7 @@ export const useMarkdownEditor = ({
           return !!normalizeUrlOrNull(href);
         },
       }),
-      Image.configure({
+      ImageExtension.configure({
         inline: true,
         allowBase64: false,
         HTMLAttributes: {

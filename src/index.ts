@@ -19,6 +19,7 @@ export { ImagePicker } from './components/ImagePicker';
 // Converters
 export { default as JsonToMarkdownConverter } from './converters/JsonToMarkdownConverter';
 export { MarkdownTipTapConverter } from './converters/MarkdownTipTapConverter';
+export { StaticHtmlGenerator, type SsgOptions } from './converters/StaticHtmlGenerator';
 
 // Extensions
 export { CustomCodeBlock } from './extensions/CustomCodeBlock';
